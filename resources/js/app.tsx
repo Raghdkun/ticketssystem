@@ -14,6 +14,9 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            // Public pages are standalone: no sidebar, no authenticated chrome.
+            case name.startsWith('public/'):
+                return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):

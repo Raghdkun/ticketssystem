@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TicketStatus;
+use Carbon\CarbonImmutable;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -21,15 +21,15 @@ use Illuminate\Support\Str;
  * @property string $phone
  * @property int $quantity
  * @property TicketStatus $status
- * @property Carbon|null $hold_expires_at
- * @property Carbon|null $verified_at
+ * @property CarbonImmutable|null $hold_expires_at
+ * @property CarbonImmutable|null $verified_at
  * @property int|null $verified_by
- * @property Carbon|null $cancelled_at
- * @property Carbon $accepted_rules_at
+ * @property CarbonImmutable|null $cancelled_at
+ * @property CarbonImmutable $accepted_rules_at
  * @property array<int, int> $accepted_rule_ids
  * @property string $locale
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read Event $event
  */
 #[Fillable(['full_name', 'phone', 'quantity'])]

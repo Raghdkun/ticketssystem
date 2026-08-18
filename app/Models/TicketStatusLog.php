@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
  * @property string $to_status
  * @property int|null $actor_id
  * @property string|null $note
- * @property Carbon $created_at
+ * @property CarbonImmutable $created_at
  */
 #[Fillable(['from_status', 'to_status', 'actor_id', 'note'])]
 class TicketStatusLog extends Model

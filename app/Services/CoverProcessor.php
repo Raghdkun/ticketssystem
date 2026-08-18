@@ -59,7 +59,7 @@ final class CoverProcessor
             ->encode(new WebpEncoder(quality: 40))
             ->toDataUri();
 
-        $event->cover_path = $variants['landscape'];
+        $event->cover_path = "{$directory}/landscape.webp";
         $event->cover_variants = $variants;
 
         if ($event->theme_mode === ThemeMode::Auto) {

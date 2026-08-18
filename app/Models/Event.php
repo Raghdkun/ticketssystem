@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EventStatus;
 use App\Enums\ThemeMode;
+use Carbon\CarbonImmutable;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -28,16 +28,16 @@ use Illuminate\Support\Carbon;
  * @property int $total_quantity
  * @property int $max_per_appointment
  * @property int $hold_hours
- * @property Carbon $starts_at
- * @property Carbon|null $ends_at
- * @property Carbon $appointments_close_at
+ * @property CarbonImmutable $starts_at
+ * @property CarbonImmutable|null $ends_at
+ * @property CarbonImmutable $appointments_close_at
  * @property EventStatus $status
  * @property ThemeMode $theme_mode
  * @property string|null $primary_color
  * @property string|null $secondary_color
  * @property string|null $on_primary_color
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read Place $place
  */
 #[Fillable([
