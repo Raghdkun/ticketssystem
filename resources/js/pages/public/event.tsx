@@ -218,9 +218,15 @@ export default function EventPage({ event, place, siblings }: Props) {
                                         {event.rules.map((rule) => (
                                             <label
                                                 key={rule.id}
-                                                className="flex cursor-pointer items-start gap-3 text-sm"
+                                                htmlFor={`rule-${rule.id}`}
+                                                // The whole row is the target:
+                                                // a 16px checkbox is far below
+                                                // a usable tap area, and this
+                                                // gate is what unlocks booking.
+                                                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-background/60"
                                             >
                                                 <Checkbox
+                                                    id={`rule-${rule.id}`}
                                                     // A wrapping label does not
                                                     // name a Radix checkbox the
                                                     // way it names a native

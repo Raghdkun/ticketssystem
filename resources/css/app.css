@@ -203,3 +203,34 @@
     letter-spacing: 0;
     line-height: 1.45;
 }
+
+/*
+ * Touch targets.
+ *
+ * Dense control sizes are fine with a mouse but too small for a finger, and
+ * this app is used one-handed at a venue door. On coarse pointers every
+ * control gets at least a 44px hit area, expanded with padding so the visual
+ * size is unchanged.
+ */
+@media (pointer: coarse) {
+    button,
+    [role='button'],
+    [role='checkbox'],
+    [role='switch'],
+    a[data-slot='button'],
+    summary {
+        min-height: 44px;
+    }
+
+    /*
+     * Icon-only controls need width as well as height. The sr-only label these
+     * carry for screen readers means a structural :has() test misses them, so
+     * they are matched by their slot instead.
+     */
+    [data-slot='sidebar-trigger'],
+    [data-slot='button']:has(> svg:only-of-type):not(
+            :has(> :not(svg):not(.sr-only))
+        ) {
+        min-width: 44px;
+    }
+}
