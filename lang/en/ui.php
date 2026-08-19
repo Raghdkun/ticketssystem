@@ -86,4 +86,11 @@ return [
         'stat_revenue' => 'Revenue',
         'no_owners' => 'No owners yet.',
     ],
+
+    'pwa' => [
+        'title' => 'Add Tickets to your home screen',
+        'body' => 'Get to your tickets in one tap, and receive status updates.',
+        'ios_hint' => 'Tap Share, then "Add to Home Screen".',
+        'install' => 'Install',
+    ],
 ];

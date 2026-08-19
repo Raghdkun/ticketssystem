@@ -6,7 +6,9 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { bootEcho } from '@/lib/echo';
+import { registerServiceWorker } from '@/lib/pwa';
 bootEcho();
+registerServiceWorker();
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
