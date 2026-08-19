@@ -63,7 +63,10 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                 } as React.CSSProperties
             }
         >
-            <Head title={title} />
+            <Head title={title}>
+                <meta name="description" content={`${title} — ${placeName}`} />
+                <meta name="robots" content="noindex" />
+            </Head>
 
             <PlaceEdgeTab place={place} siblings={siblings} />
             <InstallPrompt />

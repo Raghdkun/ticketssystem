@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
+import { EventCover } from '@/components/event-cover';
 import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
@@ -48,7 +49,14 @@ export default function EventPage({ event, place, siblings }: Props) {
                 } as React.CSSProperties
             }
         >
-            <Head title={title} />
+            <Head title={title}>
+                <meta
+                    name="description"
+                    content={`${title} — ${placeName}. ${
+                        description ? description.slice(0, 140) : ''
+                    }`.trim()}
+                />
+            </Head>
 
             <PlaceEdgeTab place={place} siblings={siblings} />
 
@@ -63,20 +71,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                         background: `linear-gradient(135deg, var(--event-primary), var(--event-secondary))`,
                     }}
                 >
-                    {event.cover?.portrait && (
-                        <picture>
-                            <source
-                                media="(min-width: 640px)"
-                                srcSet={`/storage/${event.cover.landscape}`}
-                            />
-                            <img
-                                src={`/storage/${event.cover.portrait}`}
-                                alt=""
-                                className="size-full object-cover"
-                                fetchPriority="high"
-                            />
-                        </picture>
-                    )}
+                    <EventCover cover={event.cover} alt="" priority />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -133,7 +128,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                     </div>
                 </section>
 
-                <p className="text-3xl font-bold text-primary">
+                <p className="inline-block rounded-xl bg-primary px-4 py-2 text-3xl font-bold text-primary-foreground">
                     {event.is_free
                         ? t('event.free')
                         : `${event.price.toLocaleString()} ${event.currency}`}
