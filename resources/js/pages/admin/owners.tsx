@@ -1,5 +1,10 @@
 import { Form, Head } from '@inertiajs/react';
-import { ShieldBan, ShieldCheck } from 'lucide-react';
+import {
+    CalendarDays,
+    ShieldBan,
+    ShieldCheck,
+    Ticket as TicketIcon,
+} from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -123,8 +128,19 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                                 </div>
 
                                 <div className="flex items-center gap-4 text-sm">
-                                    <span className="text-muted-foreground">
-                                        {owner.events_count} ·{' '}
+                                    <span
+                                        className="inline-flex items-center gap-1.5 text-muted-foreground"
+                                        title={t('admin.stat_events')}
+                                    >
+                                        <CalendarDays className="size-4" />
+                                        {owner.events_count}
+                                    </span>
+
+                                    <span
+                                        className="inline-flex items-center gap-1.5 text-muted-foreground"
+                                        title={t('admin.stat_tickets')}
+                                    >
+                                        <TicketIcon className="size-4" />
                                         {owner.tickets_count}
                                     </span>
 
