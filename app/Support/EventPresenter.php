@@ -2,7 +2,10 @@
 
 namespace App\Support;
 
+use App\Enums\MediaType;
 use App\Models\Event;
+use App\Models\EventMedia;
+use App\Models\EventPerk;
 use App\Models\EventRule;
 use App\Models\Place;
 use App\Models\Ticket;
@@ -71,6 +74,15 @@ final class EventPresenter
                 'body_ar' => $rule->body_ar,
                 'body_en' => $rule->body_en,
             ])->all(),
+            'perks' => $event->perks->map(fn (EventPerk $perk) => [
+                'id' => $perk->id,
+                'body_ar' => $perk->body_ar,
+                'body_en' => $perk->body_en,
+            ])->all(),
+            'gallery' => $event->media
+                ->where('type', MediaType::Image)
+                ->map(fn (EventMedia $m) => ['id' => $m->id, 'path' => $m->path])
+                ->values()->all(),
         ];
     }
 
@@ -100,6 +112,11 @@ final class EventPresenter
             'ends_at' => $event->ends_at?->toIso8601String(),
             'appointments_close_at' => $event->appointments_close_at->toIso8601String(),
             'cover' => $event->cover_variants,
+            'promo_video' => $event->promoVideo === null ? null : [
+                'src' => $event->promoVideo->path,
+                'poster' => $event->promoVideo->poster_path ?? ($event->cover_variants['landscape'] ?? null),
+                'mime' => $event->promoVideo->mime,
+            ],
             'theme' => [
                 'primary' => $event->primary_color ?? '#6d28d9',
                 'secondary' => $event->secondary_color ?? '#db2777',

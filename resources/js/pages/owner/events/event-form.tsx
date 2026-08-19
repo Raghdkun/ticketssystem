@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/lib/translation';
 
 export type EventRule = { body_ar: string; body_en: string };
+export type EventPerk = EventRule;
 
 export type EventFormValues = {
     title_ar: string;
@@ -29,6 +30,7 @@ export type EventFormValues = {
     secondary_color: string | null;
     cover?: string | null;
     rules: EventRule[];
+    perks: EventPerk[];
 };
 
 type Props = {
@@ -67,6 +69,7 @@ function Field({
 export default function EventForm({ action, values, submitLabel }: Props) {
     const t = useTranslation();
     const [rules, setRules] = useState<EventRule[]>(values?.rules ?? []);
+    const [perks, setPerks] = useState<EventPerk[]>(values?.perks ?? []);
     const [themeMode, setThemeMode] = useState(values?.theme_mode ?? 'auto');
 
     return (
@@ -415,6 +418,71 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                     onClick={() =>
                                         setRules(
                                             rules.filter((_, i) => i !== index),
+                                        )
+                                    }
+                                >
+                                    <Trash2 />
+                                </Button>
+                            </div>
+                        ))}
+                    </section>
+
+                    <section className="space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h3 className="text-sm font-medium">
+                                    {t('form.perks')}
+                                </h3>
+                                <p className="text-xs text-muted-foreground">
+                                    {t('form.perks_hint')}
+                                </p>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="cursor-pointer"
+                                onClick={() =>
+                                    setPerks([
+                                        ...perks,
+                                        { body_ar: '', body_en: '' },
+                                    ])
+                                }
+                            >
+                                <Plus />
+                                {t('form.add_perk')}
+                            </Button>
+                        </div>
+
+                        {perks.map((perk, index) => (
+                            <div key={index} className="flex items-end gap-2">
+                                <div className="grid flex-1 gap-2 sm:grid-cols-2">
+                                    <Input
+                                        name={`perks[${index}][body_en]`}
+                                        placeholder={t('form.perk_en')}
+                                        dir="ltr"
+                                        defaultValue={perk.body_en}
+                                        required
+                                    />
+                                    <Input
+                                        name={`perks[${index}][body_ar]`}
+                                        placeholder={t('form.perk_ar')}
+                                        dir="rtl"
+                                        defaultValue={perk.body_ar}
+                                        required
+                                    />
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="cursor-pointer"
+                                    aria-label={t('form.remove_perk', {
+                                        n: index + 1,
+                                    })}
+                                    onClick={() =>
+                                        setPerks(
+                                            perks.filter((_, i) => i !== index),
                                         )
                                     }
                                 >

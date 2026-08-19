@@ -25,6 +25,16 @@ export type PublicEventRule = {
     body_en: string;
 };
 
+export type PublicEventPerk = PublicEventRule;
+
+export type GalleryItem = { id: number; path: string };
+
+export type PromoVideo = {
+    src: string;
+    poster: string | null;
+    mime: string;
+};
+
 export type PublicEvent = {
     slug: string;
     title_ar: string;
@@ -43,6 +53,9 @@ export type PublicEvent = {
     is_open: boolean;
     max_per_appointment: number;
     rules: PublicEventRule[];
+    perks: PublicEventPerk[];
+    gallery: GalleryItem[];
+    promo_video: PromoVideo | null;
 };
 
 export type TicketStatus =

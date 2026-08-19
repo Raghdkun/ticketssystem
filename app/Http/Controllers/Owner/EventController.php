@@ -68,12 +68,13 @@ class EventController extends Controller
 
         abort_if($place === null, 403, 'No venue is linked to this account.');
 
-        $event = new Event($request->safe()->except(['cover', 'rules']));
+        $event = new Event($request->safe()->except(['cover', 'rules', 'perks']));
         $event->place_id = $place->id;
         $event->slug = $this->uniqueSlug($place, $request->string('title_en')->value());
         $event->save();
 
         $this->syncRules($event, $request->input('rules', []));
+        $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
         return to_route('owner.events.index')
@@ -99,6 +100,14 @@ class EventController extends Controller
                 'appointments_close_at' => $event->appointments_close_at->format('Y-m-d\TH:i'),
                 'cover' => $event->cover_variants['landscape'] ?? null,
                 'rules' => $event->rules->map->only(['body_ar', 'body_en'])->all(),
+                'perks' => $event->perks->map->only(['body_ar', 'body_en'])->all(),
+                'media' => $event->media->map(fn ($m) => [
+                    'id' => $m->id,
+                    'type' => $m->type->value,
+                    'path' => $m->path,
+                    'poster_path' => $m->poster_path,
+                    'is_promo' => $event->promo_video_id === $m->id,
+                ])->all(),
             ],
         ]);
     }
@@ -107,7 +116,7 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
 
-        $event->fill($request->safe()->except(['cover', 'rules']));
+        $event->fill($request->safe()->except(['cover', 'rules', 'perks']));
 
         // Clearing manual colours lets the next upload re-derive them.
         if ($event->theme_mode === ThemeMode::Auto) {
@@ -117,6 +126,7 @@ class EventController extends Controller
         $event->save();
 
         $this->syncRules($event, $request->input('rules', []));
+        $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
         return to_route('owner.events.index')
@@ -150,6 +160,22 @@ class EventController extends Controller
 
         if ($contents !== false) {
             $this->covers->process($event, $contents);
+        }
+    }
+
+    /**
+     * @param  array<int, array{body_ar: string, body_en: string}>  $perks
+     */
+    private function syncPerks(Event $event, array $perks): void
+    {
+        $event->perks()->delete();
+
+        foreach (array_values($perks) as $sort => $perk) {
+            $event->perks()->create([
+                'body_ar' => $perk['body_ar'],
+                'body_en' => $perk['body_en'],
+                'sort' => $sort,
+            ]);
         }
     }
 

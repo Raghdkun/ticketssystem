@@ -55,6 +55,10 @@ class EventRequest extends FormRequest
             'rules' => ['array', 'max:20'],
             'rules.*.body_ar' => ['required', 'string', 'max:255'],
             'rules.*.body_en' => ['required', 'string', 'max:255'],
+
+            'perks' => ['array', 'max:20'],
+            'perks.*.body_ar' => ['required', 'string', 'max:255'],
+            'perks.*.body_en' => ['required', 'string', 'max:255'],
         ];
     }
 }

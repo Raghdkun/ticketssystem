@@ -17,6 +17,8 @@ class EventController extends Controller
     {
         $this->assertVisible($place, $event);
 
+        $event->load(['rules', 'perks', 'media', 'promoVideo']);
+
         return Inertia::render('public/event', [
             'event' => EventPresenter::forPublicPage($event),
             'place' => EventPresenter::place($place),

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $description_en
  * @property string|null $cover_path
  * @property array<string, string>|null $cover_variants
+ * @property int|null $promo_video_id
  * @property string $price
  * @property string $currency
  * @property int $total_quantity
@@ -77,6 +78,24 @@ class Event extends Model
     public function rules(): HasMany
     {
         return $this->hasMany(EventRule::class)->orderBy('sort');
+    }
+
+    /** @return HasMany<EventMedia, $this> */
+    public function media(): HasMany
+    {
+        return $this->hasMany(EventMedia::class)->orderBy('sort');
+    }
+
+    /** @return HasMany<EventPerk, $this> */
+    public function perks(): HasMany
+    {
+        return $this->hasMany(EventPerk::class)->orderBy('sort');
+    }
+
+    /** @return BelongsTo<EventMedia, $this> */
+    public function promoVideo(): BelongsTo
+    {
+        return $this->belongsTo(EventMedia::class, 'promo_video_id');
     }
 
     /** @return HasMany<Ticket, $this> */

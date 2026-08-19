@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Check, Clock, Gift, MapPin, Users } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
 import { FlashToaster } from '@/components/flash-toaster';
@@ -206,6 +206,30 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                                 </dd>
                             </div>
                         </dl>
+
+                        {event.perks.length > 0 && (
+                            <div className="space-y-2 rounded-lg bg-muted/60 p-3">
+                                <p className="flex items-center gap-1.5 text-xs font-semibold">
+                                    <Gift className="size-3.5" />
+                                    {t('form.perks')}
+                                </p>
+                                <ul className="space-y-1">
+                                    {event.perks.map((perk) => (
+                                        <li
+                                            key={perk.id}
+                                            className="flex items-start gap-2 text-xs"
+                                        >
+                                            <Check className="mt-0.5 size-3.5 shrink-0" />
+                                            {localised(
+                                                locale,
+                                                perk.body_ar,
+                                                perk.body_en,
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
                         {status === 'paid' && verifiedAt && (
                             <p className="text-center text-xs text-muted-foreground">

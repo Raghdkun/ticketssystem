@@ -17,7 +17,7 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket): Response
     {
-        $ticket->load('event.place');
+        $ticket->load(['event.place', 'event.perks', 'event.promoVideo']);
 
         return Inertia::render('public/ticket', [
             'ticket' => TicketPresenter::forPublicPage($ticket),

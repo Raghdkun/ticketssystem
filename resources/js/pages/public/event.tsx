@@ -1,11 +1,12 @@
 import { Form, Head } from '@inertiajs/react';
-import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Check, Clock, Gift, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
 import { EventCover } from '@/components/event-cover';
 import { FlashToaster } from '@/components/flash-toaster';
 import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
+import { PromoVideo } from '@/components/promo-video';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -73,7 +74,15 @@ export default function EventPage({ event, place, siblings }: Props) {
                         background: `linear-gradient(135deg, var(--event-primary), var(--event-secondary))`,
                     }}
                 >
-                    <EventCover cover={event.cover} alt="" priority />
+                    {event.promo_video ? (
+                        <PromoVideo
+                            video={event.promo_video}
+                            poster={event.cover?.landscape ?? null}
+                            label={title}
+                        />
+                    ) : (
+                        <EventCover cover={event.cover} alt="" priority />
+                    )}
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -140,6 +149,51 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <p className="leading-relaxed whitespace-pre-line text-muted-foreground">
                         {description}
                     </p>
+                )}
+
+                {event.perks.length > 0 && (
+                    <section className="space-y-3 rounded-xl border p-5">
+                        <h2 className="flex items-center gap-2 text-sm font-semibold">
+                            <Gift className="size-4 text-primary" />
+                            {t('form.perks')}
+                        </h2>
+
+                        <ul className="space-y-2">
+                            {event.perks.map((perk) => (
+                                <li
+                                    key={perk.id}
+                                    className="flex items-start gap-2.5 text-sm"
+                                >
+                                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                                    <span>
+                                        {localised(
+                                            locale,
+                                            perk.body_ar,
+                                            perk.body_en,
+                                        )}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+
+                {event.gallery.length > 0 && (
+                    <section className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+                        <ul className="flex gap-3">
+                            {event.gallery.map((item) => (
+                                <li key={item.id} className="shrink-0">
+                                    <img
+                                        src={`/storage/${item.path}`}
+                                        alt=""
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-36 w-auto rounded-xl object-cover"
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
                 )}
 
                 <section
