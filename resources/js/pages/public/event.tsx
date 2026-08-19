@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { localised, useLocale } from '@/lib/locale';
+import { useTranslation } from '@/lib/translation';
 import type { PublicEvent, PublicPlace, SiblingEvent } from '@/types/public';
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 
 export default function EventPage({ event, place, siblings }: Props) {
     const { locale } = useLocale();
+    const t = useTranslation();
     const [accepted, setAccepted] = useState<number[]>([]);
 
     const title = localised(locale, event.title_ar, event.title_en);
@@ -95,7 +97,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <div className="space-y-1">
                         <p className="inline-flex items-center gap-1.5 text-muted-foreground">
                             <CalendarDays className="size-4" />
-                            {locale === 'ar' ? 'التاريخ' : 'Date'}
+                            {t('event.date')}
                         </p>
                         <p className="font-medium">
                             {new Date(event.starts_at).toLocaleDateString(
@@ -108,7 +110,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <div className="space-y-1">
                         <p className="inline-flex items-center gap-1.5 text-muted-foreground">
                             <Clock className="size-4" />
-                            {locale === 'ar' ? 'الوقت' : 'Time'}
+                            {t('event.time')}
                         </p>
                         <p className="font-medium">
                             {new Date(event.starts_at).toLocaleTimeString(
@@ -121,13 +123,11 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <div className="space-y-1">
                         <p className="inline-flex items-center gap-1.5 text-muted-foreground">
                             <Users className="size-4" />
-                            {locale === 'ar' ? 'المقاعد' : 'Seats'}
+                            {t('event.seats')}
                         </p>
                         <p className="font-medium">
                             {soldOut
-                                ? locale === 'ar'
-                                    ? 'مكتمل'
-                                    : 'Sold out'
+                                ? t('event.sold_out')
                                 : event.seats_remaining}
                         </p>
                     </div>
@@ -135,9 +135,7 @@ export default function EventPage({ event, place, siblings }: Props) {
 
                 <p className="text-3xl font-bold text-primary">
                     {event.is_free
-                        ? locale === 'ar'
-                            ? 'مجاني'
-                            : 'Free'
+                        ? t('event.free')
                         : `${event.price.toLocaleString()} ${event.currency}`}
                 </p>
 
@@ -153,14 +151,10 @@ export default function EventPage({ event, place, siblings }: Props) {
                 >
                     <div>
                         <h2 className="text-lg font-semibold">
-                            {locale === 'ar'
-                                ? 'احجز تذكرتك'
-                                : 'Reserve your ticket'}
+                            {t('event.reserve_title')}
                         </h2>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {locale === 'ar'
-                                ? 'احجز الآن وادفع في المكان.'
-                                : 'Reserve now, pay at the venue.'}
+                            {t('event.reserve_subtitle')}
                         </p>
                     </div>
 
@@ -173,9 +167,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                             <>
                                 <div className="grid gap-2">
                                     <Label htmlFor="full_name">
-                                        {locale === 'ar'
-                                            ? 'الاسم الكامل'
-                                            : 'Full name'}
+                                        {t('event.full_name')}
                                     </Label>
                                     <Input
                                         id="full_name"
@@ -188,9 +180,7 @@ export default function EventPage({ event, place, siblings }: Props) {
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="phone">
-                                        {locale === 'ar'
-                                            ? 'رقم الموبايل'
-                                            : 'Mobile number'}
+                                        {t('event.mobile')}
                                     </Label>
                                     <Input
                                         id="phone"
@@ -207,9 +197,7 @@ export default function EventPage({ event, place, siblings }: Props) {
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="quantity">
-                                        {locale === 'ar'
-                                            ? 'عدد الأشخاص'
-                                            : 'Number of people'}
+                                        {t('event.people')}
                                     </Label>
                                     <Input
                                         id="quantity"
@@ -229,9 +217,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                                 {event.rules.length > 0 && (
                                     <fieldset className="space-y-3 rounded-lg bg-muted/50 p-4">
                                         <legend className="text-sm font-medium">
-                                            {locale === 'ar'
-                                                ? 'الشروط والملاحظات'
-                                                : 'Rules & notes'}
+                                            {t('event.rules')}
                                         </legend>
 
                                         {event.rules.map((rule) => (
@@ -286,20 +272,14 @@ export default function EventPage({ event, place, siblings }: Props) {
                                     disabled={processing || !canAppoint}
                                 >
                                     {soldOut
-                                        ? locale === 'ar'
-                                            ? 'اكتمل العدد'
-                                            : 'Sold out'
-                                        : locale === 'ar'
-                                          ? 'احجز الآن'
-                                          : 'Appoint now'}
+                                        ? t('event.sold_out')
+                                        : t('event.appoint')}
                                 </Button>
 
                                 {!allRulesAccepted &&
                                     event.rules.length > 0 && (
                                         <p className="text-center text-xs text-muted-foreground">
-                                            {locale === 'ar'
-                                                ? 'يجب الموافقة على جميع الشروط أولًا.'
-                                                : 'Accept all rules to continue.'}
+                                            {t('event.accept_rules_first')}
                                         </p>
                                     )}
                             </>

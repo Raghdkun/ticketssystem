@@ -4,6 +4,8 @@ import EventController from '@/actions/App/Http/Controllers/Owner/EventControlle
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { localised, useLocale } from '@/lib/locale';
+import { useTranslation } from '@/lib/translation';
 
 type EventRow = {
     id: number;
@@ -31,22 +33,29 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
 };
 
 export default function EventsIndex({ place, events }: Props) {
+    const { locale } = useLocale();
+    const t = useTranslation();
+
     return (
         <>
-            <Head title="Events" />
+            <Head title={t('owner.events')} />
 
             <div className="flex flex-col gap-6 p-4">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <Heading
                         variant="small"
-                        title="Events"
-                        description={place.name_en}
+                        title={t('owner.events')}
+                        description={localised(
+                            locale,
+                            place.name_ar,
+                            place.name_en,
+                        )}
                     />
 
                     <Button asChild>
                         <Link href={EventController.create()}>
                             <Plus />
-                            New event
+                            {t('owner.new_event')}
                         </Link>
                     </Button>
                 </div>
@@ -54,8 +63,7 @@ export default function EventsIndex({ place, events }: Props) {
                 {events.length === 0 ? (
                     <div className="rounded-xl border border-dashed p-12 text-center">
                         <p className="text-sm text-muted-foreground">
-                            No events yet. Create your first one to start taking
-                            appointments.
+                            {t('owner.no_events')}
                         </p>
                     </div>
                 ) : (
@@ -114,8 +122,10 @@ export default function EventsIndex({ place, events }: Props) {
                                         </span>
                                         <span className="inline-flex items-center gap-1.5">
                                             <TicketIcon className="size-3.5" />
-                                            {event.seats_taken} /{' '}
-                                            {event.total_quantity} seats
+                                            {t('owner.seats_of', {
+                                                taken: event.seats_taken,
+                                                total: event.total_quantity,
+                                            })}
                                         </span>
                                     </div>
                                 </div>

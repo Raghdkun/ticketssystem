@@ -2,6 +2,8 @@ import { Form, Head } from '@inertiajs/react';
 import { CheckCircle2, Users, XCircle } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { localised, useLocale } from '@/lib/locale';
+import { useTranslation } from '@/lib/translation';
 import { cn } from '@/lib/utils';
 
 type OwnerTicket = {
@@ -27,17 +29,24 @@ const statusStyles: Record<OwnerTicket['status'], string> = {
 };
 
 export default function VerifyTicket({ ticket }: { ticket: OwnerTicket }) {
+    const { locale } = useLocale();
+    const t = useTranslation();
     const alreadyVerified = ticket.status === 'paid';
+    const eventTitle = localised(
+        locale,
+        ticket.event_title_ar,
+        ticket.event_title_en,
+    );
 
     return (
         <>
-            <Head title={`Verify ${ticket.full_name}`} />
+            <Head title={`${t('owner.verify_title')} — ${ticket.full_name}`} />
 
             <div className="mx-auto w-full max-w-md space-y-6 p-4">
                 <Heading
                     variant="small"
-                    title="Verify ticket"
-                    description={ticket.event_title_en}
+                    title={t('owner.verify_title')}
+                    description={eventTitle}
                 />
 
                 <div
@@ -47,32 +56,45 @@ export default function VerifyTicket({ ticket }: { ticket: OwnerTicket }) {
                     )}
                 >
                     {alreadyVerified && ticket.verified_at
-                        ? `Already verified at ${new Date(ticket.verified_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}`
-                        : ticket.status}
+                        ? t('owner.already_verified', {
+                              time: new Date(ticket.verified_at).toLocaleString(
+                                  locale === 'ar' ? 'ar-SY' : 'en-GB',
+                                  { dateStyle: 'medium', timeStyle: 'short' },
+                              ),
+                          })
+                        : t(`ticket.status.${ticket.status}`)}
                 </div>
 
                 <dl className="grid grid-cols-2 gap-4 rounded-xl border p-4 text-sm">
                     <div className="col-span-2">
-                        <dt className="text-muted-foreground">Name</dt>
+                        <dt className="text-muted-foreground">
+                            {t('ticket.name')}
+                        </dt>
                         <dd className="text-lg font-semibold">
                             {ticket.full_name}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">Mobile</dt>
+                        <dt className="text-muted-foreground">
+                            {t('event.mobile')}
+                        </dt>
                         <dd className="font-medium" dir="ltr">
                             {ticket.phone}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-muted-foreground">People</dt>
+                        <dt className="text-muted-foreground">
+                            {t('ticket.people')}
+                        </dt>
                         <dd className="inline-flex items-center gap-1.5 text-lg font-semibold">
                             <Users className="size-4" />
                             {ticket.quantity}
                         </dd>
                     </div>
                     <div className="col-span-2">
-                        <dt className="text-muted-foreground">Reference</dt>
+                        <dt className="text-muted-foreground">
+                            {t('ticket.reference')}
+                        </dt>
                         <dd className="font-mono text-xs" dir="ltr">
                             {ticket.token.toUpperCase()}
                         </dd>
@@ -111,7 +133,7 @@ export default function VerifyTicket({ ticket }: { ticket: OwnerTicket }) {
                                 }
                             >
                                 <XCircle />
-                                Cancel ticket
+                                {t('owner.cancel_ticket')}
                             </Button>
                         )}
                     </Form>
