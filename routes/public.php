@@ -3,6 +3,7 @@
 use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\PushSubscriptionController;
+use App\Http\Controllers\Public\SitemapController;
 use App\Http\Controllers\Public\TicketController;
 use App\Http\Controllers\Public\TicketLookupController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('my-tickets', TicketLookupController::class)
     ->middleware('throttle:12,1')
     ->name('tickets.lookup');
+
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
 // Push opt-in for a ticket, authorised by possession of its token.
 Route::post('t/{ticket}/push', [PushSubscriptionController::class, 'store'])
