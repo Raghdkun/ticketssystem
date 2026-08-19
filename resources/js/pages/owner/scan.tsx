@@ -1,9 +1,11 @@
-import { Form, Head, Link } from '@inertiajs/react';
+import { Form, Head, Link, router } from '@inertiajs/react';
 import { Search, Users } from 'lucide-react';
 import Heading from '@/components/heading';
+import { QrScanner } from '@/components/qr-scanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translation';
 import { scan } from '@/routes/owner';
 
 type Result = {
@@ -13,21 +15,34 @@ type Result = {
     quantity: number;
     status: string;
     event_title_en: string;
+    event_title_ar: string;
 };
 
 type Props = { phone: string; results: Result[] };
 
 export default function ScanPage({ phone, results }: Props) {
+    const t = useTranslation();
+
     return (
         <>
-            <Head title="Verify tickets" />
+            <Head title={t('owner.verify_title')} />
 
             <div className="mx-auto w-full max-w-xl space-y-6 p-4">
                 <Heading
                     variant="small"
-                    title="Verify tickets"
-                    description="Scan an attendee's QR code, or look them up by mobile number."
+                    title={t('owner.verify_title')}
+                    description={t('owner.verify_subtitle')}
                 />
+
+                <QrScanner
+                    onToken={(token) => router.visit(`/verify/${token}`)}
+                />
+
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    {t('common.search')}
+                    <span className="h-px flex-1 bg-border" />
+                </div>
 
                 <Form
                     action={scan().url}
@@ -35,7 +50,7 @@ export default function ScanPage({ phone, results }: Props) {
                     className="flex items-end gap-2"
                 >
                     <div className="grid flex-1 gap-2">
-                        <Label htmlFor="phone">Mobile number</Label>
+                        <Label htmlFor="phone">{t('event.mobile')}</Label>
                         <Input
                             id="phone"
                             name="phone"
@@ -47,13 +62,13 @@ export default function ScanPage({ phone, results }: Props) {
                     </div>
                     <Button type="submit">
                         <Search />
-                        Search
+                        {t('common.search')}
                     </Button>
                 </Form>
 
                 {phone && results.length === 0 && (
                     <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                        No tickets found for that number in your events.
+                        {t('owner.no_results')}
                     </p>
                 )}
 
@@ -78,7 +93,7 @@ export default function ScanPage({ phone, results }: Props) {
                                         {result.quantity}
                                     </span>
                                     <span className="text-muted-foreground">
-                                        {result.status}
+                                        {t(`ticket.status.${result.status}`)}
                                     </span>
                                 </div>
                             </Link>
@@ -89,3 +104,7 @@ export default function ScanPage({ phone, results }: Props) {
         </>
     );
 }
+
+ScanPage.layout = {
+    breadcrumbs: [{ title: 'Verify', href: scan() }],
+};

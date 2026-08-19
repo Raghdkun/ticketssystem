@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, CalendarDays, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BookOpen,
+    CalendarDays,
+    FolderGit2,
+    LayoutGrid,
+    ScanLine,
+} from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -15,6 +21,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { scan } from '@/routes/owner';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -27,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Events',
         href: EventController.index(),
         icon: CalendarDays,
+    },
+    {
+        title: 'Verify',
+        href: scan(),
+        icon: ScanLine,
     },
 ];
 
