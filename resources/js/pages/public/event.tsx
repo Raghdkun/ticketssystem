@@ -37,7 +37,7 @@ export default function EventPage({ event, place, siblings }: Props) {
 
     return (
         <div
-            className="min-h-dvh bg-background"
+            className="event-theme min-h-dvh bg-background"
             style={
                 {
                     '--event-primary': event.theme.primary,
@@ -133,10 +133,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                     </div>
                 </section>
 
-                <p
-                    className="text-3xl font-bold"
-                    style={{ color: 'var(--event-primary)' }}
-                >
+                <p className="text-3xl font-bold text-primary">
                     {event.is_free
                         ? locale === 'ar'
                             ? 'مجاني'
@@ -287,10 +284,6 @@ export default function EventPage({ event, place, siblings }: Props) {
                                     size="lg"
                                     className="w-full"
                                     disabled={processing || !canAppoint}
-                                    style={{
-                                        backgroundColor: 'var(--event-primary)',
-                                        color: 'var(--event-on-primary)',
-                                    }}
                                 >
                                     {soldOut
                                         ? locale === 'ar'

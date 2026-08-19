@@ -53,7 +53,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
 
     return (
         <div
-            className="min-h-dvh bg-neutral-100 py-6 dark:bg-neutral-950"
+            className="event-theme min-h-dvh bg-neutral-100 py-6 dark:bg-neutral-950"
             style={
                 {
                     '--event-primary': event.theme.primary,
