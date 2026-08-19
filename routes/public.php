@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
+use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\PushSubscriptionController;
 use App\Http\Controllers\Public\SitemapController;
 use App\Http\Controllers\Public\TicketController;
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('my-tickets', TicketLookupController::class)
     ->middleware('throttle:12,1')
     ->name('tickets.lookup');
+
+Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');

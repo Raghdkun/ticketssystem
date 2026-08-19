@@ -75,7 +75,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
             <PlaceEdgeTab place={place} siblings={siblings} />
             <InstallPrompt />
 
-            <main className="mx-auto w-full max-w-md px-4">
+            <main id="main-content" className="mx-auto w-full max-w-md px-4">
                 <div className="mb-4 flex justify-end">
                     <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
                 </div>
@@ -91,7 +91,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         duration: reduceMotion ? 0 : 0.45,
                         ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="relative overflow-hidden rounded-3xl bg-white shadow-xl dark:bg-neutral-900"
+                    className="shadow-brand grain relative overflow-hidden rounded-3xl bg-white dark:bg-neutral-900"
                 >
                     <PaidStamp
                         show={status === 'paid'}

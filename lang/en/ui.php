@@ -250,4 +250,12 @@ return [
         'failed' => 'Could not enable — try again',
         'ios_hint' => 'Add this page to your Home Screen first to receive notifications on iPhone.',
     ],
+
+    'legal' => [
+        'privacy' => 'Privacy',
+        'terms' => 'Terms',
+        'for_venues' => 'For venues',
+        'privacy_title' => 'Privacy',
+        'terms_title' => 'Terms of use',
+    ],
 ];

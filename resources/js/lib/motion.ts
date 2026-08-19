@@ -9,6 +9,17 @@ import type { Transition, Variants } from 'motion/react';
  */
 export const EASE_OUT: Transition['ease'] = [0.22, 1, 0.36, 1];
 
+/**
+ * Spring presets. Linear easing reads as mechanical; springs give interactive
+ * elements a sense of weight, which is what makes a UI feel physical.
+ */
+export const SPRING = {
+    /** Snappy, for taps and toggles. */
+    press: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 },
+    /** Softer, for panels and cards settling into place. */
+    settle: { type: 'spring', stiffness: 220, damping: 26, mass: 0.9 },
+} as const;
+
 export const DURATION = {
     feedback: 0.18,
     entrance: 0.42,

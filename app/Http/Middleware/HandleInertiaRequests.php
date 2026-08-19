@@ -59,6 +59,7 @@ class HandleInertiaRequests extends Middleware
              */
             'flash' => fn () => $this->flash($request),
             'translations' => fn () => $this->translations(),
+            'legal' => fn () => trans('legal'),
         ];
     }
 

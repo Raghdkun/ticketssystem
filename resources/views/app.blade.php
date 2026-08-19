@@ -41,6 +41,14 @@
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
+        @php($platform = app(\App\Services\Settings::class))
+        <meta property="og:site_name" content="{{ $platform->appName() }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ url('/icons/icon-512.png') }}">
+        <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_SY' : 'en_GB' }}">
+        <meta name="twitter:card" content="summary_large_image">
+
         <link rel="manifest" href="/manifest.webmanifest">
         <meta name="theme-color" content="#0a0a0a">
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -48,6 +56,7 @@
         <meta name="apple-mobile-web-app-title" content="Tickets">
     </head>
     <body class="font-sans antialiased">
+        <a href="#main-content" class="skip-to-content">{{ app()->getLocale() === 'ar' ? 'تخطَّ إلى المحتوى' : 'Skip to content' }}</a>
         <x-inertia::app />
     </body>
 </html>

@@ -98,7 +98,10 @@ export default function EventPage({ event, place, siblings }: Props) {
                 </div>
             </header>
 
-            <main className="mx-auto w-full max-w-2xl space-y-8 p-5 sm:p-8">
+            <main
+                id="main-content"
+                className="mx-auto w-full max-w-2xl space-y-8 p-5 sm:p-8"
+            >
                 <section className="grid grid-cols-2 gap-4 rounded-xl border p-4 text-sm sm:grid-cols-3">
                     <div className="space-y-1">
                         <p className="inline-flex items-center gap-1.5 text-muted-foreground">

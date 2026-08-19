@@ -4,6 +4,7 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import { EmptyState } from '@/components/empty-state';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
+import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
@@ -70,8 +71,11 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                 </div>
             </header>
 
-            <main className="mx-auto w-full max-w-5xl space-y-10 p-5">
-                <section className="brand-surface-strong rounded-3xl border p-8 sm:p-12">
+            <main
+                id="main-content"
+                className="mx-auto w-full max-w-5xl space-y-10 p-5"
+            >
+                <section className="brand-surface-strong grain relative overflow-hidden rounded-3xl border p-8 sm:p-12">
                     <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight sm:text-5xl">
                         {platform.name}
                     </h1>
@@ -184,6 +188,8 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                     )}
                 </section>
             </main>
+
+            <PublicFooter />
         </div>
     );
 }

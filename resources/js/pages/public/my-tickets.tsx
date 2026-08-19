@@ -3,6 +3,7 @@ import { Search, Ticket as TicketIcon, Users } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
+import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,7 +36,10 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
 
             <FlashToaster />
 
-            <main className="mx-auto w-full max-w-md space-y-8 p-5">
+            <main
+                id="main-content"
+                className="mx-auto w-full max-w-md space-y-8 p-5"
+            >
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">
                         {t('ticket.my_tickets')}
@@ -153,6 +157,8 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                     </ul>
                 </section>
             </main>
+
+            <PublicFooter />
         </div>
     );
 }

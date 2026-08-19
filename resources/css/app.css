@@ -305,3 +305,99 @@
         color-mix(in oklab, var(--color-brand-cta) 8%, transparent) 70%
     );
 }
+
+/*
+ * Skip link. Off-screen until focused, then anchored to the inline start so it
+ * lands on the correct side in Arabic.
+ */
+.skip-to-content {
+    position: fixed;
+    top: 0.5rem;
+    inset-inline-start: 0.5rem;
+    z-index: 100;
+    transform: translateY(-200%);
+    border-radius: 0.5rem;
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: transform 0.2s ease;
+}
+
+.skip-to-content:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+}
+
+/*
+ * In-page anchors should glide, not jump — but never for someone who asked
+ * for reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Headings should not strand a single word on the last line. */
+h1,
+h2,
+h3 {
+    text-wrap: balance;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+/*
+ * Press feedback.
+ *
+ * Without it a tap gives no physical confirmation, which on a phone at a venue
+ * door reads as "did that register?" — the moment people double-tap and submit
+ * twice. Scale only, so nothing reflows.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    a[data-slot='button'] {
+        transition:
+            transform 0.12s ease,
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease;
+    }
+
+    button:not(:disabled):active,
+    [role='button']:not([aria-disabled='true']):active,
+    a[data-slot='button']:active {
+        transform: scale(0.97);
+    }
+}
+
+/*
+ * Shadows carry the surface hue rather than plain black, so elevation reads as
+ * light falling on a tinted surface instead of a grey smudge.
+ */
+.shadow-brand {
+    box-shadow:
+        0 1px 2px -1px
+            color-mix(in oklab, var(--color-primary) 22%, transparent),
+        0 8px 24px -6px
+            color-mix(in oklab, var(--color-primary) 18%, transparent);
+}
+
+/*
+ * A faint grain over the darkest surfaces. Flat digital black is what makes an
+ * interface feel sterile; this is barely perceptible but breaks it up.
+ */
+.grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
