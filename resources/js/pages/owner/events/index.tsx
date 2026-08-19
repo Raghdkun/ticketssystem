@@ -1,5 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarDays, Plus, Ticket as TicketIcon } from 'lucide-react';
+import {
+    CalendarDays,
+    Plus,
+    Printer,
+    Ticket as TicketIcon,
+} from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
@@ -139,6 +144,14 @@ export default function EventsIndex({ place, events }: Props) {
                                         </div>
                                     </div>
                                 </Link>
+
+                                <a
+                                    href={`/owner/events/${event.id}/door-sheet`}
+                                    className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                                >
+                                    <Printer className="size-3.5" />
+                                    {t('owner.door_sheet')}
+                                </a>
                             </StaggerItem>
                         ))}
                     </Stagger>

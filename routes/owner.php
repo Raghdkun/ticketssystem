@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Owner\DoorSheetController;
 use App\Http\Controllers\Owner\EventController;
+use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +13,8 @@ Route::middleware(['auth', 'verified'])
         Route::resource('events', EventController::class)->except(['show']);
 
         Route::get('scan', [VerificationController::class, 'scanner'])->name('scan');
+        Route::get('search', TicketSearchController::class)->name('search');
+        Route::get('events/{event}/door-sheet', DoorSheetController::class)->name('events.door_sheet');
     });
 
 // Ticket verification. Auth-gated and policy-checked: holding the QR URL is

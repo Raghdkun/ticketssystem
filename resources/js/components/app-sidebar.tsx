@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { CalendarDays, LayoutGrid, ScanLine, ShieldCheck } from 'lucide-react';
+import {
+    CalendarDays,
+    LayoutGrid,
+    ScanLine,
+    Search,
+    ShieldCheck,
+} from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -17,7 +23,7 @@ import {
 import { useIsSuperAdmin } from '@/lib/auth';
 import { dashboard } from '@/routes';
 import { owners } from '@/routes/admin';
-import { scan } from '@/routes/owner';
+import { scan, search } from '@/routes/owner';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -35,6 +41,11 @@ const mainNavItems: NavItem[] = [
         title: 'owner.verify_title',
         href: scan(),
         icon: ScanLine,
+    },
+    {
+        title: 'owner.search_all',
+        href: search(),
+        icon: Search,
     },
 ];
 

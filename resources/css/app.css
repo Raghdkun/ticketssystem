@@ -239,3 +239,45 @@
         min-width: 44px;
     }
 }
+
+/*
+ * Print.
+ *
+ * The door sheet is meant to leave the screen: strip the app chrome, drop to
+ * ink-friendly black on white, and keep table rows from splitting across pages
+ * so a booking is never half on one sheet and half on the next.
+ */
+@media print {
+    [data-sidebar],
+    [data-slot='sidebar-trigger'],
+    nav,
+    header[data-app-header],
+    [data-sonner-toaster] {
+        display: none !important;
+    }
+
+    :root {
+        --background: #ffffff;
+        --foreground: #000000;
+        --muted-foreground: #333333;
+        --border: #999999;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    tr,
+    img {
+        break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    @page {
+        margin: 14mm;
+    }
+}
