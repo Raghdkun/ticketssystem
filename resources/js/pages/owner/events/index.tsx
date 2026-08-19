@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import {
+    BarChart3,
     CalendarDays,
     Plus,
     Printer,
@@ -144,6 +145,14 @@ export default function EventsIndex({ place, events }: Props) {
                                         </div>
                                     </div>
                                 </Link>
+
+                                <a
+                                    href={`/owner/events/${event.id}/report`}
+                                    className="me-3 mt-2 inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                                >
+                                    <BarChart3 className="size-3.5" />
+                                    {t('owner.report')}
+                                </a>
 
                                 <a
                                     href={`/owner/events/${event.id}/door-sheet`}

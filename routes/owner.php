@@ -3,6 +3,7 @@
 use App\Http\Controllers\Owner\DoorSheetController;
 use App\Http\Controllers\Owner\EventController;
 use App\Http\Controllers\Owner\EventMediaController;
+use App\Http\Controllers\Owner\EventReportController;
 use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,9 @@ Route::middleware(['auth', 'verified'])
         Route::get('scan', [VerificationController::class, 'scanner'])->name('scan');
         Route::get('search', TicketSearchController::class)->name('search');
         Route::get('events/{event}/door-sheet', DoorSheetController::class)->name('events.door_sheet');
+
+        Route::get('events/{event}/report', [EventReportController::class, 'show'])->name('events.report');
+        Route::get('events/{event}/report.csv', [EventReportController::class, 'csv'])->name('events.report.csv');
 
         Route::post('events/{event}/media', [EventMediaController::class, 'store'])->name('events.media.store');
         Route::delete('events/{event}/media/{medium}', [EventMediaController::class, 'destroy'])->name('events.media.destroy');

@@ -24,11 +24,14 @@ enum TicketStatus: string
      * Statuses where the holder never came through the door. A no-show was
      * paid for or held and simply not used; a cancellation was called off.
      *
-     * @return array<int, string>
+     * Returns cases rather than values: models cast this column, so comparing
+     * an in-memory collection against raw strings silently matches nothing.
+     *
+     * @return array<int, self>
      */
     public static function unattended(): array
     {
-        return [self::NoShow->value, self::Expired->value, self::Cancelled->value];
+        return [self::NoShow, self::Expired, self::Cancelled];
     }
 
     public function isFinal(): bool
