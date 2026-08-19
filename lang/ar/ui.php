@@ -70,4 +70,20 @@ return [
         'seats_of' => ':taken / :total مقعد',
         'live' => 'مباشر',
     ],
+
+    'admin' => [
+        'title' => 'الملاك',
+        'subtitle' => 'إدارة ملاك القاعات ونشاط المنصة.',
+        'ban' => 'تعليق',
+        'unban' => 'إعادة تفعيل',
+        'suspended' => 'معلّق',
+        'stat_owners' => 'الملاك',
+        'stat_events' => 'الفعاليات',
+        'stat_tickets' => 'التذاكر',
+        'stat_paid' => 'مدفوعة',
+        'stat_pending' => 'معلّقة',
+        'stat_seats' => 'المقاعد المباعة',
+        'stat_revenue' => 'الإيرادات',
+        'no_owners' => 'لا يوجد ملاك بعد.',
+    ],
 ];

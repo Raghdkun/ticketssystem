@@ -70,4 +70,20 @@ return [
         'seats_of' => ':taken / :total seats',
         'live' => 'Live',
     ],
+
+    'admin' => [
+        'title' => 'Owners',
+        'subtitle' => 'Manage venue owners and platform activity.',
+        'ban' => 'Suspend',
+        'unban' => 'Reinstate',
+        'suspended' => 'Suspended',
+        'stat_owners' => 'Owners',
+        'stat_events' => 'Events',
+        'stat_tickets' => 'Tickets',
+        'stat_paid' => 'Paid',
+        'stat_pending' => 'Pending',
+        'stat_seats' => 'Seats sold',
+        'stat_revenue' => 'Revenue',
+        'no_owners' => 'No owners yet.',
+    ],
 ];

@@ -5,6 +5,7 @@ import {
     FolderGit2,
     LayoutGrid,
     ScanLine,
+    ShieldCheck,
 } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import AppLogo from '@/components/app-logo';
@@ -20,7 +21,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useIsSuperAdmin } from '@/lib/auth';
 import { dashboard } from '@/routes';
+import { owners } from '@/routes/admin';
 import { scan } from '@/routes/owner';
 import type { NavItem } from '@/types';
 
@@ -56,6 +59,17 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    // Platform administration is only reachable by super admins; the server
+    // enforces this, the nav item just avoids showing a dead end.
+    const isSuperAdmin = useIsSuperAdmin();
+
+    const navItems: NavItem[] = isSuperAdmin
+        ? [
+              ...mainNavItems,
+              { title: 'Owners', href: owners(), icon: ShieldCheck },
+          ]
+        : mainNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -71,7 +85,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
