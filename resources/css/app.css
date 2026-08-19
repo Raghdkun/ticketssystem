@@ -87,7 +87,7 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: #1e3a8a;
+    --primary: #4f46e5;
     --primary-foreground: #ffffff;
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -99,7 +99,7 @@
     --destructive-foreground: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: #1e3a8a;
+    --ring: #4f46e5;
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -108,7 +108,7 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: #1e3a8a;
+    --sidebar-primary: #4f46e5;
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -123,7 +123,7 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: #60a5fa;
+    --primary: #818cf8;
     --primary-foreground: #0a0a0a;
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
@@ -135,7 +135,7 @@
     --destructive-foreground: oklch(0.637 0.237 25.331);
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
-    --ring: #60a5fa;
+    --ring: #818cf8;
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -143,7 +143,7 @@
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: #60a5fa;
+    --sidebar-primary: #818cf8;
     --sidebar-primary-foreground: #0a0a0a;
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -280,4 +280,28 @@
     @page {
         margin: 14mm;
     }
+}
+
+/*
+ * Dashboard surfaces.
+ *
+ * The public pages take their colour from each event's own palette, which left
+ * the dashboard looking like a different product. This gives its cards a faint
+ * brand tint so both halves read as one app, without competing with the status
+ * colours that carry actual meaning.
+ */
+.brand-surface {
+    background-image: linear-gradient(
+        140deg,
+        color-mix(in oklab, var(--color-primary) 7%, transparent),
+        transparent 55%
+    );
+}
+
+.brand-surface-strong {
+    background-image: linear-gradient(
+        140deg,
+        color-mix(in oklab, var(--color-primary) 16%, transparent),
+        color-mix(in oklab, var(--color-brand-cta) 8%, transparent) 70%
+    );
 }

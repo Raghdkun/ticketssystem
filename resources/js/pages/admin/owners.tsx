@@ -51,7 +51,7 @@ type Props = { stats: Stats; owners: Owner[] };
 
 function Stat({ label, value }: { label: string; value: string | number }) {
     return (
-        <StaggerItem className="rounded-xl border p-4 transition-colors hover:border-primary/40">
+        <StaggerItem className="brand-surface rounded-xl border p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums">
                 {typeof value === 'number' ? <Counter value={value} /> : value}

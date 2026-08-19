@@ -1,10 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
-import {
-    CalendarDays,
-    MapPin,
-    Search,
-    Ticket as TicketIcon,
-} from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { CalendarDays, MapPin, Search } from 'lucide-react';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { EmptyState } from '@/components/empty-state';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
@@ -30,6 +26,9 @@ type HomeEvent = {
 
 export default function Welcome({ events }: { events: HomeEvent[] }) {
     const { locale } = useLocale();
+    const { platform } = usePage<{
+        platform: { name: string; tagline: string | null };
+    }>().props;
     const t = useTranslation();
     const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
 
@@ -44,8 +43,8 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
             <header className="border-b">
                 <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 p-5">
                     <div className="flex items-center gap-2">
-                        <TicketIcon className="size-5" />
-                        <span className="font-bold">Tickets</span>
+                        <AppLogoIcon className="size-7 text-primary" />
+                        <span className="font-bold">{platform.name}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -71,13 +70,26 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                 </div>
             </header>
 
-            <main className="mx-auto w-full max-w-5xl space-y-8 p-5">
-                <p className="text-lg text-muted-foreground">
-                    {t('home.tagline')}
-                </p>
+            <main className="mx-auto w-full max-w-5xl space-y-10 p-5">
+                <section className="brand-surface-strong rounded-3xl border p-8 sm:p-12">
+                    <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight sm:text-5xl">
+                        {platform.name}
+                    </h1>
+                    <p className="mt-3 max-w-xl text-base text-muted-foreground sm:text-lg">
+                        {platform.tagline ?? t('home.tagline')}
+                    </p>
 
-                <section className="space-y-4">
-                    <h1 className="text-2xl font-bold">{t('home.whats_on')}</h1>
+                    <Button
+                        asChild
+                        size="lg"
+                        className="mt-6 cursor-pointer bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
+                    >
+                        <a href="#whats-on">{t('home.whats_on')}</a>
+                    </Button>
+                </section>
+
+                <section id="whats-on" className="space-y-4">
+                    <h2 className="text-2xl font-bold">{t('home.whats_on')}</h2>
 
                     {events.length === 0 ? (
                         <EmptyState
