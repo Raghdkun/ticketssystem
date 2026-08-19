@@ -161,7 +161,10 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Registration is closed: venue owners are provisioned by a super
+        // admin from the admin panel, so anyone must not be able to create an
+        // account on a venue-management platform.
+        // Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

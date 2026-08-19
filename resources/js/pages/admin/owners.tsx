@@ -4,12 +4,21 @@ import {
     ShieldBan,
     ShieldCheck,
     Ticket as TicketIcon,
+    UserPlus,
 } from 'lucide-react';
 import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { owners } from '@/routes/admin';
@@ -89,6 +98,139 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                     />
                     <Stat label={t('admin.suspended')} value={stats.banned} />
                 </Stagger>
+
+                <Collapsible className="rounded-xl border">
+                    <CollapsibleTrigger asChild>
+                        <button
+                            type="button"
+                            className="flex w-full cursor-pointer items-center gap-2 p-4 text-sm font-medium transition-colors hover:bg-muted/50"
+                        >
+                            <UserPlus className="size-4" />
+                            {t('admin.new_owner')}
+                        </button>
+                    </CollapsibleTrigger>
+
+                    <CollapsibleContent className="border-t p-4">
+                        <p className="mb-4 text-xs text-muted-foreground">
+                            {t('admin.form_hint')}
+                        </p>
+
+                        <Form
+                            action="/admin/owners"
+                            method="post"
+                            className="grid gap-4 sm:grid-cols-2"
+                            options={{ preserveScroll: true }}
+                        >
+                            {({ processing, errors }) => (
+                                <>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">
+                                            {t('admin.owner_name')}
+                                        </Label>
+                                        <Input id="name" name="name" required />
+                                        <InputError message={errors.name} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="email">
+                                            {t('admin.owner_email')}
+                                        </Label>
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            dir="ltr"
+                                            required
+                                        />
+                                        <InputError message={errors.email} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="password">
+                                            {t('admin.owner_password')}
+                                        </Label>
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            dir="ltr"
+                                            required
+                                        />
+                                        <InputError message={errors.password} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="password_confirmation">
+                                            {t('admin.owner_password_confirm')}
+                                        </Label>
+                                        <Input
+                                            id="password_confirmation"
+                                            name="password_confirmation"
+                                            type="password"
+                                            dir="ltr"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="place_name_en">
+                                            {t('admin.venue_en')}
+                                        </Label>
+                                        <Input
+                                            id="place_name_en"
+                                            name="place_name_en"
+                                            dir="ltr"
+                                            required
+                                        />
+                                        <InputError
+                                            message={errors.place_name_en}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="place_name_ar">
+                                            {t('admin.venue_ar')}
+                                        </Label>
+                                        <Input
+                                            id="place_name_ar"
+                                            name="place_name_ar"
+                                            dir="rtl"
+                                            required
+                                        />
+                                        <InputError
+                                            message={errors.place_name_ar}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2 sm:col-span-2">
+                                        <Label htmlFor="whatsapp_number">
+                                            {t('admin.whatsapp')}
+                                        </Label>
+                                        <Input
+                                            id="whatsapp_number"
+                                            name="whatsapp_number"
+                                            type="tel"
+                                            dir="ltr"
+                                            placeholder="09XXXXXXXX"
+                                        />
+                                        <InputError
+                                            message={errors.whatsapp_number}
+                                        />
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="cursor-pointer sm:col-span-2"
+                                    >
+                                        <UserPlus />
+                                        {t('admin.create')}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                    </CollapsibleContent>
+                </Collapsible>
 
                 {rows.length === 0 ? (
                     <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">

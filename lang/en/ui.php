@@ -77,6 +77,16 @@ return [
     ],
 
     'admin' => [
+        'form_hint' => 'Creates the account and its venue together. Share the password with the owner and ask them to change it.',
+        'create' => 'Create owner',
+        'whatsapp' => 'WhatsApp number',
+        'venue_ar' => 'Venue name (Arabic)',
+        'venue_en' => 'Venue name (English)',
+        'owner_password_confirm' => 'Confirm password',
+        'owner_password' => 'Temporary password',
+        'owner_email' => 'Email',
+        'owner_name' => 'Owner name',
+        'new_owner' => 'Add owner',
         'title' => 'Owners',
         'subtitle' => 'Manage venue owners and platform activity.',
         'ban' => 'Suspend',

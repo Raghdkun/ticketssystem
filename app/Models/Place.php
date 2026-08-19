@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active'])]
+#[Fillable(['user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active'])]
 class Place extends Model
 {
     /** @use HasFactory<PlaceFactory> */

@@ -66,7 +66,7 @@ class VerificationController extends Controller
             $results = Ticket::query()
                 ->with('event')
                 ->whereHas('event.place', fn ($query) => $query->where('user_id', $request->user()->id))
-                ->where('phone', 'like', '%'.$phone.'%')
+                ->where('phone', 'like', '%'.addcslashes($phone, '%_\\').'%')
                 ->latest()
                 ->limit(25)
                 ->get()
