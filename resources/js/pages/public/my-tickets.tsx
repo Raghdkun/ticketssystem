@@ -98,7 +98,11 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                                 placeholder="09XXXXXXXX"
                             />
                         </div>
-                        <Button type="submit">
+                        <Button
+                            type="submit"
+                            aria-label={t('common.search')}
+                            className="cursor-pointer"
+                        >
                             <Search />
                         </Button>
                     </Form>

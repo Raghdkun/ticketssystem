@@ -22,6 +22,15 @@ class EventController extends Controller
     {
         $place = $this->place($request);
 
+        // A super admin (or an owner not yet linked to a venue) has no place.
+        // Show an explanatory empty state rather than a bare 404.
+        if ($place === null) {
+            return Inertia::render('owner/events/index', [
+                'place' => null,
+                'events' => [],
+            ]);
+        }
+
         $events = $place->events()
             ->withCount('tickets')
             ->latest()
@@ -48,7 +57,7 @@ class EventController extends Controller
 
     public function create(Request $request): Response
     {
-        $this->place($request);
+        abort_if($this->place($request) === null, 403, 'No venue is linked to this account.');
 
         return Inertia::render('owner/events/create');
     }
@@ -56,6 +65,8 @@ class EventController extends Controller
     public function store(EventRequest $request): RedirectResponse
     {
         $place = $this->place($request);
+
+        abort_if($place === null, 403, 'No venue is linked to this account.');
 
         $event = new Event($request->safe()->except(['cover', 'rules']));
         $event->place_id = $place->id;
@@ -122,9 +133,9 @@ class EventController extends Controller
             ->with('success', __('events.deleted'));
     }
 
-    private function place(Request $request): Place
+    private function place(Request $request): ?Place
     {
-        return $request->user()->places()->firstOrFail();
+        return $request->user()->places()->first();
     }
 
     private function storeCover(Event $event, EventRequest $request): void

@@ -23,7 +23,7 @@ type EventRow = {
 };
 
 type Props = {
-    place: { name_ar: string; name_en: string; slug: string };
+    place: { name_ar: string; name_en: string; slug: string } | null;
     events: EventRow[];
 };
 
@@ -46,14 +46,18 @@ export default function EventsIndex({ place, events }: Props) {
                     <Heading
                         variant="small"
                         title={t('owner.events')}
-                        description={localised(
-                            locale,
-                            place.name_ar,
-                            place.name_en,
-                        )}
+                        description={
+                            place
+                                ? localised(
+                                      locale,
+                                      place.name_ar,
+                                      place.name_en,
+                                  )
+                                : t('dash.no_place')
+                        }
                     />
 
-                    <Button asChild>
+                    <Button asChild disabled={!place}>
                         <Link href={EventController.create()}>
                             <Plus />
                             {t('owner.new_event')}

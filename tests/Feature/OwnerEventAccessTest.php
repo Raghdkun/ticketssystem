@@ -87,6 +87,31 @@ class OwnerEventAccessTest extends TestCase
             ->assertInertia(fn ($page) => $page->component('owner/events/index')->has('events', 1));
     }
 
+    /**
+     * A super admin, or an owner not yet linked to a venue, has no place. The
+     * events list must explain that rather than 404 on a failed lookup.
+     */
+    public function test_a_user_without_a_venue_sees_an_empty_state(): void
+    {
+        $admin = User::factory()->superAdmin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('owner.events.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('owner/events/index')
+                ->where('place', null)
+                ->has('events', 0)
+            );
+    }
+
+    public function test_a_user_without_a_venue_cannot_create_an_event(): void
+    {
+        $admin = User::factory()->superAdmin()->create();
+
+        $this->actingAs($admin)->get(route('owner.events.create'))->assertForbidden();
+    }
+
     public function test_the_owner_can_edit_their_own_event(): void
     {
         $this->actingAs($this->owner)

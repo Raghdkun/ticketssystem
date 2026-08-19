@@ -221,6 +221,17 @@ export default function EventPage({ event, place, siblings }: Props) {
                                                 className="flex cursor-pointer items-start gap-3 text-sm"
                                             >
                                                 <Checkbox
+                                                    // A wrapping label does not
+                                                    // name a Radix checkbox the
+                                                    // way it names a native
+                                                    // input, so attach the rule
+                                                    // text explicitly.
+                                                    aria-label={localised(
+                                                        locale,
+                                                        rule.body_ar,
+                                                        rule.body_en,
+                                                    )}
+                                                    className="cursor-pointer"
                                                     checked={accepted.includes(
                                                         rule.id,
                                                     )}
