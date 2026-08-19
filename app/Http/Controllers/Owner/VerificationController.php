@@ -37,9 +37,17 @@ class VerificationController extends Controller
         $ticket->load('event.place');
         $this->authorize('verifyTickets', $ticket->event);
 
-        $this->verifier->markPaid($ticket, $request->user());
+        $validated = $request->validate([
+            'arrived' => ['nullable', 'integer', 'min:1', 'max:'.$ticket->quantity],
+        ]);
 
-        return back()->with('success', __('verify.marked_paid'));
+        $arrived = $validated['arrived'] ?? null;
+
+        $this->verifier->markPaid($ticket, $request->user(), $arrived);
+
+        return back()->with('success', $arrived !== null && $arrived < $ticket->quantity
+            ? __('verify.partial_check_in', ['arrived' => $arrived, 'total' => $ticket->quantity])
+            : __('verify.marked_paid'));
     }
 
     public function cancel(Request $request, Ticket $ticket): RedirectResponse
@@ -57,6 +65,16 @@ class VerificationController extends Controller
      * the signed-in owner's own events so this cannot be used to enumerate
      * other venues' attendees.
      */
+    public function noShow(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $ticket->load('event.place');
+        $this->authorize('verifyTickets', $ticket->event);
+
+        $this->verifier->markNoShow($ticket, $request->user());
+
+        return back()->with('success', __('verify.marked_no_show'));
+    }
+
     public function scanner(Request $request): Response
     {
         $phone = $request->string('phone')->trim()->value();

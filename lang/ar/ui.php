@@ -44,6 +44,7 @@ return [
         'verified_at' => 'تم التحقق :time',
         'pay_before' => 'يرجى الدفع قبل :time وإلا سيتم إلغاء الحجز.',
         'status' => [
+            'no_show' => 'لم يحضر',
             'pending' => 'بانتظار الدفع',
             'paid' => 'مدفوعة',
             'cancelled' => 'ملغاة',
@@ -57,6 +58,12 @@ return [
     ],
 
     'owner' => [
+        'arrived_of' => 'حضر :arrived من أصل :total',
+        'no_show' => 'لم يحضر',
+        'check_in_some' => 'تسجيل دخول :n',
+        'check_in_all' => 'تسجيل دخول الجميع (:n)',
+        'arrived_hint' => 'الحجز لـ :n. سجّل عددًا أقل إذا حضر جزء من المجموعة.',
+        'arrived' => 'كم شخصًا حضر؟',
         'events' => 'الفعاليات',
         'new_event' => 'فعالية جديدة',
         'edit_event' => 'تعديل الفعالية',

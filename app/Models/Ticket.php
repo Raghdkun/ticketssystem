@@ -20,11 +20,13 @@ use Illuminate\Support\Str;
  * @property string $full_name
  * @property string $phone
  * @property int $quantity
+ * @property int $arrived_quantity
  * @property TicketStatus $status
  * @property CarbonImmutable|null $hold_expires_at
  * @property CarbonImmutable|null $verified_at
  * @property int|null $verified_by
  * @property CarbonImmutable|null $cancelled_at
+ * @property CarbonImmutable|null $no_show_at
  * @property CarbonImmutable $accepted_rules_at
  * @property array<int, int> $accepted_rule_ids
  * @property string $locale
@@ -57,6 +59,7 @@ class Ticket extends Model
             'hold_expires_at' => 'datetime',
             'verified_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'no_show_at' => 'datetime',
             'accepted_rules_at' => 'datetime',
         ];
     }

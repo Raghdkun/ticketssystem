@@ -45,7 +45,8 @@ export type PublicEvent = {
     rules: PublicEventRule[];
 };
 
-export type TicketStatus = 'pending' | 'paid' | 'cancelled' | 'expired';
+export type TicketStatus =
+    'pending' | 'paid' | 'cancelled' | 'expired' | 'no_show';
 
 export type PublicTicket = {
     token: string;

@@ -44,6 +44,7 @@ return [
         'verified_at' => 'Verified :time',
         'pay_before' => 'Pay before :time or this reservation is released.',
         'status' => [
+            'no_show' => 'No-show',
             'pending' => 'Awaiting payment',
             'paid' => 'Paid',
             'cancelled' => 'Cancelled',
@@ -57,6 +58,12 @@ return [
     ],
 
     'owner' => [
+        'arrived_of' => ':arrived of :total arrived',
+        'no_show' => 'No-show',
+        'check_in_some' => 'Check in :n',
+        'check_in_all' => 'Check in all :n',
+        'arrived_hint' => 'Booked for :n. Check in fewer if only part of the party came.',
+        'arrived' => 'How many arrived?',
         'events' => 'Events',
         'new_event' => 'New event',
         'edit_event' => 'Edit event',

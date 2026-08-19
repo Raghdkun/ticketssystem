@@ -39,6 +39,7 @@ final class TicketPresenter
             'full_name' => $ticket->full_name,
             'phone' => $ticket->phone,
             'quantity' => $ticket->quantity,
+            'arrived_quantity' => $ticket->arrived_quantity,
             'status' => $ticket->status->value,
             'hold_expires_at' => $ticket->hold_expires_at?->toIso8601String(),
             'verified_at' => $ticket->verified_at?->toIso8601String(),

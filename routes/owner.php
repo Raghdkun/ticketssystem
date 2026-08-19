@@ -20,4 +20,5 @@ Route::middleware(['auth', 'verified'])
         Route::get('verify/{ticket}', [VerificationController::class, 'show'])->name('tickets.verify');
         Route::post('verify/{ticket}/paid', [VerificationController::class, 'markPaid'])->name('tickets.verify.paid');
         Route::post('verify/{ticket}/cancel', [VerificationController::class, 'cancel'])->name('tickets.verify.cancel');
+        Route::post('verify/{ticket}/no-show', [VerificationController::class, 'noShow'])->name('tickets.verify.no_show');
     });

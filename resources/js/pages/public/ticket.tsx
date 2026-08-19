@@ -52,7 +52,8 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
         });
     }, [ticket.token, title]);
 
-    const isSpent = status === 'cancelled' || status === 'expired';
+    const isSpent =
+        status === 'cancelled' || status === 'expired' || status === 'no_show';
 
     return (
         <div
