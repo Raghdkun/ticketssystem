@@ -2,16 +2,22 @@ import { Form, Head } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
+import { LanguageToggle } from '@/components/language-toggle';
+import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { localised, useLocale } from '@/lib/locale';
-import type { PublicEvent, PublicPlace } from '@/types/public';
+import type { PublicEvent, PublicPlace, SiblingEvent } from '@/types/public';
 
-type Props = { event: PublicEvent; place: PublicPlace };
+type Props = {
+    event: PublicEvent;
+    place: PublicPlace;
+    siblings: SiblingEvent[];
+};
 
-export default function EventPage({ event, place }: Props) {
+export default function EventPage({ event, place, siblings }: Props) {
     const { locale } = useLocale();
     const [accepted, setAccepted] = useState<number[]>([]);
 
@@ -42,7 +48,13 @@ export default function EventPage({ event, place }: Props) {
         >
             <Head title={title} />
 
+            <PlaceEdgeTab place={place} siblings={siblings} />
+
             <header className="relative">
+                <div className="absolute end-4 top-4 z-30">
+                    <LanguageToggle />
+                </div>
+
                 <div
                     className="relative aspect-[3/4] w-full overflow-hidden sm:aspect-[16/9]"
                     style={{

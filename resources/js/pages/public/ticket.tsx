@@ -2,6 +2,8 @@ import { Head } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
+import { LanguageToggle } from '@/components/language-toggle';
+import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { StatusBanner } from '@/components/ticket/status-banner';
 import { WhatsAppButton } from '@/components/whatsapp-button';
@@ -10,11 +12,21 @@ import { localised, useLocale } from '@/lib/locale';
 import { rememberTicket } from '@/lib/tickets';
 import { useTranslation } from '@/lib/translation';
 import { cn } from '@/lib/utils';
-import type { PublicEvent, PublicPlace, PublicTicket } from '@/types/public';
+import type {
+    PublicEvent,
+    PublicPlace,
+    PublicTicket,
+    SiblingEvent,
+} from '@/types/public';
 
-type Props = { ticket: PublicTicket; event: PublicEvent; place: PublicPlace };
+type Props = {
+    ticket: PublicTicket;
+    event: PublicEvent;
+    place: PublicPlace;
+    siblings: SiblingEvent[];
+};
 
-export default function TicketPage({ ticket, event, place }: Props) {
+export default function TicketPage({ ticket, event, place, siblings }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
     const reduceMotion = useReducedMotion();
@@ -52,7 +64,13 @@ export default function TicketPage({ ticket, event, place }: Props) {
         >
             <Head title={title} />
 
+            <PlaceEdgeTab place={place} siblings={siblings} />
+
             <main className="mx-auto w-full max-w-md px-4">
+                <div className="mb-4 flex justify-end">
+                    <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+                </div>
+
                 {/* The card is fully visible by default and only rises into
                     place. Animating opacity from 0 would hide the ticket
                     entirely if motion never runs (throttled or backgrounded

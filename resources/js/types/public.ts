@@ -58,3 +58,15 @@ export type PublicTicket = {
     created_at: string | null;
     qr: string;
 };
+
+export type SiblingEvent = {
+    slug: string;
+    title_ar: string;
+    title_en: string;
+    starts_at: string;
+    cover: string | null;
+    primary_color: string;
+    is_free: boolean;
+    price: number;
+    currency: string;
+};

@@ -20,6 +20,7 @@ class EventController extends Controller
         return Inertia::render('public/event', [
             'event' => EventPresenter::forPublicPage($event),
             'place' => EventPresenter::place($place),
+            'siblings' => EventPresenter::siblingEvents($place, $event),
         ]);
     }
 

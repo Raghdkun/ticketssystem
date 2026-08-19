@@ -23,6 +23,7 @@ class TicketController extends Controller
             'ticket' => TicketPresenter::forPublicPage($ticket),
             'event' => EventPresenter::forTicket($ticket),
             'place' => EventPresenter::place($ticket->event->place),
+            'siblings' => EventPresenter::siblingEvents($ticket->event->place, $ticket->event),
         ]);
     }
 }

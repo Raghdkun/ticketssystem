@@ -28,6 +28,35 @@ final class EventPresenter
     }
 
     /**
+     * The place's other published, still-open events, for the edge-branding
+     * sheet. Excludes the event being viewed.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function siblingEvents(Place $place, ?Event $exclude = null): array
+    {
+        return $place->events()
+            ->published()
+            ->where('appointments_close_at', '>', now())
+            ->when($exclude, fn ($query) => $query->whereKeyNot($exclude->getKey()))
+            ->orderBy('starts_at')
+            ->limit(10)
+            ->get()
+            ->map(fn (Event $event) => [
+                'slug' => $event->slug,
+                'title_ar' => $event->title_ar,
+                'title_en' => $event->title_en,
+                'starts_at' => $event->starts_at->toIso8601String(),
+                'cover' => $event->cover_variants['thumb'] ?? null,
+                'primary_color' => $event->primary_color ?? '#6d28d9',
+                'is_free' => $event->isFree(),
+                'price' => (float) $event->price,
+                'currency' => $event->currency,
+            ])
+            ->all();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function forPublicPage(Event $event): array
