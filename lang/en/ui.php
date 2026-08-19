@@ -2,6 +2,7 @@
 
 return [
     'common' => [
+        'platform' => 'Platform',
         'whatsapp' => 'Contact on WhatsApp',
         'language' => 'العربية',
         'back' => 'Back',

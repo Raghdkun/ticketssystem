@@ -2,6 +2,7 @@
 
 return [
     'common' => [
+        'platform' => 'المنصة',
         'whatsapp' => 'تواصل عبر واتساب',
         'language' => 'English',
         'back' => 'رجوع',
