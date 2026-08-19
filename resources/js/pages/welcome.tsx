@@ -54,7 +54,12 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                             size="sm"
                             className="bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
                         >
-                            <Link href="/my-tickets">
+                            {/* The label is hidden on narrow screens, so the
+                                link carries its own accessible name. */}
+                            <Link
+                                href="/my-tickets"
+                                aria-label={t('home.find_ticket')}
+                            >
                                 <Search />
                                 <span className="hidden sm:inline">
                                     {t('home.find_ticket')}
