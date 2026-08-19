@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -47,6 +48,22 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],
+            'translations' => fn () => $this->translations(),
         ];
+    }
+
+    /**
+     * The UI string catalogue, flattened to dot notation for the client.
+     *
+     * Only the `ui` group is shipped; validation and auth messages are
+     * rendered server-side and never needed in the bundle.
+     *
+     * @return array<string, string>
+     */
+    private function translations(): array
+    {
+        $strings = trans('ui');
+
+        return is_array($strings) ? Arr::dot($strings) : [];
     }
 }

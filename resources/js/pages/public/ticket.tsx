@@ -1,48 +1,34 @@
 import { Head } from '@inertiajs/react';
-import {
-    CalendarDays,
-    CheckCircle2,
-    Clock,
-    MapPin,
-    MessageCircle,
-    Users,
-} from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
+import { PaidStamp } from '@/components/ticket/paid-stamp';
+import { StatusBanner } from '@/components/ticket/status-banner';
+import { WhatsAppButton } from '@/components/whatsapp-button';
+import { useTicketStatus } from '@/hooks/use-ticket-status';
 import { localised, useLocale } from '@/lib/locale';
 import { rememberTicket } from '@/lib/tickets';
+import { useTranslation } from '@/lib/translation';
 import { cn } from '@/lib/utils';
-import type {
-    PublicEvent,
-    PublicPlace,
-    PublicTicket,
-    TicketStatus,
-} from '@/types/public';
+import type { PublicEvent, PublicPlace, PublicTicket } from '@/types/public';
 
 type Props = { ticket: PublicTicket; event: PublicEvent; place: PublicPlace };
 
-const statusStyles: Record<TicketStatus, string> = {
-    pending:
-        'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200',
-    paid: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200',
-    cancelled: 'bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-200',
-    expired:
-        'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
-};
-
-const statusLabels: Record<TicketStatus, { ar: string; en: string }> = {
-    pending: { ar: 'بانتظار الدفع', en: 'Awaiting payment' },
-    paid: { ar: 'مدفوعة', en: 'Paid' },
-    cancelled: { ar: 'ملغاة', en: 'Cancelled' },
-    expired: { ar: 'منتهية', en: 'Expired' },
-};
-
 export default function TicketPage({ ticket, event, place }: Props) {
     const { locale } = useLocale();
+    const t = useTranslation();
+    const reduceMotion = useReducedMotion();
+
+    const { status, verifiedAt, justChanged } = useTicketStatus(
+        ticket.token,
+        ticket.status,
+        ticket.verified_at,
+    );
 
     const title = localised(locale, event.title_ar, event.title_en);
     const placeName = localised(locale, place.name_ar, place.name_en);
+    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
 
-    // Keep a local pointer so closing the tab does not lose the ticket.
     useEffect(() => {
         rememberTicket({
             token: ticket.token,
@@ -51,11 +37,7 @@ export default function TicketPage({ ticket, event, place }: Props) {
         });
     }, [ticket.token, title]);
 
-    const whatsappHref = place.whatsapp_number
-        ? `https://wa.me/${place.whatsapp_number.replace(/\D/g, '')}?text=${encodeURIComponent(
-              `${title} — ${ticket.full_name} (${ticket.token.slice(0, 8)})`,
-          )}`
-        : null;
+    const isSpent = status === 'cancelled' || status === 'expired';
 
     return (
         <div
@@ -71,8 +53,25 @@ export default function TicketPage({ ticket, event, place }: Props) {
             <Head title={title} />
 
             <main className="mx-auto w-full max-w-md px-4">
-                <article className="overflow-hidden rounded-3xl bg-white shadow-xl dark:bg-neutral-900">
-                    {/* Stub: event identity over the extracted palette */}
+                {/* The card is fully visible by default and only rises into
+                    place. Animating opacity from 0 would hide the ticket
+                    entirely if motion never runs (throttled or backgrounded
+                    tab), which is not an acceptable failure mode here. */}
+                <motion.article
+                    initial={reduceMotion ? false : { y: 18 }}
+                    animate={{ y: 0 }}
+                    transition={{
+                        duration: reduceMotion ? 0 : 0.45,
+                        ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="relative overflow-hidden rounded-3xl bg-white shadow-xl dark:bg-neutral-900"
+                >
+                    <PaidStamp
+                        show={status === 'paid'}
+                        animate={justChanged}
+                        label={t('ticket.stamp')}
+                    />
+
                     <header
                         className="relative p-6"
                         style={{
@@ -93,21 +92,24 @@ export default function TicketPage({ ticket, event, place }: Props) {
                             <span className="inline-flex items-center gap-1.5">
                                 <CalendarDays className="size-4" />
                                 {new Date(event.starts_at).toLocaleDateString(
-                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
-                                    { dateStyle: 'medium' },
+                                    dateLocale,
+                                    {
+                                        dateStyle: 'medium',
+                                    },
                                 )}
                             </span>
                             <span className="inline-flex items-center gap-1.5">
                                 <Clock className="size-4" />
                                 {new Date(event.starts_at).toLocaleTimeString(
-                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
-                                    { timeStyle: 'short' },
+                                    dateLocale,
+                                    {
+                                        timeStyle: 'short',
+                                    },
                                 )}
                             </span>
                         </div>
                     </header>
 
-                    {/* Perforation between stub and counterfoil */}
                     <div
                         className="relative flex items-center"
                         aria-hidden="true"
@@ -118,31 +120,19 @@ export default function TicketPage({ ticket, event, place }: Props) {
                     </div>
 
                     <div className="space-y-6 p-6">
-                        <div
-                            className={cn(
-                                'flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold',
-                                statusStyles[ticket.status],
-                            )}
-                        >
-                            {ticket.status === 'paid' && (
-                                <CheckCircle2 className="size-5" />
-                            )}
-                            {statusLabels[ticket.status][locale]}
-                        </div>
+                        <StatusBanner
+                            status={status}
+                            label={t(`ticket.status.${status}`)}
+                            pulse={justChanged}
+                        />
 
                         <div className="flex justify-center">
                             <img
                                 src={ticket.qr}
-                                alt={
-                                    locale === 'ar'
-                                        ? 'رمز التذكرة'
-                                        : 'Ticket QR code'
-                                }
+                                alt={t('ticket.qr_alt')}
                                 className={cn(
-                                    'size-56 rounded-xl',
-                                    ticket.status !== 'pending' &&
-                                        ticket.status !== 'paid' &&
-                                        'opacity-40 grayscale',
+                                    'size-56 rounded-xl transition duration-500',
+                                    isSpent && 'opacity-40 grayscale',
                                 )}
                                 width={224}
                                 height={224}
@@ -152,7 +142,7 @@ export default function TicketPage({ ticket, event, place }: Props) {
                         <dl className="grid grid-cols-2 gap-4 text-sm">
                             <div>
                                 <dt className="text-muted-foreground">
-                                    {locale === 'ar' ? 'الاسم' : 'Name'}
+                                    {t('ticket.name')}
                                 </dt>
                                 <dd className="font-medium">
                                     {ticket.full_name}
@@ -160,7 +150,7 @@ export default function TicketPage({ ticket, event, place }: Props) {
                             </div>
                             <div>
                                 <dt className="text-muted-foreground">
-                                    {locale === 'ar' ? 'عدد الأشخاص' : 'People'}
+                                    {t('ticket.people')}
                                 </dt>
                                 <dd className="inline-flex items-center gap-1.5 font-medium">
                                     <Users className="size-4" />
@@ -169,21 +159,17 @@ export default function TicketPage({ ticket, event, place }: Props) {
                             </div>
                             <div>
                                 <dt className="text-muted-foreground">
-                                    {locale === 'ar' ? 'المبلغ' : 'Amount'}
+                                    {t('ticket.amount')}
                                 </dt>
                                 <dd className="font-medium">
                                     {event.is_free
-                                        ? locale === 'ar'
-                                            ? 'مجاني'
-                                            : 'Free'
+                                        ? t('event.free')
                                         : `${(event.price * ticket.quantity).toLocaleString()} ${event.currency}`}
                                 </dd>
                             </div>
                             <div>
                                 <dt className="text-muted-foreground">
-                                    {locale === 'ar'
-                                        ? 'رقم التذكرة'
-                                        : 'Reference'}
+                                    {t('ticket.reference')}
                                 </dt>
                                 <dd
                                     className="font-mono text-xs font-medium"
@@ -194,30 +180,41 @@ export default function TicketPage({ ticket, event, place }: Props) {
                             </div>
                         </dl>
 
-                        {ticket.status === 'pending' &&
-                            ticket.hold_expires_at && (
-                                <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
-                                    {locale === 'ar'
-                                        ? `يرجى الدفع قبل ${new Date(ticket.hold_expires_at).toLocaleString('ar-SY', { dateStyle: 'medium', timeStyle: 'short' })} وإلا سيتم إلغاء الحجز.`
-                                        : `Pay before ${new Date(ticket.hold_expires_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })} or this reservation is released.`}
-                                </p>
-                            )}
-                    </div>
-                </article>
+                        {status === 'paid' && verifiedAt && (
+                            <p className="text-center text-xs text-muted-foreground">
+                                {t('ticket.verified_at', {
+                                    time: new Date(verifiedAt).toLocaleString(
+                                        dateLocale,
+                                        {
+                                            dateStyle: 'medium',
+                                            timeStyle: 'short',
+                                        },
+                                    ),
+                                })}
+                            </p>
+                        )}
 
-                {whatsappHref && (
-                    <a
-                        href={whatsappHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-medium text-white shadow-lg transition hover:brightness-95"
-                    >
-                        <MessageCircle className="size-5" />
-                        {locale === 'ar'
-                            ? 'تواصل عبر واتساب'
-                            : 'Contact on WhatsApp'}
-                    </a>
-                )}
+                        {status === 'pending' && ticket.hold_expires_at && (
+                            <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+                                {t('ticket.pay_before', {
+                                    time: new Date(
+                                        ticket.hold_expires_at,
+                                    ).toLocaleString(dateLocale, {
+                                        dateStyle: 'medium',
+                                        timeStyle: 'short',
+                                    }),
+                                })}
+                            </p>
+                        )}
+                    </div>
+                </motion.article>
+
+                <WhatsAppButton
+                    number={place.whatsapp_number}
+                    message={`${title} — ${ticket.full_name} (${ticket.token.slice(0, 8).toUpperCase()})`}
+                    label={t('common.whatsapp')}
+                    className="mt-6 w-full"
+                />
             </main>
         </div>
     );

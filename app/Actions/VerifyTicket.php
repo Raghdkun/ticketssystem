@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\TicketStatus;
+use App\Events\TicketStatusChanged;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,8 @@ final class VerifyTicket
                 'to_status' => $to->value,
                 'actor_id' => $actor->id,
             ]);
+
+            TicketStatusChanged::dispatch($locked);
 
             return $locked;
         });

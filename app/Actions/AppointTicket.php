@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\TicketStatus;
+use App\Events\TicketStatusChanged;
 use App\Exceptions\AppointmentException;
 use App\Models\Event;
 use App\Models\Ticket;
@@ -74,6 +75,8 @@ final class AppointTicket
                 'to_status' => TicketStatus::Pending->value,
                 'note' => 'appointed',
             ]);
+
+            TicketStatusChanged::dispatch($ticket);
 
             return $ticket;
         });

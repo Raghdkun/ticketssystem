@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\TicketStatus;
+use App\Events\TicketStatusChanged;
 use App\Models\Ticket;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,8 @@ class ExpirePendingTickets extends Command
                             'to_status' => TicketStatus::Expired->value,
                             'note' => 'hold lapsed',
                         ]);
+
+                        TicketStatusChanged::dispatch($locked);
 
                         $expired++;
                     });
