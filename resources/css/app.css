@@ -8,10 +8,29 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    /*
+     * Instrument Sans carries the Latin text; IBM Plex Sans Arabic follows it
+     * in the stack so Arabic glyphs resolve to a real face rather than an OS
+     * fallback. Listing both means mixed-script strings (an Arabic title next
+     * to a Latin venue name) stay visually consistent.
+     */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Instrument Sans', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+
+    --font-arabic:
+        'IBM Plex Sans Arabic', 'Instrument Sans', ui-sans-serif, system-ui,
+        sans-serif;
+
+    /*
+     * Booking CTA accent. Orange carries high-intent actions so they never
+     * compete with the blue used for navigation and structure. Paired with
+     * near-black text in both modes: 7.06:1 (AAA). White on this orange is
+     * only 2.80:1, so the foreground is deliberately dark, not light.
+     */
+    --color-brand-cta: #f97316;
+    --color-brand-cta-foreground: #0a0a0a;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -68,8 +87,8 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
+    --primary: #1e3a8a;
+    --primary-foreground: #ffffff;
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
@@ -80,7 +99,7 @@
     --destructive-foreground: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
+    --ring: #1e3a8a;
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -89,7 +108,7 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: #1e3a8a;
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -104,8 +123,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+    --primary: #60a5fa;
+    --primary-foreground: #0a0a0a;
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
@@ -116,7 +135,7 @@
     --destructive-foreground: oklch(0.637 0.237 25.331);
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
+    --ring: #60a5fa;
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -124,8 +143,8 @@
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: #60a5fa;
+    --sidebar-primary-foreground: #0a0a0a;
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
@@ -162,4 +181,25 @@
     --color-primary: var(--event-primary);
     --color-primary-foreground: var(--event-on-primary);
     --color-ring: var(--event-primary);
+}
+
+/*
+ * Arabic script needs more vertical room than Latin at the same size, and the
+ * tight tracking used for Latin headings makes it harder to read.
+ */
+:root:lang(ar),
+[dir='rtl'] {
+    --arabic-leading: 1.75;
+}
+
+[dir='rtl'] body {
+    font-family: var(--font-arabic);
+    line-height: var(--arabic-leading);
+}
+
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3 {
+    letter-spacing: 0;
+    line-height: 1.45;
 }

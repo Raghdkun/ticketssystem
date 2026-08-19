@@ -15,6 +15,11 @@ export default defineConfig({
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                 }),
+                // Instrument Sans has no Arabic coverage, so Arabic would fall
+                // back to whatever the OS provides. This ships a real Arabic face.
+                bunny('IBM Plex Sans Arabic', {
+                    weights: [400, 500, 600, 700],
+                }),
             ],
         }),
         inertia(),

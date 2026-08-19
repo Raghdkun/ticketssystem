@@ -45,7 +45,11 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button asChild variant="outline" size="sm">
+                        <Button
+                            asChild
+                            size="sm"
+                            className="bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
+                        >
                             <Link href="/my-tickets">
                                 <Search />
                                 <span className="hidden sm:inline">
