@@ -82,6 +82,10 @@ realtime status flip.
   must be readable — if motion does not run, the content must still be visible.
 - **Every control is ≥44px on coarse pointers** (`@media (pointer: coarse)` in `app.css`).
 - **Flash messages are `{ type, message }`** under `flash.toast`. A bare string renders nothing.
+- **Error pages are styled inline**, not through Vite. They must render when the asset manifest is
+  missing or a deploy is half-finished — which is exactly when they are needed.
+- **`data-[side=*]` animation classes stay physical.** They follow Radix's computed placement, not
+  the document direction; only layout classes get logical equivalents.
 
 ---
 
@@ -96,8 +100,9 @@ realtime status flip.
 | 5 | Media library (photos + 100 MB video), promo video, ticket inclusions, owner reports + CSV |
 | 6 | Rebrand + logo/icons, platform settings, audited impersonation, unified indigo/orange theme |
 | 7 | Sitemap, `DEPLOYMENT.md`, this file |
+| 8 | Redesign pass: branded error pages, legal pages, public footer, skip link, social meta, press feedback |
 
-**176+ tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO.
+**188 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
 
 ---
 
