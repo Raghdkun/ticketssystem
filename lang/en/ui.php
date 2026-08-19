@@ -115,4 +115,13 @@ return [
         'verify_now' => 'Verify tickets',
         'seats_left' => ':left left',
     ],
+
+    'home' => [
+        'tagline' => 'Reserve your seat, pay at the venue.',
+        'whats_on' => "What's on",
+        'none' => 'No events are open for booking right now.',
+        'find_ticket' => 'Find my ticket',
+        'seats_left' => ':n seats left',
+        'sold_out' => 'Sold out',
+    ],
 ];
