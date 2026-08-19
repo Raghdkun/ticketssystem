@@ -6,6 +6,8 @@ import {
     Ticket as TicketIcon,
 } from 'lucide-react';
 import Heading from '@/components/heading';
+import { Counter } from '@/components/motion/counter';
+import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
@@ -38,10 +40,12 @@ type Props = { stats: Stats; owners: Owner[] };
 
 function Stat({ label, value }: { label: string; value: string | number }) {
     return (
-        <div className="rounded-xl border p-4">
+        <StaggerItem className="rounded-xl border p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
-        </div>
+            <p className="mt-1 text-2xl font-bold tabular-nums">
+                {typeof value === 'number' ? <Counter value={value} /> : value}
+            </p>
+        </StaggerItem>
     );
 }
 
@@ -60,7 +64,7 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                     description={t('admin.subtitle')}
                 />
 
-                <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <Stat label={t('admin.stat_owners')} value={stats.owners} />
                     <Stat label={t('admin.stat_events')} value={stats.events} />
                     <Stat
@@ -84,7 +88,7 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                         value={stats.revenue.toLocaleString()}
                     />
                     <Stat label={t('admin.suspended')} value={stats.banned} />
-                </section>
+                </Stagger>
 
                 {rows.length === 0 ? (
                     <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
@@ -95,7 +99,7 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                         {rows.map((owner) => (
                             <li
                                 key={owner.id}
-                                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4"
+                                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4 transition-colors duration-200 hover:border-primary/40"
                             >
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">

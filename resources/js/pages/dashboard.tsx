@@ -2,6 +2,8 @@ import { Head, Link } from '@inertiajs/react';
 import { CalendarClock, ScanLine, Ticket as TicketIcon } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
+import { Counter } from '@/components/motion/counter';
+import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
@@ -57,12 +59,12 @@ function Stat({
     tone?: string;
 }) {
     return (
-        <div className="rounded-xl border p-4">
+        <StaggerItem className="rounded-xl border p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone ?? ''}`}>
-                {value}
+                <Counter value={value} />
             </p>
-        </div>
+        </StaggerItem>
     );
 }
 
@@ -118,7 +120,7 @@ export default function Dashboard({
                     </Button>
                 </div>
 
-                <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                     <Stat
                         label={t('dash.published')}
                         value={stats.published_events}
@@ -139,7 +141,7 @@ export default function Dashboard({
                         value={stats.awaiting_seats}
                         tone="text-amber-600 dark:text-amber-400"
                     />
-                </section>
+                </Stagger>
 
                 <div className="grid gap-6 lg:grid-cols-2">
                     <section className="space-y-3">
@@ -158,7 +160,7 @@ export default function Dashboard({
                                     <li key={ticket.token}>
                                         <Link
                                             href={`/verify/${ticket.token}`}
-                                            className="flex items-center gap-3 p-3 transition hover:bg-muted/50"
+                                            className="flex cursor-pointer items-center gap-3 p-3 transition-colors duration-200 hover:bg-muted/50"
                                         >
                                             <span className="min-w-0 flex-1">
                                                 <span className="block truncate text-sm font-medium">
@@ -222,7 +224,7 @@ export default function Dashboard({
                                                 href={EventController.edit(
                                                     event.id,
                                                 )}
-                                                className="block rounded-xl border p-3 transition hover:bg-muted/50"
+                                                className="block cursor-pointer rounded-xl border p-3 transition-colors duration-200 hover:border-primary/40 hover:bg-muted/50"
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <span className="min-w-0 truncate text-sm font-medium">
