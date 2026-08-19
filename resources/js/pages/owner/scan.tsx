@@ -1,5 +1,6 @@
 import { Form, Head, Link, router } from '@inertiajs/react';
 import { Search, Users } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { QrScanner } from '@/components/qr-scanner';
 import { StatusBadge } from '@/components/status-badge';
@@ -69,9 +70,7 @@ export default function ScanPage({ phone, results }: Props) {
                 </Form>
 
                 {phone && results.length === 0 && (
-                    <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                        {t('owner.no_results')}
-                    </p>
+                    <EmptyState icon={Search} title={t('owner.no_results')} />
                 )}
 
                 <ul className="space-y-3">

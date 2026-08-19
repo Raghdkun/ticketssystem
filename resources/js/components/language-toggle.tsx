@@ -24,7 +24,7 @@ export function LanguageToggle({ className }: { className?: string }) {
         <a
             href={`${url.pathname}${url.search}`}
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-lg bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black/60',
+                'inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition-colors duration-200 hover:bg-black/60',
                 className,
             )}
         >

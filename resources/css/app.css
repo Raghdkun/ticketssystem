@@ -218,7 +218,12 @@
     [role='checkbox'],
     [role='switch'],
     a[data-slot='button'],
-    summary {
+    summary,
+    /* Form fields too: a 36px input is cramped for a thumb, and the event
+       form is filled in on a phone as often as on a desktop. */
+    input:not([type='checkbox']):not([type='radio']):not([type='color']),
+    select,
+    textarea {
         min-height: 44px;
     }
 

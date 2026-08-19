@@ -1,19 +1,37 @@
-import { router } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import type { FlashToast } from '@/types/ui';
 
+type FlashProps = { flash?: { toast?: FlashToast | null } };
+
+/**
+ * Surfaces server flash messages as toasts.
+ *
+ * Must be called from inside the Inertia tree: usePage throws outside it, and
+ * the Toaster itself is mounted as a sibling of the app.
+ */
 export function useFlashToast(): void {
+    const { flash } = usePage<FlashProps>().props;
+    const message = flash?.toast?.message ?? null;
+    const type = flash?.toast?.type ?? 'success';
+    const lastShown = useRef<string | null>(null);
+
     useEffect(() => {
-        return router.on('flash', (event) => {
-            const flash = (event as CustomEvent).detail?.flash;
-            const data = flash?.toast as FlashToast | undefined;
+        if (!message) {
+            // Let an identical message show again after a later action.
+            lastShown.current = null;
 
-            if (!data) {
-                return;
-            }
+            return;
+        }
 
-            toast[data.type](data.message);
-        });
-    }, []);
+        const signature = `${type}:${message}`;
+
+        if (lastShown.current === signature) {
+            return;
+        }
+
+        lastShown.current = signature;
+        toast[type](message);
+    }, [message, type]);
 }

@@ -6,6 +6,7 @@ import {
     Ticket as TicketIcon,
     UserPlus,
 } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Counter } from '@/components/motion/counter';
@@ -233,9 +234,7 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                 </Collapsible>
 
                 {rows.length === 0 ? (
-                    <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-                        {t('admin.no_owners')}
-                    </p>
+                    <EmptyState icon={UserPlus} title={t('admin.no_owners')} />
                 ) : (
                     <ul className="space-y-3">
                         {rows.map((owner) => (

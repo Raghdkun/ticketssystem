@@ -1,6 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarClock, ScanLine, Ticket as TicketIcon } from 'lucide-react';
+import {
+    CalendarClock,
+    ScanLine,
+    Store,
+    Ticket as TicketIcon,
+} from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
+import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
@@ -84,9 +90,7 @@ export default function Dashboard({
             <>
                 <Head title={t('dash.title')} />
                 <div className="p-4">
-                    <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-                        {t('dash.no_place')}
-                    </p>
+                    <EmptyState icon={Store} title={t('dash.no_place')} />
                 </div>
             </>
         );
@@ -151,9 +155,10 @@ export default function Dashboard({
                         </h2>
 
                         {recent.length === 0 ? (
-                            <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                                {t('dash.no_recent')}
-                            </p>
+                            <EmptyState
+                                icon={TicketIcon}
+                                title={t('dash.no_recent')}
+                            />
                         ) : (
                             <ul className="divide-y rounded-xl border">
                                 {recent.map((ticket) => (
@@ -195,9 +200,10 @@ export default function Dashboard({
                         </h2>
 
                         {upcoming.length === 0 ? (
-                            <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                                {t('dash.no_upcoming')}
-                            </p>
+                            <EmptyState
+                                icon={CalendarClock}
+                                title={t('dash.no_upcoming')}
+                            />
                         ) : (
                             <ul className="space-y-2">
                                 {upcoming.map((event) => {

@@ -2,6 +2,7 @@ import { Form, Head } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
 import { EventCover } from '@/components/event-cover';
+import { FlashToaster } from '@/components/flash-toaster';
 import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
@@ -58,6 +59,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                 />
             </Head>
 
+            <FlashToaster />
             <PlaceEdgeTab place={place} siblings={siblings} />
 
             <header className="relative">

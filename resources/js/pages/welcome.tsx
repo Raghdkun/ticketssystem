@@ -5,6 +5,8 @@ import {
     Search,
     Ticket as TicketIcon,
 } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
@@ -36,6 +38,8 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
             <Head title={t('home.whats_on')}>
                 <meta name="description" content={t('home.tagline')} />
             </Head>
+
+            <FlashToaster />
 
             <header className="border-b">
                 <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 p-5">
@@ -71,9 +75,10 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                     <h1 className="text-2xl font-bold">{t('home.whats_on')}</h1>
 
                     {events.length === 0 ? (
-                        <p className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
-                            {t('home.none')}
-                        </p>
+                        <EmptyState
+                            icon={CalendarDays}
+                            title={t('home.none')}
+                        />
                     ) : (
                         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {events.map((event) => {

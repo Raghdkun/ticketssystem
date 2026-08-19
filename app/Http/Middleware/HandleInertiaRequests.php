@@ -45,9 +45,12 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale' => $locale = app()->getLocale(),
             'direction' => $locale === 'ar' ? 'rtl' : 'ltr',
-            'flash' => [
-                'success' => fn () => $request->session()->get('success'),
-            ],
+            /*
+             * Shaped as the client's toast payload rather than a bare string:
+             * the flash listener expects { type, message }, so controllers
+             * using with('success') produced no visible confirmation at all.
+             */
+            'flash' => fn () => $this->flash($request),
             'translations' => fn () => $this->translations(),
         ];
     }
@@ -65,5 +68,21 @@ class HandleInertiaRequests extends Middleware
         $strings = trans('ui');
 
         return is_array($strings) ? Arr::dot($strings) : [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function flash(Request $request): array
+    {
+        foreach (['success', 'error', 'warning', 'info'] as $type) {
+            $message = $request->session()->get($type);
+
+            if (is_string($message) && $message !== '') {
+                return ['toast' => ['type' => $type, 'message' => $message]];
+            }
+        }
+
+        return ['toast' => null];
     }
 }

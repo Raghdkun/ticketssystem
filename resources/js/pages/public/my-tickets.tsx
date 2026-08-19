@@ -1,5 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { Search, Ticket as TicketIcon, Users } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +32,8 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
     return (
         <div className="min-h-dvh bg-background">
             <Head title={t('ticket.my_tickets')} />
+
+            <FlashToaster />
 
             <main className="mx-auto w-full max-w-md space-y-8 p-5">
                 <div className="flex items-center justify-between">
@@ -108,9 +112,10 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                     </Form>
 
                     {searched && results.length === 0 && (
-                        <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                            {t('ticket.lookup_empty')}
-                        </p>
+                        <EmptyState
+                            icon={Search}
+                            title={t('ticket.lookup_empty')}
+                        />
                     )}
 
                     <ul className="space-y-2">

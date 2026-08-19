@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
+import { FlashToaster } from '@/components/flash-toaster';
 import { InstallPrompt } from '@/components/install-prompt';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
@@ -69,6 +70,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                 <meta name="robots" content="noindex" />
             </Head>
 
+            <FlashToaster />
             <PlaceEdgeTab place={place} siblings={siblings} />
             <InstallPrompt />
 
