@@ -256,6 +256,7 @@ The health endpoint (`/up`) only proves PHP runs. These prove the product works:
 ```bash
 curl -I https://your-domain/            # 200 + X-Frame-Options: DENY
 curl https://your-domain/sitemap.xml    # XML, and contains no /t/ URLs
+curl https://your-domain/robots.txt     # absolute Sitemap: URL for this host
 ```
 
 Then, by hand:

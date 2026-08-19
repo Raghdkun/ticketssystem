@@ -44,4 +44,31 @@ class SitemapController extends Controller
             ->view('sitemap', ['urls' => $urls])
             ->header('Content-Type', 'application/xml; charset=UTF-8');
     }
+
+    /**
+     * robots.txt is served by the app rather than as a static file so the
+     * Sitemap directive carries an absolute URL for whichever environment is
+     * running. A relative one is treated as malformed by crawlers.
+     */
+    public function robots(): Response
+    {
+        $lines = [
+            'User-agent: *',
+            'Allow: /',
+            '',
+            '# Ticket URLs are bearer tokens beside a name and phone number.',
+            '# They must never be crawled; each page also sends noindex.',
+            'Disallow: /t/',
+            'Disallow: /verify/',
+            'Disallow: /owner/',
+            'Disallow: /admin/',
+            'Disallow: /my-tickets',
+            '',
+            'Sitemap: '.route('sitemap'),
+            '',
+        ];
+
+        return response(implode("\n", $lines))
+            ->header('Content-Type', 'text/plain; charset=UTF-8');
+    }
 }

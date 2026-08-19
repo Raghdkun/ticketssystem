@@ -61,13 +61,13 @@ class SitemapTest extends TestCase
             ->assertSee('hreflang="x-default"', false);
     }
 
-    /**
-     * robots.txt is served statically by the web server, so it is asserted on
-     * disk rather than through the router.
-     */
     public function test_robots_blocks_the_private_areas(): void
     {
-        $body = (string) file_get_contents(public_path('robots.txt'));
+        $response = $this->get('/robots.txt')->assertOk();
+        $body = $response->getContent();
+
+        // An absolute Sitemap URL: crawlers treat a relative one as malformed.
+        $this->assertStringContainsString('Sitemap: '.route('sitemap'), $body);
 
         foreach (['/t/', '/verify/', '/owner/', '/admin/'] as $path) {
             $this->assertStringContainsString("Disallow: {$path}", $body);

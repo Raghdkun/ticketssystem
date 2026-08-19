@@ -15,6 +15,7 @@ Route::get('my-tickets', TicketLookupController::class)
     ->name('tickets.lookup');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Push opt-in for a ticket, authorised by possession of its token.
 Route::post('t/{ticket}/push', [PushSubscriptionController::class, 'store'])
