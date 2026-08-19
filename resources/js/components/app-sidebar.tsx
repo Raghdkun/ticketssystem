@@ -1,12 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-    BookOpen,
-    CalendarDays,
-    FolderGit2,
-    LayoutGrid,
-    ScanLine,
-    ShieldCheck,
-} from 'lucide-react';
+import { CalendarDays, LayoutGrid, ScanLine, ShieldCheck } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -29,34 +22,23 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'dash.title',
         href: dashboard(),
         icon: LayoutGrid,
     },
     {
-        title: 'Events',
+        title: 'owner.events',
         href: EventController.index(),
         icon: CalendarDays,
     },
     {
-        title: 'Verify',
+        title: 'owner.verify_title',
         href: scan(),
         icon: ScanLine,
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     // Platform administration is only reachable by super admins; the server
@@ -66,7 +48,7 @@ export function AppSidebar() {
     const navItems: NavItem[] = isSuperAdmin
         ? [
               ...mainNavItems,
-              { title: 'Owners', href: owners(), icon: ShieldCheck },
+              { title: 'admin.title', href: owners(), icon: ShieldCheck },
           ]
         : mainNavItems;
 

@@ -169,5 +169,5 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
 }
 
 AdminOwners.layout = {
-    breadcrumbs: [{ title: 'Owners', href: owners() }],
+    breadcrumbs: [{ title: 'admin.title', href: owners() }],
 };

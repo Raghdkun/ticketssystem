@@ -2,18 +2,20 @@ import { Form, Head, Link, router } from '@inertiajs/react';
 import { Search, Users } from 'lucide-react';
 import Heading from '@/components/heading';
 import { QrScanner } from '@/components/qr-scanner';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/lib/translation';
 import { scan } from '@/routes/owner';
+import type { TicketStatus } from '@/types/public';
 
 type Result = {
     token: string;
     full_name: string;
     phone: string;
     quantity: number;
-    status: string;
+    status: TicketStatus;
     event_title_en: string;
     event_title_ar: string;
 };
@@ -92,9 +94,7 @@ export default function ScanPage({ phone, results }: Props) {
                                         <Users className="size-4" />
                                         {result.quantity}
                                     </span>
-                                    <span className="text-muted-foreground">
-                                        {t(`ticket.status.${result.status}`)}
-                                    </span>
+                                    <StatusBadge status={result.status} />
                                 </div>
                             </Link>
                         </li>
@@ -106,5 +106,5 @@ export default function ScanPage({ phone, results }: Props) {
 }
 
 ScanPage.layout = {
-    breadcrumbs: [{ title: 'Verify', href: scan() }],
+    breadcrumbs: [{ title: 'owner.verify_title', href: scan() }],
 };

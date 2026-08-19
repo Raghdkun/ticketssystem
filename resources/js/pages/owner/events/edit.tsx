@@ -30,7 +30,7 @@ export default function EditEvent({ event }: Props) {
 
 EditEvent.layout = {
     breadcrumbs: [
-        { title: 'Events', href: EventController.index() },
-        { title: 'Edit', href: '#' },
+        { title: 'owner.events', href: EventController.index() },
+        { title: 'owner.edit_event', href: '#' },
     ],
 };

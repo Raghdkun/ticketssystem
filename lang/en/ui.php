@@ -11,6 +11,11 @@ return [
     ],
 
     'event' => [
+        'status' => [
+            'draft' => 'Draft',
+            'published' => 'Published',
+            'archived' => 'Archived',
+        ],
         'free' => 'Free',
         'date' => 'Date',
         'time' => 'Time',
@@ -92,5 +97,22 @@ return [
         'body' => 'Get to your tickets in one tap, and receive status updates.',
         'ios_hint' => 'Tap Share, then "Add to Home Screen".',
         'install' => 'Install',
+    ],
+
+    'dash' => [
+        'title' => 'Overview',
+        'no_place' => 'No venue is linked to your account yet. Contact the platform administrator.',
+        'published' => 'Published events',
+        'drafts' => 'Drafts',
+        'pending' => 'Awaiting payment',
+        'paid' => 'Paid tickets',
+        'seats_paid' => 'Seats paid',
+        'awaiting_seats' => 'Seats awaiting payment',
+        'recent' => 'Latest appointments',
+        'upcoming' => 'Upcoming events',
+        'no_recent' => 'No appointments yet.',
+        'no_upcoming' => 'No upcoming events.',
+        'verify_now' => 'Verify tickets',
+        'seats_left' => ':left left',
     ],
 ];

@@ -102,7 +102,7 @@ export default function EventsIndex({ place, events }: Props) {
                                                 'secondary'
                                             }
                                         >
-                                            {event.status}
+                                            {t(`event.status.${event.status}`)}
                                         </Badge>
                                     </div>
 
@@ -139,5 +139,5 @@ export default function EventsIndex({ place, events }: Props) {
 }
 
 EventsIndex.layout = {
-    breadcrumbs: [{ title: 'Events', href: EventController.index() }],
+    breadcrumbs: [{ title: 'owner.events', href: EventController.index() }],
 };

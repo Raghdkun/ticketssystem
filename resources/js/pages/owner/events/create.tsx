@@ -26,7 +26,7 @@ export default function CreateEvent() {
 
 CreateEvent.layout = {
     breadcrumbs: [
-        { title: 'Events', href: EventController.index() },
-        { title: 'New', href: EventController.create() },
+        { title: 'owner.events', href: EventController.index() },
+        { title: 'owner.new_event', href: EventController.create() },
     ],
 };
