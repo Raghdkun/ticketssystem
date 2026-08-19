@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/lib/translation';
 
 export type EventRule = { body_ar: string; body_en: string };
 
@@ -64,6 +65,7 @@ function Field({
 }
 
 export default function EventForm({ action, values, submitLabel }: Props) {
+    const t = useTranslation();
     const [rules, setRules] = useState<EventRule[]>(values?.rules ?? []);
     const [themeMode, setThemeMode] = useState(values?.theme_mode ?? 'auto');
 
@@ -79,12 +81,13 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                     <section className="grid gap-4 sm:grid-cols-2">
                         <Field
                             id="title_en"
-                            label="Title (English)"
+                            label={t('form.title_en')}
                             error={errors.title_en}
                         >
                             <Input
                                 id="title_en"
                                 name="title_en"
+                                dir="ltr"
                                 required
                                 defaultValue={values?.title_en}
                             />
@@ -92,7 +95,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="title_ar"
-                            label="Title (Arabic)"
+                            label={t('form.title_ar')}
                             error={errors.title_ar}
                         >
                             <Input
@@ -106,19 +109,20 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="description_en"
-                            label="Description (English)"
+                            label={t('form.desc_en')}
                             error={errors.description_en}
                         >
                             <Textarea
                                 id="description_en"
                                 name="description_en"
+                                dir="ltr"
                                 defaultValue={values?.description_en ?? ''}
                             />
                         </Field>
 
                         <Field
                             id="description_ar"
-                            label="Description (Arabic)"
+                            label={t('form.desc_ar')}
                             error={errors.description_ar}
                         >
                             <Textarea
@@ -133,9 +137,9 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                     <section className="grid gap-4 sm:grid-cols-3">
                         <Field
                             id="price"
-                            label="Price"
+                            label={t('form.price')}
                             error={errors.price}
-                            hint="Set 0 to make the event free."
+                            hint={t('form.price_hint')}
                         >
                             <Input
                                 id="price"
@@ -150,7 +154,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="currency"
-                            label="Currency"
+                            label={t('form.currency')}
                             error={errors.currency}
                         >
                             <Input
@@ -164,7 +168,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="total_quantity"
-                            label="Total seats"
+                            label={t('form.total_seats')}
                             error={errors.total_quantity}
                         >
                             <Input
@@ -179,7 +183,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="max_per_appointment"
-                            label="Max per appointment"
+                            label={t('form.max_per')}
                             error={errors.max_per_appointment}
                         >
                             <Input
@@ -195,9 +199,9 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="hold_hours"
-                            label="Hold window (hours)"
+                            label={t('form.hold_hours')}
                             error={errors.hold_hours}
-                            hint="Unpaid reservations expire after this and free their seats."
+                            hint={t('form.hold_hint')}
                         >
                             <Input
                                 id="hold_hours"
@@ -210,16 +214,26 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                             />
                         </Field>
 
-                        <Field id="status" label="Status" error={errors.status}>
+                        <Field
+                            id="status"
+                            label={t('form.status')}
+                            error={errors.status}
+                        >
                             <select
                                 id="status"
                                 name="status"
                                 defaultValue={values?.status ?? 'draft'}
                                 className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                             >
-                                <option value="draft">Draft</option>
-                                <option value="published">Published</option>
-                                <option value="archived">Archived</option>
+                                <option value="draft">
+                                    {t('event.status.draft')}
+                                </option>
+                                <option value="published">
+                                    {t('event.status.published')}
+                                </option>
+                                <option value="archived">
+                                    {t('event.status.archived')}
+                                </option>
                             </select>
                         </Field>
                     </section>
@@ -227,7 +241,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                     <section className="grid gap-4 sm:grid-cols-3">
                         <Field
                             id="starts_at"
-                            label="Starts at"
+                            label={t('form.starts_at')}
                             error={errors.starts_at}
                         >
                             <Input
@@ -241,7 +255,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="ends_at"
-                            label="Ends at"
+                            label={t('form.ends_at')}
                             error={errors.ends_at}
                         >
                             <Input
@@ -254,9 +268,9 @@ export default function EventForm({ action, values, submitLabel }: Props) {
 
                         <Field
                             id="appointments_close_at"
-                            label="Appointments close at"
+                            label={t('form.closes_at')}
                             error={errors.appointments_close_at}
-                            hint="After this, the event stops accepting appointments."
+                            hint={t('form.closes_hint')}
                         >
                             <Input
                                 id="appointments_close_at"
@@ -271,9 +285,9 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                     <section className="space-y-4">
                         <Field
                             id="cover"
-                            label="Cover image"
+                            label={t('form.cover')}
                             error={errors.cover}
-                            hint="JPEG, PNG or WebP, up to 8 MB. Resized to WebP automatically."
+                            hint={t('form.cover_hint')}
                         >
                             <Input
                                 id="cover"
@@ -286,14 +300,14 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                         {values?.cover && (
                             <img
                                 src={`/storage/${values.cover}`}
-                                alt="Current cover"
+                                alt={t('form.cover')}
                                 className="aspect-video w-full max-w-sm rounded-lg object-cover"
                             />
                         )}
 
                         <Field
                             id="theme_mode"
-                            label="Theme colours"
+                            label={t('form.theme')}
                             error={errors.theme_mode}
                         >
                             <select
@@ -304,10 +318,10 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 className="h-9 max-w-xs rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                             >
                                 <option value="auto">
-                                    Auto — from cover image
+                                    {t('form.theme_auto')}
                                 </option>
                                 <option value="manual">
-                                    Manual — pick my own
+                                    {t('form.theme_manual')}
                                 </option>
                             </select>
                         </Field>
@@ -316,7 +330,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                             <div className="grid max-w-sm gap-4 sm:grid-cols-2">
                                 <Field
                                     id="primary_color"
-                                    label="Primary"
+                                    label={t('form.primary')}
                                     error={errors.primary_color}
                                 >
                                     <Input
@@ -330,7 +344,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 </Field>
                                 <Field
                                     id="secondary_color"
-                                    label="Secondary"
+                                    label={t('form.secondary')}
                                     error={errors.secondary_color}
                                 >
                                     <Input
@@ -350,7 +364,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-sm font-medium">
-                                    Rules &amp; notes
+                                    {t('form.rules_title')}
                                 </h3>
                                 <p className="text-xs text-muted-foreground">
                                     Attendees must accept every rule before they
@@ -369,7 +383,7 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 }
                             >
                                 <Plus />
-                                Add rule
+                                {t('form.add_rule')}
                             </Button>
                         </div>
 
@@ -378,13 +392,14 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 <div className="grid flex-1 gap-2 sm:grid-cols-2">
                                     <Input
                                         name={`rules[${index}][body_en]`}
-                                        placeholder="e.g. +18 only"
+                                        dir="ltr"
+                                        placeholder={t('form.rule_en')}
                                         defaultValue={rule.body_en}
                                         required
                                     />
                                     <Input
                                         name={`rules[${index}][body_ar]`}
-                                        placeholder="مثال: للأعمار فوق ١٨"
+                                        placeholder={t('form.rule_ar')}
                                         dir="rtl"
                                         defaultValue={rule.body_ar}
                                         required
@@ -394,7 +409,9 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    aria-label={`Remove rule ${index + 1}`}
+                                    aria-label={t('form.remove_rule', {
+                                        n: index + 1,
+                                    })}
                                     onClick={() =>
                                         setRules(
                                             rules.filter((_, i) => i !== index),
