@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\Admin\ImpersonationController;
+use App\Services\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Inertia\Middleware;
@@ -38,9 +40,14 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => app(Settings::class)->appName(),
+            'platform' => fn () => $this->platform(),
             'auth' => [
                 'user' => $request->user(),
+                // Present only while a super admin is acting as someone else.
+                'impersonating' => $request->session()->has(ImpersonationController::SESSION_KEY)
+                    ? ['name' => $request->user()?->name]
+                    : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale' => $locale = app()->getLocale(),
@@ -84,5 +91,23 @@ class HandleInertiaRequests extends Middleware
         }
 
         return ['toast' => null];
+    }
+
+    /**
+     * Brand values a super admin can change without a deploy.
+     *
+     * @return array<string, string|null>
+     */
+    private function platform(): array
+    {
+        $settings = app(Settings::class);
+        $locale = app()->getLocale();
+
+        return [
+            'name' => $settings->appName($locale),
+            'tagline' => $settings->get($locale === 'ar' ? 'tagline_ar' : 'tagline_en'),
+            'logo' => $settings->get('logo_path'),
+            'support_whatsapp' => $settings->get('support_whatsapp'),
+        ];
     }
 }

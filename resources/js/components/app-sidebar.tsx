@@ -5,6 +5,7 @@ import {
     ScanLine,
     Search,
     ShieldCheck,
+    SlidersHorizontal,
 } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import AppLogo from '@/components/app-logo';
@@ -22,7 +23,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useIsSuperAdmin } from '@/lib/auth';
 import { dashboard } from '@/routes';
-import { owners } from '@/routes/admin';
+import { owners, settings as platformSettings } from '@/routes/admin';
 import { scan, search } from '@/routes/owner';
 import type { NavItem } from '@/types';
 
@@ -60,6 +61,11 @@ export function AppSidebar() {
         ? [
               ...mainNavItems,
               { title: 'admin.title', href: owners(), icon: ShieldCheck },
+              {
+                  title: 'admin.settings',
+                  href: platformSettings(),
+                  icon: SlidersHorizontal,
+              },
           ]
         : mainNavItems;
 

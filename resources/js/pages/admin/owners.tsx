@@ -4,6 +4,7 @@ import {
     ShieldBan,
     ShieldCheck,
     Ticket as TicketIcon,
+    UserCog,
     UserPlus,
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
@@ -288,6 +289,26 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                                         <TicketIcon className="size-4" />
                                         {owner.tickets_count}
                                     </span>
+
+                                    <Form
+                                        action={`/admin/owners/${owner.id}/impersonate`}
+                                        method="post"
+                                    >
+                                        {({ processing }) => (
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                variant="outline"
+                                                className="cursor-pointer"
+                                                disabled={
+                                                    processing || owner.banned
+                                                }
+                                            >
+                                                <UserCog />
+                                                {t('admin.impersonate')}
+                                            </Button>
+                                        )}
+                                    </Form>
 
                                     <Form
                                         action={
