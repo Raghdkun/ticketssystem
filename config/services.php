@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    /*
+     * Firebase Cloud Messaging. Leave these blank to keep push disabled: the
+     * sender reports itself unconfigured and the UI never asks for permission.
+     */
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID'),
+        'credentials' => env('FCM_CREDENTIALS'),
+        'access_token' => env('FCM_ACCESS_TOKEN'),
+        'vapid_key' => env('VITE_FCM_VAPID_KEY'),
+    ],
+
 ];

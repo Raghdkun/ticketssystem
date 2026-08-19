@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\TicketStatusChanged;
+use App\Listeners\SendTicketStatusPush;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -32,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        Event::listen(TicketStatusChanged::class, SendTicketStatusPush::class);
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

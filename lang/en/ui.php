@@ -168,4 +168,13 @@ return [
         'language' => 'Language',
         'language_hint' => 'Choose the language used across the dashboard.',
     ],
+
+    'push' => [
+        'title' => 'Get notified',
+        'body' => 'We will let you know the moment your ticket is verified.',
+        'enable' => 'Enable notifications',
+        'enabled' => 'Notifications are on',
+        'failed' => 'Could not enable — try again',
+        'ios_hint' => 'Add this page to your Home Screen first to receive notifications on iPhone.',
+    ],
 ];

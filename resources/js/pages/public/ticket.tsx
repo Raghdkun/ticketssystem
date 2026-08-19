@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { InstallPrompt } from '@/components/install-prompt';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
+import { PushOptIn } from '@/components/push-opt-in';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { StatusBanner } from '@/components/ticket/status-banner';
 import { WhatsAppButton } from '@/components/whatsapp-button';
@@ -231,6 +232,12 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         )}
                     </div>
                 </motion.article>
+
+                {status === 'pending' && (
+                    <div className="mt-6">
+                        <PushOptIn token={ticket.token} />
+                    </div>
+                )}
 
                 <WhatsAppButton
                     number={place.whatsapp_number}

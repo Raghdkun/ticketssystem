@@ -78,6 +78,12 @@ class Ticket extends Model
         return $this->belongsTo(User::class, 'verified_by');
     }
 
+    /** @return HasMany<PushSubscription, $this> */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     /** @return HasMany<TicketStatusLog, $this> */
     public function statusLogs(): HasMany
     {

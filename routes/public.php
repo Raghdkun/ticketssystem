@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
+use App\Http\Controllers\Public\PushSubscriptionController;
 use App\Http\Controllers\Public\TicketController;
 use App\Http\Controllers\Public\TicketLookupController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('my-tickets', TicketLookupController::class)
     ->middleware('throttle:12,1')
     ->name('tickets.lookup');
+
+// Push opt-in for a ticket, authorised by possession of its token.
+Route::post('t/{ticket}/push', [PushSubscriptionController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('tickets.push.store');
+
+Route::delete('t/{ticket}/push', [PushSubscriptionController::class, 'destroy'])
+    ->middleware('throttle:20,1')
+    ->name('tickets.push.destroy');
 
 // The holder's own ticket. Addressed only by its unguessable token.
 Route::get('t/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
