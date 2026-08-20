@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Database\Factories\EventPerkFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,6 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['body_ar', 'body_en', 'sort'])]
 class EventPerk extends Model
 {
+    /** @use HasFactory<EventPerkFactory> */
+    use HasFactory;
+
     /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {

@@ -7,6 +7,7 @@ import { InstallPrompt } from '@/components/install-prompt';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PushOptIn } from '@/components/push-opt-in';
+import { ShareButton } from '@/components/share-button';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { StatusBanner } from '@/components/ticket/status-banner';
 import { WhatsAppButton } from '@/components/whatsapp-button';
@@ -52,6 +53,18 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
         });
     }, [ticket.token, title]);
 
+    const eventUrl =
+        typeof window === 'undefined'
+            ? ''
+            : `${window.location.origin}/${place.slug}/${event.slug}`;
+    const shareText = t('share.share_text', {
+        title,
+        place: placeName,
+        date: new Date(event.starts_at).toLocaleDateString(dateLocale, {
+            dateStyle: 'medium',
+        }),
+    });
+
     const isSpent =
         status === 'cancelled' || status === 'expired' || status === 'no_show';
 
@@ -75,11 +88,14 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
             <PlaceEdgeTab place={place} siblings={siblings} />
             <InstallPrompt />
 
-            <main id="main-content" className="mx-auto w-full max-w-md px-4">
-                <div className="mb-4 flex justify-end">
-                    <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
-                </div>
+            <div className="mx-auto flex w-full max-w-md justify-end px-4 pb-4 lg:max-w-4xl">
+                <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+            </div>
 
+            <main
+                id="main-content"
+                className="mx-auto grid w-full max-w-md gap-6 px-4 lg:max-w-4xl lg:grid-cols-[26rem_minmax(0,1fr)] lg:items-start lg:gap-10"
+            >
                 {/* The card is fully visible by default and only rises into
                     place. Animating opacity from 0 would hide the ticket
                     entirely if motion never runs (throttled or backgrounded
@@ -260,18 +276,32 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                     </div>
                 </motion.article>
 
-                {status === 'pending' && (
-                    <div className="mt-6">
-                        <PushOptIn token={ticket.token} />
-                    </div>
-                )}
+                <div className="space-y-4 lg:pt-2">
+                    {status === 'pending' && <PushOptIn token={ticket.token} />}
 
-                <WhatsAppButton
-                    number={place.whatsapp_number}
-                    message={`${title} — ${ticket.full_name} (${ticket.token.slice(0, 8).toUpperCase()})`}
-                    label={t('common.whatsapp')}
-                    className="mt-6 w-full"
-                />
+                    <WhatsAppButton
+                        number={place.whatsapp_number}
+                        message={`${title} — ${ticket.full_name} (${ticket.token.slice(0, 8).toUpperCase()})`}
+                        label={t('common.whatsapp')}
+                        className="w-full"
+                    />
+
+                    {/*
+                     * Shares the event, never the ticket. The ticket URL is a
+                     * bearer token: anything holding it can view the booking,
+                     * so it must not be one tap from a public timeline.
+                     */}
+                    <ShareButton
+                        url={eventUrl}
+                        title={title}
+                        text={shareText}
+                        className="w-full"
+                    />
+
+                    <p className="text-center text-xs text-muted-foreground">
+                        {t('share.ticket_note')}
+                    </p>
+                </div>
             </main>
         </div>
     );

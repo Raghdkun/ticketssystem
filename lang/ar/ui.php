@@ -12,6 +12,7 @@ return [
     ],
 
     'event' => [
+        'per_person' => 'للشخص',
         'status' => [
             'draft' => 'مسودة',
             'published' => 'منشورة',
@@ -257,5 +258,19 @@ return [
         'for_venues' => 'لأصحاب القاعات',
         'privacy_title' => 'سياسة الخصوصية',
         'terms_title' => 'شروط الاستخدام',
+    ],
+
+    'share' => [
+        'ticket_note' => 'المشاركة ترسل صفحة الفعالية، وليس تذكرتك.',
+        'share' => 'مشاركة',
+        'share_title' => 'شارك هذه الفعالية',
+        'copy_link' => 'نسخ الرابط',
+        'copied' => 'تم نسخ الرابط',
+        'whatsapp' => 'واتساب',
+        'telegram' => 'تيليغرام',
+        'x' => 'إكس',
+        'facebook' => 'فيسبوك',
+        'native' => 'المزيد…',
+        'share_text' => ':title في :place — :date',
     ],
 ];

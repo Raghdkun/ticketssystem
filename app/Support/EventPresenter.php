@@ -91,7 +91,16 @@ final class EventPresenter
      */
     public static function forTicket(Ticket $ticket): array
     {
-        return self::core($ticket->event);
+        return [
+            ...self::core($ticket->event),
+            // The ticket page lists what the holder is entitled to at the
+            // door, so the perks travel with it.
+            'perks' => $ticket->event->perks->map(fn (EventPerk $perk) => [
+                'id' => $perk->id,
+                'body_ar' => $perk->body_ar,
+                'body_en' => $perk->body_en,
+            ])->all(),
+        ];
     }
 
     /**

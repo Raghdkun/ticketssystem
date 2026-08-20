@@ -12,6 +12,7 @@ return [
     ],
 
     'event' => [
+        'per_person' => 'per person',
         'status' => [
             'draft' => 'Draft',
             'published' => 'Published',
@@ -257,5 +258,19 @@ return [
         'for_venues' => 'For venues',
         'privacy_title' => 'Privacy',
         'terms_title' => 'Terms of use',
+    ],
+
+    'share' => [
+        'ticket_note' => 'Sharing sends the event page, not your ticket.',
+        'share' => 'Share',
+        'share_title' => 'Share this event',
+        'copy_link' => 'Copy link',
+        'copied' => 'Link copied',
+        'whatsapp' => 'WhatsApp',
+        'telegram' => 'Telegram',
+        'x' => 'X',
+        'facebook' => 'Facebook',
+        'native' => 'More…',
+        'share_text' => ':title at :place — :date',
     ],
 ];
