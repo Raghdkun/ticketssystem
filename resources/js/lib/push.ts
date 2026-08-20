@@ -83,12 +83,21 @@ export async function subscribeToTicket(token: string): Promise<boolean> {
 
         const app = initializeApp({
             apiKey: import.meta.env.VITE_FCM_API_KEY,
+            authDomain: import.meta.env.VITE_FCM_AUTH_DOMAIN,
             projectId: import.meta.env.VITE_FCM_PROJECT_ID,
+            storageBucket: import.meta.env.VITE_FCM_STORAGE_BUCKET,
             messagingSenderId: import.meta.env.VITE_FCM_SENDER_ID,
             appId: import.meta.env.VITE_FCM_APP_ID,
         });
 
-        const registration = await navigator.serviceWorker.ready;
+        // Register the Firebase worker explicitly. `navigator.serviceWorker
+        // .ready` resolves to whichever worker controls the page — that is the
+        // app's own sw.js, which has no Firebase message handler, so passing it
+        // would register a token that never delivers a background notification.
+        const registration = await navigator.serviceWorker.register(
+            '/firebase-messaging-sw.js',
+            { scope: '/firebase-cloud-messaging-push-scope' },
+        );
         const fcmToken = await getToken(getMessaging(app), {
             vapidKey: import.meta.env.VITE_FCM_VAPID_KEY,
             serviceWorkerRegistration: registration,
