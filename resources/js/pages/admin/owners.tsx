@@ -1,12 +1,14 @@
 import { Form, Head } from '@inertiajs/react';
 import {
     CalendarDays,
+    ChevronDown,
     ShieldBan,
     ShieldCheck,
     Ticket as TicketIcon,
     UserCog,
     UserPlus,
 } from 'lucide-react';
+import { useState } from 'react';
 import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -23,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
+import { cn } from '@/lib/utils';
 import { owners } from '@/routes/admin';
 
 type Owner = {
@@ -61,6 +64,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function AdminOwners({ stats, owners: rows }: Props) {
+    const [addingOwner, setAddingOwner] = useState(false);
     const { locale } = useLocale();
     const t = useTranslation();
 
@@ -101,14 +105,25 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                     <Stat label={t('admin.suspended')} value={stats.banned} />
                 </Stagger>
 
-                <Collapsible className="rounded-xl border">
+                <Collapsible
+                    open={addingOwner}
+                    onOpenChange={setAddingOwner}
+                    className="rounded-xl border"
+                >
                     <CollapsibleTrigger asChild>
                         <button
                             type="button"
-                            className="flex w-full cursor-pointer items-center gap-2 p-4 text-sm font-medium transition-colors hover:bg-muted/50"
+                            className="flex w-full cursor-pointer items-center gap-2 rounded-xl p-4 text-start text-sm font-medium transition-colors hover:bg-muted/50"
                         >
-                            <UserPlus className="size-4" />
+                            <UserPlus className="size-4 text-primary" />
                             {t('admin.new_owner')}
+
+                            <ChevronDown
+                                className={cn(
+                                    'ms-auto size-4 text-muted-foreground transition-transform duration-200',
+                                    addingOwner && 'rotate-180',
+                                )}
+                            />
                         </button>
                     </CollapsibleTrigger>
 
