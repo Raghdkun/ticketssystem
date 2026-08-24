@@ -34,6 +34,19 @@ class OverbookingTest extends TestCase
     }
 
     /**
+     * Truncation commits, unlike the transactional isolation the rest of the
+     * suite uses. Without clearing up afterwards these rows stay visible to
+     * every later test, which makes their row counts depend on execution
+     * order — and can hide a real failure.
+     */
+    protected function tearDown(): void
+    {
+        $this->truncateDatabaseTables();
+
+        parent::tearDown();
+    }
+
+    /**
      * Run $workers forked processes, each attempting one appointment.
      *
      * @return array{successes: int, failures: int}

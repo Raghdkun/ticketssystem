@@ -118,6 +118,13 @@ realtime status flip.
   silently miss.
 - **Enum-cast columns do not match raw strings** in in-memory collection filters. `unattended()`
   returns cases for exactly this reason.
+- **`DatabaseTruncation` commits; `RefreshDatabase` does not.** `OverbookingTest` needs committed
+  rows so its forked processes can see them, so it truncates in `tearDown` as well. Without that it
+  leaves rows behind and every later test's row counts depend on execution order.
+- **`disabled` does nothing on a shadcn `Button asChild`** that renders an anchor — the control still
+  navigates. Do not render the action at all when it is not permitted.
+- **The sidebar pins with physical `left-0`/`right-0`** from its `side` prop while its spacer follows
+  document flow, so `side` must track direction or the two disagree in Arabic.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 
