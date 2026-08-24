@@ -60,6 +60,7 @@ return [
     ],
 
     'owner' => [
+        'no_place_events' => 'This account is not linked to a venue, so it has no events. Venues are assigned from platform settings.',
         'no_shows' => 'No-shows',
         'by_status' => 'By status',
         'fill_rate' => 'Fill',
@@ -161,6 +162,7 @@ return [
     ],
 
     'dash' => [
+        'platform_view' => 'Platform-wide activity across every venue.',
         'title' => 'Overview',
         'no_place' => 'No venue is linked to your account yet. Contact the platform administrator.',
         'published' => 'Published events',

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Place;
 use App\Models\Ticket;
+use App\Services\PlatformStats;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +23,11 @@ class DashboardController extends Controller
         if ($place === null) {
             return Inertia::render('dashboard', [
                 'hasPlace' => false,
+                // A super admin has no venue of their own, so the owner
+                // dashboard is meaningless to them; show the platform instead.
+                'platform' => $user->isSuperAdmin()
+                    ? app(PlatformStats::class)->all()
+                    : null,
                 'stats' => null,
                 'recent' => [],
                 'upcoming' => [],
@@ -30,6 +36,7 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'hasPlace' => true,
+            'platform' => null,
             'place' => ['name_ar' => $place->name_ar, 'name_en' => $place->name_en],
             'stats' => $this->stats($place),
             'recent' => $this->recentAppointments($place),

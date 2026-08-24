@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import {
     CalendarClock,
     ScanLine,
+    ShieldCheck,
     Store,
     Ticket as TicketIcon,
 } from 'lucide-react';
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { dashboard } from '@/routes';
+import { owners } from '@/routes/admin';
 import { scan } from '@/routes/owner';
 import type { TicketStatus } from '@/types/public';
 
@@ -47,8 +49,20 @@ type Upcoming = {
     primary_color: string;
 };
 
+type PlatformStats = {
+    owners: number;
+    events: number;
+    tickets: number;
+    paid_tickets: number;
+    pending_tickets: number;
+    seats_paid: number;
+    revenue: number;
+    banned: number;
+};
+
 type Props = {
     hasPlace: boolean;
+    platform: PlatformStats | null;
     place?: { name_ar: string; name_en: string };
     stats: Stats | null;
     recent: Recent[];
@@ -76,6 +90,7 @@ function Stat({
 
 export default function Dashboard({
     hasPlace,
+    platform,
     place,
     stats,
     recent,
@@ -84,6 +99,71 @@ export default function Dashboard({
     const { locale } = useLocale();
     const t = useTranslation();
     const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+
+    // A super admin owns no venue, so an owner dashboard telling them to
+    // "contact the platform administrator" is addressed to themselves. Show
+    // them the platform instead.
+    if (!hasPlace && platform) {
+        return (
+            <>
+                <Head title={t('dash.title')} />
+
+                <div className="space-y-8 p-4">
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                        <Heading
+                            variant="small"
+                            title={t('dash.title')}
+                            description={t('dash.platform_view')}
+                        />
+
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={owners()}>
+                                <ShieldCheck />
+                                {t('admin.title')}
+                            </Link>
+                        </Button>
+                    </div>
+
+                    <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                        <Stat
+                            label={t('admin.stat_owners')}
+                            value={platform.owners}
+                        />
+                        <Stat
+                            label={t('admin.stat_events')}
+                            value={platform.events}
+                        />
+                        <Stat
+                            label={t('admin.stat_tickets')}
+                            value={platform.tickets}
+                        />
+                        <Stat
+                            label={t('admin.stat_paid')}
+                            value={platform.paid_tickets}
+                        />
+                        <Stat
+                            label={t('admin.stat_pending')}
+                            value={platform.pending_tickets}
+                            tone="text-amber-600 dark:text-amber-400"
+                        />
+                        <Stat
+                            label={t('admin.stat_seats')}
+                            value={platform.seats_paid}
+                        />
+                        <Stat
+                            label={t('admin.stat_revenue')}
+                            value={platform.revenue}
+                            tone="text-emerald-600 dark:text-emerald-400"
+                        />
+                        <Stat
+                            label={t('admin.suspended')}
+                            value={platform.banned}
+                        />
+                    </Stagger>
+                </div>
+            </>
+        );
+    }
 
     if (!hasPlace || !stats) {
         return (

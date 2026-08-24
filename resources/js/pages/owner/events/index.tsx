@@ -63,18 +63,22 @@ export default function EventsIndex({ place, events }: Props) {
                         }
                     />
 
-                    <Button asChild disabled={!place}>
-                        <Link href={EventController.create()}>
-                            <Plus />
-                            {t('owner.new_event')}
-                        </Link>
-                    </Button>
+                    {place && (
+                        <Button asChild>
+                            <Link href={EventController.create()}>
+                                <Plus />
+                                {t('owner.new_event')}
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 {events.length === 0 ? (
                     <div className="rounded-xl border border-dashed p-12 text-center">
                         <p className="text-sm text-muted-foreground">
-                            {t('owner.no_events')}
+                            {place
+                                ? t('owner.no_events')
+                                : t('owner.no_place_events')}
                         </p>
                     </div>
                 ) : (

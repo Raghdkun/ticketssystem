@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreOwnerRequest;
@@ -10,6 +9,7 @@ use App\Models\Event;
 use App\Models\Place;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\PlatformStats;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +23,7 @@ class OwnerController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/owners', [
-            'stats' => $this->platformStats(),
+            'stats' => app(PlatformStats::class)->all(),
             'owners' => $this->owners(),
         ]);
     }
@@ -93,31 +93,6 @@ class OwnerController extends Controller
         $user->save();
 
         return back()->with('success', __('admin.unbanned'));
-    }
-
-    /**
-     * Platform-wide figures. Seat counts come from tickets that still hold
-     * inventory, matching what the public pages report.
-     *
-     * @return array<string, int|float>
-     */
-    private function platformStats(): array
-    {
-        $revenue = Ticket::query()
-            ->join('events', 'events.id', '=', 'tickets.event_id')
-            ->where('tickets.status', TicketStatus::Paid)
-            ->sum(DB::raw('tickets.quantity * events.price'));
-
-        return [
-            'owners' => User::where('role', UserRole::Owner)->count(),
-            'banned' => User::whereNotNull('banned_at')->count(),
-            'events' => Event::count(),
-            'tickets' => Ticket::count(),
-            'paid_tickets' => Ticket::where('status', TicketStatus::Paid)->count(),
-            'pending_tickets' => Ticket::where('status', TicketStatus::Pending)->count(),
-            'seats_paid' => (int) Ticket::where('status', TicketStatus::Paid)->sum('quantity'),
-            'revenue' => (float) $revenue,
-        ];
     }
 
     /**

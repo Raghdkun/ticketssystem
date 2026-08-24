@@ -22,6 +22,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useIsSuperAdmin } from '@/lib/auth';
+import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import { owners, settings as platformSettings } from '@/routes/admin';
 import { scan, search } from '@/routes/owner';
@@ -53,6 +54,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
+    const { direction } = useLocale();
     // Platform administration is only reachable by super admins; the server
     // enforces this, the nav item just avoids showing a dead end.
     const isSuperAdmin = useIsSuperAdmin();
@@ -70,7 +72,15 @@ export function AppSidebar() {
         : mainNavItems;
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        // The sidebar pins itself with physical left-0/right-0 from this prop,
+        // while its spacer sits in document flow order. Leaving it on "left"
+        // in Arabic drew the panel against the left edge but reserved the gap
+        // on the right, so the content was squeezed and clipped.
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            side={direction === 'rtl' ? 'right' : 'left'}
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
