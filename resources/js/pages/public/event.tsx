@@ -1,18 +1,22 @@
-import { Form, Head } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { CalendarDays, Check, Clock, Gift, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
+import { BookingForm } from '@/components/booking-form';
 import { EventCover } from '@/components/event-cover';
 import { FlashToaster } from '@/components/flash-toaster';
-import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PromoVideo } from '@/components/promo-video';
 import { ShareButton } from '@/components/share-button';
-import { Stepper } from '@/components/stepper';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import type { PublicEvent, PublicPlace, SiblingEvent } from '@/types/public';
@@ -28,6 +32,7 @@ export default function EventPage({ event, place, siblings }: Props) {
     const t = useTranslation();
     const [accepted, setAccepted] = useState<number[]>([]);
     const [quantity, setQuantity] = useState(1);
+    const [bookingOpen, setBookingOpen] = useState(false);
 
     const title = localised(locale, event.title_ar, event.title_en);
     const description = localised(
@@ -36,10 +41,6 @@ export default function EventPage({ event, place, siblings }: Props) {
         event.description_en,
     );
     const placeName = localised(locale, place.name_ar, place.name_en);
-
-    const allRulesAccepted = event.rules.every((rule) =>
-        accepted.includes(rule.id),
-    );
     const soldOut = event.seats_remaining <= 0;
 
     const shareUrl =
@@ -52,7 +53,6 @@ export default function EventPage({ event, place, siblings }: Props) {
             { dateStyle: 'medium' },
         ),
     });
-    const canAppoint = event.is_open && !soldOut && allRulesAccepted;
 
     return (
         <div className="min-h-dvh bg-background">
@@ -217,184 +217,21 @@ export default function EventPage({ event, place, siblings }: Props) {
                     )}
                 </div>
 
-                <aside className="lg:sticky lg:top-8">
-                    <section
-                        id="appoint"
-                        className="lg:shadow-brand space-y-6 rounded-xl border p-5"
-                    >
-                        <div>
-                            <h2 className="text-lg font-semibold">
-                                {t('event.reserve_title')}
-                            </h2>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {t('event.reserve_subtitle')}
-                            </p>
-
-                            <p className="mt-4 text-3xl font-bold tracking-tight text-primary tabular-nums">
-                                {event.is_free
-                                    ? t('event.free')
-                                    : `${event.price.toLocaleString()} ${event.currency}`}
-                                {!event.is_free && (
-                                    <span className="ms-2 align-middle text-sm font-medium text-muted-foreground">
-                                        {t('event.per_person')}
-                                    </span>
-                                )}
-                            </p>
-                        </div>
-
-                        <Form
-                            action={`/${place.slug}/${event.slug}/appoint`}
-                            method="post"
-                            className="space-y-5"
-                        >
-                            {({ processing, errors }) => (
-                                <>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="full_name">
-                                            {t('event.full_name')}
-                                        </Label>
-                                        <Input
-                                            id="full_name"
-                                            name="full_name"
-                                            required
-                                            autoComplete="name"
-                                        />
-                                        <InputError
-                                            message={errors.full_name}
-                                        />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="phone">
-                                            {t('event.mobile')}
-                                        </Label>
-                                        <Input
-                                            id="phone"
-                                            name="phone"
-                                            type="tel"
-                                            inputMode="tel"
-                                            dir="ltr"
-                                            placeholder="09XXXXXXXX"
-                                            required
-                                            autoComplete="tel"
-                                        />
-                                        <InputError message={errors.phone} />
-                                    </div>
-
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="quantity">
-                                            {t('event.people')}
-                                        </Label>
-                                        <Stepper
-                                            value={quantity}
-                                            onChange={setQuantity}
-                                            max={Math.min(
-                                                event.max_per_appointment,
-                                                Math.max(
-                                                    event.seats_remaining,
-                                                    1,
-                                                ),
-                                            )}
-                                            name="quantity"
-                                            label={t('event.people')}
-                                        />
-                                        <InputError message={errors.quantity} />
-                                    </div>
-
-                                    {event.rules.length > 0 && (
-                                        <fieldset className="space-y-3 rounded-lg bg-muted/50 p-4">
-                                            <legend className="text-sm font-medium">
-                                                {t('event.rules')}
-                                            </legend>
-
-                                            {event.rules.map((rule) => (
-                                                <label
-                                                    key={rule.id}
-                                                    htmlFor={`rule-${rule.id}`}
-                                                    // The whole row is the target:
-                                                    // a 16px checkbox is far below
-                                                    // a usable tap area, and this
-                                                    // gate is what unlocks booking.
-                                                    className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-background/60"
-                                                >
-                                                    <Checkbox
-                                                        id={`rule-${rule.id}`}
-                                                        // A wrapping label does not
-                                                        // name a Radix checkbox the
-                                                        // way it names a native
-                                                        // input, so attach the rule
-                                                        // text explicitly.
-                                                        aria-label={localised(
-                                                            locale,
-                                                            rule.body_ar,
-                                                            rule.body_en,
-                                                        )}
-                                                        className="cursor-pointer"
-                                                        checked={accepted.includes(
-                                                            rule.id,
-                                                        )}
-                                                        onCheckedChange={(
-                                                            checked,
-                                                        ) =>
-                                                            setAccepted(
-                                                                (prev) =>
-                                                                    checked
-                                                                        ? [
-                                                                              ...prev,
-                                                                              rule.id,
-                                                                          ]
-                                                                        : prev.filter(
-                                                                              (
-                                                                                  id,
-                                                                              ) =>
-                                                                                  id !==
-                                                                                  rule.id,
-                                                                          ),
-                                                            )
-                                                        }
-                                                    />
-                                                    <span>
-                                                        {localised(
-                                                            locale,
-                                                            rule.body_ar,
-                                                            rule.body_en,
-                                                        )}
-                                                    </span>
-                                                    {accepted.includes(
-                                                        rule.id,
-                                                    ) && (
-                                                        <input
-                                                            type="hidden"
-                                                            name="accepted_rule_ids[]"
-                                                            value={rule.id}
-                                                        />
-                                                    )}
-                                                </label>
-                                            ))}
-                                        </fieldset>
-                                    )}
-
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        className="w-full"
-                                        disabled={processing || !canAppoint}
-                                    >
-                                        {soldOut
-                                            ? t('event.sold_out')
-                                            : t('event.appoint')}
-                                    </Button>
-
-                                    {!allRulesAccepted &&
-                                        event.rules.length > 0 && (
-                                            <p className="text-center text-xs text-muted-foreground">
-                                                {t('event.accept_rules_first')}
-                                            </p>
-                                        )}
-                                </>
-                            )}
-                        </Form>
-                    </section>
+                {/*
+                 * From md the form is part of the page. On a phone it lives
+                 * in a sheet opened from the sticky bar: the design's point
+                 * is that the form should not sit below three sections of
+                 * copy on a device where that means a long scroll.
+                 */}
+                <aside className="hidden md:block lg:sticky lg:top-8">
+                    <BookingForm
+                        event={event}
+                        place={place}
+                        accepted={accepted}
+                        onAcceptedChange={setAccepted}
+                        quantity={quantity}
+                        onQuantityChange={setQuantity}
+                    />
                 </aside>
             </main>
 
@@ -403,7 +240,7 @@ export default function EventPage({ event, place, siblings }: Props) {
              * panel is already sticky in its own column, so repeating the
              * call to action there would just be two of the same button.
              */}
-            <div className="sticky bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:hidden">
+            <div className="sticky bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden">
                 <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3">
                     <div className="min-w-0">
                         <p className="truncate font-display text-xl font-semibold text-primary tabular-nums">
@@ -420,14 +257,45 @@ export default function EventPage({ event, place, siblings }: Props) {
                         </p>
                     </div>
 
-                    <Button
-                        asChild
-                        size="lg"
-                        disabled={!event.is_open || soldOut}
-                        className="shrink-0 bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
-                    >
-                        <a href="#appoint">{t('event.appoint')}</a>
-                    </Button>
+                    <Sheet open={bookingOpen} onOpenChange={setBookingOpen}>
+                        <SheetTrigger asChild>
+                            <Button
+                                size="lg"
+                                disabled={!event.is_open || soldOut}
+                                className="shrink-0 cursor-pointer bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
+                            >
+                                {soldOut
+                                    ? t('event.sold_out')
+                                    : t('event.appoint')}
+                            </Button>
+                        </SheetTrigger>
+
+                        <SheetContent
+                            side="bottom"
+                            className="max-h-[92dvh] overflow-y-auto rounded-t-[1.75rem]"
+                        >
+                            <SheetHeader className="text-start">
+                                <SheetTitle>
+                                    {t('event.reserve_title')}
+                                </SheetTitle>
+                                <SheetDescription>
+                                    {title} · {t('event.reserve_subtitle')}
+                                </SheetDescription>
+                            </SheetHeader>
+
+                            <div className="px-4 pb-6">
+                                <BookingForm
+                                    bare
+                                    event={event}
+                                    place={place}
+                                    accepted={accepted}
+                                    onAcceptedChange={setAccepted}
+                                    quantity={quantity}
+                                    onQuantityChange={setQuantity}
+                                />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
         </div>
