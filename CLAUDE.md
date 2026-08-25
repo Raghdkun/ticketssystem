@@ -79,7 +79,8 @@ realtime status flip.
 - **Breadcrumb and nav titles are translation keys**, resolved at render, because they are declared
   in static page config outside any component where hooks cannot run.
 - **Motion animates transform and opacity only**, and never starts at `opacity: 0` for content that
-  must be readable — if motion does not run, the content must still be visible.
+  must be readable — if motion does not run, the content must still be visible. `StaggerItem`
+  therefore uses `rise`, not `fadeRise`.
 - **Every control is ≥44px on coarse pointers** (`@media (pointer: coarse)` in `app.css`).
 - **Flash messages are `{ type, message }`** under `flash.toast`. A bare string renders nothing.
 - **Error pages are styled inline**, not through Vite. They must render when the asset manifest is
@@ -102,7 +103,7 @@ realtime status flip.
 | 7 | Sitemap, `DEPLOYMENT.md`, this file |
 | 8 | Redesign pass: branded error pages, legal pages, public footer, skip link, social meta, press feedback |
 
-**188 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
+**204 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
 
 ---
 
@@ -143,6 +144,12 @@ control per screen. Basalt on warm paper, light by default.
   navigates. Do not render the action at all when it is not permitted.
 - **The sidebar pins with physical `left-0`/`right-0`** from its `side` prop while its spacer follows
   document flow, so `side` must track direction or the two disagree in Arabic.
+- **A backgrounded Chrome tab throttles `requestAnimationFrame`**, so Motion animations
+  *start* and never tick. Stagger children sit frozen at their `hidden` variant, which looks
+  exactly like a broken animation. Check `document.visibilityState` before diagnosing motion.
+- **Error pages are outside the design system by construction.** Their CSS is inline so it
+  survives a missing asset manifest, which also means a rebrand does not reach them. Grep
+  `resources/views/errors/` for hex literals whenever the palette changes.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 

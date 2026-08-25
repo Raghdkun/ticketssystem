@@ -51,6 +51,19 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const adminNavItems: NavItem[] = [
+    {
+        title: 'admin.title',
+        href: owners(),
+        icon: ShieldCheck,
+    },
+    {
+        title: 'admin.settings',
+        href: platformSettings(),
+        icon: SlidersHorizontal,
+    },
+];
+
 const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
@@ -58,18 +71,6 @@ export function AppSidebar() {
     // Platform administration is only reachable by super admins; the server
     // enforces this, the nav item just avoids showing a dead end.
     const isSuperAdmin = useIsSuperAdmin();
-
-    const navItems: NavItem[] = isSuperAdmin
-        ? [
-              ...mainNavItems,
-              { title: 'admin.title', href: owners(), icon: ShieldCheck },
-              {
-                  title: 'admin.settings',
-                  href: platformSettings(),
-                  icon: SlidersHorizontal,
-              },
-          ]
-        : mainNavItems;
 
     return (
         // The sidebar pins itself with physical left-0/right-0 from this prop,
@@ -94,7 +95,14 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={navItems} />
+                <NavMain items={mainNavItems} />
+
+                {isSuperAdmin && (
+                    <NavMain
+                        items={adminNavItems}
+                        label="common.administration"
+                    />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

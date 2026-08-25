@@ -1,10 +1,13 @@
 import { motion, useReducedMotion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { fadeRise, respectMotion, staggerContainer } from '@/lib/motion';
+import { respectMotion, rise, staggerContainer } from '@/lib/motion';
 
 /**
  * Reveals children in sequence. Purely presentational: the children render
  * regardless, so nothing depends on the animation completing.
+ *
+ * Items rise without fading, so a stagger that fails to run leaves readable
+ * content behind rather than an empty rectangle.
  */
 export function Stagger({
     children,
@@ -39,7 +42,7 @@ export function StaggerItem({
     return (
         <motion.div
             className={className}
-            variants={respectMotion(fadeRise, reduced)}
+            variants={respectMotion(rise, reduced)}
         >
             {children}
         </motion.div>

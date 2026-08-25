@@ -4,6 +4,7 @@ return [
     'common' => [
         'increase' => 'واحد أكثر',
         'decrease' => 'واحد أقل',
+        'administration' => 'الإدارة',
         'platform' => 'المنصة',
         'whatsapp' => 'تواصل عبر واتساب',
         'language' => 'English',
@@ -170,6 +171,18 @@ return [
     ],
 
     'dash' => [
+        'no_show' => 'تخلّف عن الحضور',
+        'live' => 'مباشر',
+        'people_n' => ':n أشخاص',
+        'not_published' => 'لم تُنشر بعد · :n مقعدًا',
+        'of_total' => ':taken من :total · متبقٍ :left',
+        'attendance' => 'نسبة الحضور',
+        'seats_held' => ':n مقعدًا محجوزًا',
+        'seats_n' => ':n مقعدًا',
+        'all' => 'الكل',
+        'open_scanner' => 'افتح الماسح',
+        'to_collect' => ':amount للتحصيل',
+        'collected_month' => 'المُحصَّل هذا الشهر',
         'platform_view' => 'نشاط المنصة عبر جميع القاعات.',
         'title' => 'نظرة عامة',
         'no_place' => 'لا توجد قاعة مرتبطة بحسابك بعد. تواصل مع إدارة المنصة.',

@@ -20,6 +20,44 @@ class TranslationCatalogueTest extends TestCase
         return glob(base_path("lang/{$locale}/*.php")) ?: [];
     }
 
+    /**
+     * Every literal `t('a.b')` in the front end must resolve.
+     *
+     * The locale-parity test cannot catch a key that is missing from *both*
+     * catalogues -- that renders the raw dot-path on screen and still passes.
+     * This walks the call sites instead of the catalogue.
+     */
+    public function test_every_literal_translation_call_site_resolves(): void
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('js'))
+        );
+
+        $missing = [];
+
+        foreach ($files as $file) {
+            if (! $file->isFile() || $file->getExtension() !== 'tsx') {
+                continue;
+            }
+
+            preg_match_all(
+                "/\bt\(\s*'([a-z0-9_]+\.[a-z0-9_.]+)'/i",
+                (string) file_get_contents($file->getPathname()),
+                $matches
+            );
+
+            foreach ($matches[1] as $key) {
+                foreach (SetLocale::SUPPORTED as $locale) {
+                    if (! Arr::has(require base_path("lang/{$locale}/ui.php"), $key)) {
+                        $missing[] = "{$key} ({$locale}) in ".$file->getFilename();
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($missing)));
+    }
+
     public function test_every_language_file_parses(): void
     {
         foreach (SetLocale::SUPPORTED as $locale) {

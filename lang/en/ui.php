@@ -4,6 +4,7 @@ return [
     'common' => [
         'increase' => 'One more',
         'decrease' => 'One fewer',
+        'administration' => 'Administration',
         'platform' => 'Platform',
         'whatsapp' => 'Contact on WhatsApp',
         'language' => 'العربية',
@@ -170,6 +171,18 @@ return [
     ],
 
     'dash' => [
+        'no_show' => 'No-shows',
+        'live' => 'Live',
+        'people_n' => ':n people',
+        'not_published' => 'Not published yet · :n seats',
+        'of_total' => ':taken of :total · :left left',
+        'attendance' => 'Attendance',
+        'seats_held' => ':n seats held',
+        'seats_n' => ':n seats',
+        'all' => 'All',
+        'open_scanner' => 'Open scanner',
+        'to_collect' => ':amount to collect',
+        'collected_month' => 'Collected this month',
         'platform_view' => 'Platform-wide activity across every venue.',
         'title' => 'Overview',
         'no_place' => 'No venue is linked to your account yet. Contact the platform administrator.',
