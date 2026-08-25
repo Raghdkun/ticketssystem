@@ -1,15 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-    BarChart3,
-    CalendarDays,
-    Plus,
-    Printer,
-    Ticket as TicketIcon,
-} from 'lucide-react';
+import { BarChart3, ImageIcon, Plus, Printer } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
@@ -30,17 +23,41 @@ type EventRow = {
 type Props = {
     place: { name_ar: string; name_en: string; slug: string } | null;
     events: EventRow[];
+    counts: { all: number; published: number; draft: number };
+    filter: string;
 };
 
-const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-    published: 'default',
-    draft: 'secondary',
-    archived: 'outline',
-};
+const FILTERS = [
+    { key: 'all', label: 'owner.filter_all' },
+    { key: 'published', label: 'event.status.published' },
+    { key: 'draft', label: 'event.status.draft' },
+] as const;
 
-export default function EventsIndex({ place, events }: Props) {
+/**
+ * Status reads as a dot plus a word, never colour alone -- the same rule the
+ * door uses, because some readers are colourblind.
+ */
+function StatusChip({ status, label }: { status: string; label: string }) {
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
+            <span
+                className="size-1.5 rounded-full"
+                style={{
+                    backgroundColor:
+                        status === 'published'
+                            ? 'var(--brand-jade-500)'
+                            : 'var(--brand-basalt-400)',
+                }}
+            />
+            {label}
+        </span>
+    );
+}
+
+export default function EventsIndex({ place, events, counts, filter }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
+    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
 
     return (
         <>
@@ -63,12 +80,47 @@ export default function EventsIndex({ place, events }: Props) {
                     />
 
                     {place && (
-                        <Button asChild>
-                            <Link href={EventController.create()}>
-                                <Plus />
-                                {t('owner.new_event')}
-                            </Link>
-                        </Button>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-1 rounded-full border p-1">
+                                {FILTERS.map((option) => (
+                                    <Link
+                                        key={option.key}
+                                        href={
+                                            option.key === 'all'
+                                                ? '/owner/events'
+                                                : `/owner/events?status=${option.key}`
+                                        }
+                                        preserveScroll
+                                        aria-current={
+                                            filter === option.key
+                                                ? 'page'
+                                                : undefined
+                                        }
+                                        className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                                            filter === option.key
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'text-muted-foreground hover:text-foreground'
+                                        }`}
+                                    >
+                                        {t(option.label)}{' '}
+                                        <span className="tabular-nums">
+                                            {
+                                                counts[
+                                                    option.key as keyof typeof counts
+                                                ]
+                                            }
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+
+                            <Button asChild>
+                                <Link href={EventController.create()}>
+                                    <Plus />
+                                    {t('owner.new_event')}
+                                </Link>
+                            </Button>
+                        </div>
                     )}
                 </div>
 
@@ -82,89 +134,152 @@ export default function EventsIndex({ place, events }: Props) {
                     </div>
                 ) : (
                     <Stagger className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {events.map((event) => (
-                            <StaggerItem key={event.id}>
-                                <Link
-                                    href={EventController.edit(event.id)}
-                                    className="group block cursor-pointer overflow-hidden rounded-xl border transition-all duration-200 hover:border-primary/40 hover:shadow-md"
-                                >
-                                    <div
-                                        className="relative aspect-video bg-muted"
-                                        style={{
-                                            backgroundColor:
-                                                'var(--brand-jade-700)',
-                                        }}
-                                    >
-                                        {event.cover && (
-                                            <img
-                                                src={`/storage/${event.cover}`}
-                                                alt=""
-                                                className="size-full object-cover"
-                                                loading="lazy"
-                                            />
-                                        )}
-                                    </div>
+                        {events.map((event) => {
+                            const draft = event.status === 'draft';
+                            const pct = Math.min(
+                                100,
+                                Math.round(
+                                    (event.seats_taken /
+                                        Math.max(1, event.total_quantity)) *
+                                        100,
+                                ),
+                            );
+                            const date = new Date(
+                                event.starts_at,
+                            ).toLocaleDateString(dateLocale, {
+                                day: 'numeric',
+                                month: 'long',
+                            });
 
-                                    <div className="space-y-3 p-4">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <h2 className="leading-tight font-medium">
-                                                {event.title_en}
-                                            </h2>
-                                            <Badge
-                                                variant={
-                                                    statusVariant[
-                                                        event.status
-                                                    ] ?? 'secondary'
+                            return (
+                                <StaggerItem key={event.id} className="h-full">
+                                    {/* The card body is one link, but the footer
+                                        actions are links too, and anchors cannot
+                                        nest. A stretched overlay keeps the whole
+                                        card clickable without nesting. */}
+                                    <article className="brand-surface group relative flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                                        <div className="relative aspect-video bg-muted">
+                                            {event.cover ? (
+                                                <img
+                                                    src={`/storage/${event.cover}`}
+                                                    alt=""
+                                                    className="absolute inset-0 size-full object-cover"
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <ImageIcon
+                                                    className="absolute top-1/2 left-1/2 size-7 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/60"
+                                                    aria-hidden
+                                                />
+                                            )}
+
+                                            <span className="absolute start-3 top-3">
+                                                <StatusChip
+                                                    status={event.status}
+                                                    label={t(
+                                                        `event.status.${event.status}`,
+                                                    )}
+                                                />
+                                            </span>
+                                        </div>
+
+                                        <div className="flex flex-1 flex-col gap-2 p-4">
+                                            <Link
+                                                href={EventController.edit(
+                                                    event.id,
+                                                )}
+                                                className="rounded-sm leading-tight font-semibold after:absolute after:inset-0 after:content-['']"
+                                            >
+                                                {localised(
+                                                    locale,
+                                                    event.title_ar,
+                                                    event.title_en,
+                                                )}
+                                            </Link>
+
+                                            <p
+                                                className="truncate text-sm text-muted-foreground"
+                                                dir={
+                                                    locale === 'ar'
+                                                        ? 'ltr'
+                                                        : 'rtl'
                                                 }
                                             >
-                                                {t(
-                                                    `event.status.${event.status}`,
-                                                )}
-                                            </Badge>
+                                                {locale === 'ar'
+                                                    ? event.title_en
+                                                    : event.title_ar}
+                                            </p>
+
+                                            {draft ? (
+                                                <p className="mt-auto pt-2 text-xs text-muted-foreground">
+                                                    {t('owner.draft_meta', {
+                                                        n: event.total_quantity,
+                                                        date,
+                                                    })}
+                                                </p>
+                                            ) : (
+                                                <div className="mt-auto pt-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                                            <div
+                                                                className="h-full rounded-full"
+                                                                style={{
+                                                                    width: `${pct}%`,
+                                                                    backgroundColor:
+                                                                        'var(--brand-jade-700)',
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-xs font-semibold tabular-nums">
+                                                            {pct}%
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="mt-1.5 text-xs text-muted-foreground">
+                                                        {t('owner.seats_meta', {
+                                                            taken: event.seats_taken,
+                                                            total: event.total_quantity,
+                                                            date,
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <p
-                                            className="text-sm text-muted-foreground"
-                                            dir="rtl"
-                                        >
-                                            {event.title_ar}
-                                        </p>
+                                        <div className="relative z-10 flex items-center gap-4 border-t px-4 py-2.5">
+                                            {draft ? (
+                                                <Link
+                                                    href={EventController.edit(
+                                                        event.id,
+                                                    )}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary underline-offset-4 hover:underline"
+                                                >
+                                                    {t('owner.finish_publish')}
+                                                </Link>
+                                            ) : (
+                                                <>
+                                                    <a
+                                                        href={`/owner/events/${event.id}/report`}
+                                                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                                                    >
+                                                        <BarChart3 className="size-3.5" />
+                                                        {t('owner.report')}
+                                                    </a>
 
-                                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                                            <span className="inline-flex items-center gap-1.5">
-                                                <CalendarDays className="size-3.5" />
-                                                {new Date(
-                                                    event.starts_at,
-                                                ).toLocaleDateString()}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1.5">
-                                                <TicketIcon className="size-3.5" />
-                                                {t('owner.seats_of', {
-                                                    taken: event.seats_taken,
-                                                    total: event.total_quantity,
-                                                })}
-                                            </span>
+                                                    <a
+                                                        href={`/owner/events/${event.id}/door-sheet`}
+                                                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                                                    >
+                                                        <Printer className="size-3.5" />
+                                                        {t('owner.door_sheet')}
+                                                    </a>
+                                                </>
+                                            )}
                                         </div>
-                                    </div>
-                                </Link>
-
-                                <a
-                                    href={`/owner/events/${event.id}/report`}
-                                    className="me-3 mt-2 inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                                >
-                                    <BarChart3 className="size-3.5" />
-                                    {t('owner.report')}
-                                </a>
-
-                                <a
-                                    href={`/owner/events/${event.id}/door-sheet`}
-                                    className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                                >
-                                    <Printer className="size-3.5" />
-                                    {t('owner.door_sheet')}
-                                </a>
-                            </StaggerItem>
-                        ))}
+                                    </article>
+                                </StaggerItem>
+                            );
+                        })}
                     </Stagger>
                 )}
             </div>

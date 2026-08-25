@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
 use App\Models\Event;
@@ -27,10 +28,25 @@ class EventController extends Controller
             return Inertia::render('owner/events/index', [
                 'place' => null,
                 'events' => [],
+                'counts' => ['all' => 0, 'published' => 0, 'draft' => 0],
+                'filter' => 'all',
             ]);
         }
 
+        // Counts describe the whole venue, so they stay stable as the list is
+        // filtered -- a tab that renumbered itself when selected would be
+        // useless for deciding whether to select it.
+        $counts = [
+            'all' => $place->events()->count(),
+            'published' => $place->events()->where('status', EventStatus::Published)->count(),
+            'draft' => $place->events()->where('status', EventStatus::Draft)->count(),
+        ];
+
+        $filter = $request->query('status');
+        $filter = in_array($filter, ['published', 'draft'], true) ? $filter : 'all';
+
         $events = $place->events()
+            ->when($filter !== 'all', fn ($query) => $query->where('status', $filter))
             ->withCount('tickets')
             ->latest()
             ->get()
@@ -50,6 +66,8 @@ class EventController extends Controller
         return Inertia::render('owner/events/index', [
             'place' => ['name_ar' => $place->name_ar, 'name_en' => $place->name_en, 'slug' => $place->slug],
             'events' => $events,
+            'counts' => $counts,
+            'filter' => $filter,
         ]);
     }
 

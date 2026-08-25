@@ -15,6 +15,7 @@ import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import { initials } from '@/lib/initials';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { dashboard } from '@/routes';
@@ -103,21 +104,6 @@ function Stat({
             ) : null}
         </StaggerItem>
     );
-}
-
-/**
- * Two letters from a name, so a booking row is scannable before it is read.
- *
- * Uppercased for Latin names; a no-op for Arabic, which has no letter case.
- */
-function initials(name: string): string {
-    return name
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((word) => Array.from(word)[0] ?? '')
-        .join('')
-        .toUpperCase();
 }
 
 export default function Dashboard({

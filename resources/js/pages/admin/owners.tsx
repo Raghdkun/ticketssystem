@@ -1,13 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
-import {
-    CalendarDays,
-    ChevronDown,
-    ShieldBan,
-    ShieldCheck,
-    Ticket as TicketIcon,
-    UserCog,
-    UserPlus,
-} from 'lucide-react';
+import { ShieldBan, ShieldCheck, UserCog, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
@@ -16,16 +8,12 @@ import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { initials } from '@/lib/initials';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
-import { cn } from '@/lib/utils';
 import { owners } from '@/routes/admin';
 
 type Owner = {
@@ -52,13 +40,28 @@ type Stats = {
 
 type Props = { stats: Stats; owners: Owner[] };
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+function Stat({
+    label,
+    value,
+    hint,
+    tone,
+}: {
+    label: string;
+    value: string | number;
+    hint?: string;
+    tone?: string;
+}) {
     return (
         <StaggerItem className="brand-surface rounded-xl border p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">
+            <p className={`mt-1 text-2xl font-bold tabular-nums ${tone ?? ''}`}>
                 {typeof value === 'number' ? <Counter value={value} /> : value}
             </p>
+            {hint ? (
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {hint}
+                </p>
+            ) : null}
         </StaggerItem>
     );
 }
@@ -73,61 +76,62 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
             <Head title={t('admin.title')} />
 
             <div className="space-y-8 p-4">
-                <Heading
-                    variant="small"
-                    title={t('admin.title')}
-                    description={t('admin.subtitle')}
-                />
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <Heading
+                        variant="small"
+                        title={t('admin.title')}
+                        description={t('admin.subtitle')}
+                    />
 
-                <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <Stat label={t('admin.stat_owners')} value={stats.owners} />
-                    <Stat label={t('admin.stat_events')} value={stats.events} />
+                    <Button
+                        onClick={() => setAddingOwner((open) => !open)}
+                        aria-expanded={addingOwner}
+                        aria-controls="new-owner-form"
+                        className="cursor-pointer"
+                    >
+                        <UserPlus />
+                        {t('admin.new_owner')}
+                    </Button>
+                </div>
+
+                <section className="brand-surface flex flex-wrap items-end justify-between gap-6 rounded-2xl border p-5 sm:p-6">
+                    <div>
+                        <p className="text-sm text-muted-foreground">
+                            {t('admin.stat_revenue')}
+                        </p>
+                        <p className="mt-1 text-3xl font-bold tabular-nums sm:text-4xl">
+                            {stats.revenue.toLocaleString('en-US')}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {t('admin.seats_sold', { n: stats.seats_paid })}
+                        </p>
+                    </div>
+                </section>
+
+                <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     <Stat
-                        label={t('admin.stat_tickets')}
-                        value={stats.tickets}
+                        label={t('admin.stat_owners')}
+                        value={stats.owners}
+                        hint={t('admin.n_suspended', { n: stats.banned })}
                     />
                     <Stat
-                        label={t('admin.stat_paid')}
-                        value={stats.paid_tickets}
+                        label={t('admin.stat_events')}
+                        value={stats.events}
+                        hint={t('admin.n_tickets', { n: stats.tickets })}
                     />
                     <Stat
                         label={t('admin.stat_pending')}
                         value={stats.pending_tickets}
+                        hint={t('admin.awaiting_payment')}
+                        tone="text-amber-600 dark:text-amber-400"
                     />
-                    <Stat
-                        label={t('admin.stat_seats')}
-                        value={stats.seats_paid}
-                    />
-                    <Stat
-                        label={t('admin.stat_revenue')}
-                        value={stats.revenue.toLocaleString()}
-                    />
-                    <Stat label={t('admin.suspended')} value={stats.banned} />
                 </Stagger>
 
-                <Collapsible
-                    open={addingOwner}
-                    onOpenChange={setAddingOwner}
-                    className="rounded-xl border"
-                >
-                    <CollapsibleTrigger asChild>
-                        <button
-                            type="button"
-                            className="flex w-full cursor-pointer items-center gap-2 rounded-xl p-4 text-start text-sm font-medium transition-colors hover:bg-muted/50"
-                        >
-                            <UserPlus className="size-4 text-primary" />
-                            {t('admin.new_owner')}
-
-                            <ChevronDown
-                                className={cn(
-                                    'ms-auto size-4 text-muted-foreground transition-transform duration-200',
-                                    addingOwner && 'rotate-180',
-                                )}
-                            />
-                        </button>
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent className="border-t p-4">
+                <Collapsible open={addingOwner} onOpenChange={setAddingOwner}>
+                    <CollapsibleContent
+                        id="new-owner-form"
+                        className="rounded-xl border p-4"
+                    >
                         <p className="mb-4 text-xs text-muted-foreground">
                             {t('admin.form_hint')}
                         </p>
@@ -252,113 +256,159 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                 {rows.length === 0 ? (
                     <EmptyState icon={UserPlus} title={t('admin.no_owners')} />
                 ) : (
-                    <ul className="space-y-3">
-                        {rows.map((owner) => (
-                            <li
-                                key={owner.id}
-                                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4 transition-colors duration-200 hover:border-primary/40"
-                            >
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-medium">
-                                            {owner.name}
-                                        </p>
-                                        {owner.banned && (
-                                            <Badge variant="destructive">
-                                                {t('admin.suspended')}
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <p
-                                        className="text-xs text-muted-foreground"
-                                        dir="ltr"
-                                    >
-                                        {owner.email}
-                                    </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        {owner.places
-                                            .map((place) =>
-                                                localised(
-                                                    locale,
-                                                    place.name_ar,
-                                                    place.name_en,
-                                                ),
-                                            )
-                                            .join(' · ')}
-                                    </p>
-                                </div>
+                    <div className="overflow-x-auto rounded-xl border">
+                        <table className="w-full min-w-[46rem] text-sm">
+                            <thead>
+                                <tr className="border-b text-xs text-muted-foreground">
+                                    <th className="px-4 py-3 text-start font-medium">
+                                        {t('admin.col_owner')}
+                                    </th>
+                                    <th className="px-4 py-3 text-start font-medium">
+                                        {t('admin.col_place')}
+                                    </th>
+                                    <th className="px-4 py-3 text-start font-medium">
+                                        {t('admin.stat_events')}
+                                    </th>
+                                    <th className="px-4 py-3 text-start font-medium">
+                                        {t('admin.stat_tickets')}
+                                    </th>
+                                    <th className="px-4 py-3">
+                                        <span className="sr-only">
+                                            {t('admin.col_actions')}
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
 
-                                <div className="flex items-center gap-4 text-sm">
-                                    <span
-                                        className="inline-flex items-center gap-1.5 text-muted-foreground"
-                                        title={t('admin.stat_events')}
+                            <tbody>
+                                {rows.map((owner) => (
+                                    <tr
+                                        key={owner.id}
+                                        className="border-b transition-colors last:border-0 hover:bg-muted/40"
                                     >
-                                        <CalendarDays className="size-4" />
-                                        {owner.events_count}
-                                    </span>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-3">
+                                                <span
+                                                    aria-hidden
+                                                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
+                                                >
+                                                    {initials(owner.name)}
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="flex items-center gap-2 font-medium">
+                                                        {owner.name}
+                                                        {owner.banned && (
+                                                            <Badge variant="destructive">
+                                                                {t(
+                                                                    'admin.suspended',
+                                                                )}
+                                                            </Badge>
+                                                        )}
+                                                    </p>
+                                                    <p
+                                                        className="truncate text-xs text-muted-foreground"
+                                                        dir="ltr"
+                                                    >
+                                                        {owner.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                                    <span
-                                        className="inline-flex items-center gap-1.5 text-muted-foreground"
-                                        title={t('admin.stat_tickets')}
-                                    >
-                                        <TicketIcon className="size-4" />
-                                        {owner.tickets_count}
-                                    </span>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {owner.places
+                                                .map((place) =>
+                                                    localised(
+                                                        locale,
+                                                        place.name_ar,
+                                                        place.name_en,
+                                                    ),
+                                                )
+                                                .join(' · ') || '—'}
+                                        </td>
 
-                                    <Form
-                                        action={`/admin/owners/${owner.id}/impersonate`}
-                                        method="post"
-                                    >
-                                        {({ processing }) => (
-                                            <Button
-                                                type="submit"
-                                                size="sm"
-                                                variant="outline"
-                                                className="cursor-pointer"
-                                                disabled={
-                                                    processing || owner.banned
-                                                }
-                                            >
-                                                <UserCog />
-                                                {t('admin.impersonate')}
-                                            </Button>
-                                        )}
-                                    </Form>
+                                        <td className="px-4 py-3 tabular-nums">
+                                            {owner.events_count}
+                                        </td>
 
-                                    <Form
-                                        action={
-                                            owner.banned
-                                                ? `/admin/owners/${owner.id}/unban`
-                                                : `/admin/owners/${owner.id}/ban`
-                                        }
-                                        method="post"
-                                    >
-                                        {({ processing }) => (
-                                            <Button
-                                                type="submit"
-                                                size="sm"
-                                                variant={
-                                                    owner.banned
-                                                        ? 'outline'
-                                                        : 'destructive'
-                                                }
-                                                disabled={processing}
-                                            >
-                                                {owner.banned ? (
-                                                    <ShieldCheck />
-                                                ) : (
-                                                    <ShieldBan />
+                                        <td className="px-4 py-3 tabular-nums">
+                                            {owner.tickets_count}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center justify-end gap-2">
+                                                {/* An impersonate control that
+                                                    renders disabled still reads
+                                                    as an option; a suspended
+                                                    owner simply has none. */}
+                                                {!owner.banned && (
+                                                    <Form
+                                                        action={`/admin/owners/${owner.id}/impersonate`}
+                                                        method="post"
+                                                    >
+                                                        {({ processing }) => (
+                                                            <Button
+                                                                type="submit"
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="cursor-pointer"
+                                                                disabled={
+                                                                    processing
+                                                                }
+                                                            >
+                                                                <UserCog />
+                                                                {t(
+                                                                    'admin.impersonate',
+                                                                )}
+                                                            </Button>
+                                                        )}
+                                                    </Form>
                                                 )}
-                                                {owner.banned
-                                                    ? t('admin.unban')
-                                                    : t('admin.ban')}
-                                            </Button>
-                                        )}
-                                    </Form>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+
+                                                <Form
+                                                    action={
+                                                        owner.banned
+                                                            ? `/admin/owners/${owner.id}/unban`
+                                                            : `/admin/owners/${owner.id}/ban`
+                                                    }
+                                                    method="post"
+                                                >
+                                                    {({ processing }) => (
+                                                        <Button
+                                                            type="submit"
+                                                            size="sm"
+                                                            variant={
+                                                                owner.banned
+                                                                    ? 'outline'
+                                                                    : 'ghost'
+                                                            }
+                                                            className="cursor-pointer"
+                                                            disabled={
+                                                                processing
+                                                            }
+                                                        >
+                                                            {owner.banned ? (
+                                                                <ShieldCheck />
+                                                            ) : (
+                                                                <ShieldBan />
+                                                            )}
+                                                            {owner.banned
+                                                                ? t(
+                                                                      'admin.unban',
+                                                                  )
+                                                                : t(
+                                                                      'admin.ban',
+                                                                  )}
+                                                        </Button>
+                                                    )}
+                                                </Form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
         </>

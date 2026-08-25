@@ -68,6 +68,10 @@ return [
     ],
 
     'owner' => [
+        'finish_publish' => 'Finish and publish',
+        'draft_meta' => 'No cover · :n seats · :date',
+        'seats_meta' => ':taken of :total seats · :date',
+        'filter_all' => 'All',
         'scan' => 'Scan',
         'no_place_events' => 'This account is not linked to a venue, so it has no events. Venues are assigned from platform settings.',
         'no_shows' => 'No-shows',
@@ -125,6 +129,13 @@ return [
     ],
 
     'admin' => [
+        'awaiting_payment' => 'Awaiting payment',
+        'col_actions' => 'Actions',
+        'col_place' => 'Venue',
+        'col_owner' => 'Owner',
+        'n_tickets' => ':n tickets',
+        'n_suspended' => ':n suspended',
+        'seats_sold' => ':n seats sold',
         'save' => 'Save settings',
         'support_whatsapp' => 'Support WhatsApp',
         'logo_hint' => 'PNG, JPG or WebP up to 2 MB. SVG is not accepted for security.',

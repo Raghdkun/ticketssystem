@@ -68,6 +68,10 @@ return [
     ],
 
     'owner' => [
+        'finish_publish' => 'أكمل ثم انشر',
+        'draft_meta' => 'لا غلاف · :n مقعدًا · :date',
+        'seats_meta' => ':taken من :total مقعد · :date',
+        'filter_all' => 'الكل',
         'scan' => 'مسح',
         'no_place_events' => 'هذا الحساب غير مرتبط بقاعة، لذلك لا توجد لديه فعاليات. تُسنَد القاعات من إعدادات المنصة.',
         'no_shows' => 'عدم الحضور',
@@ -125,6 +129,13 @@ return [
     ],
 
     'admin' => [
+        'awaiting_payment' => 'بانتظار الدفع',
+        'col_actions' => 'إجراءات',
+        'col_place' => 'القاعة',
+        'col_owner' => 'المالك',
+        'n_tickets' => ':n تذكرة',
+        'n_suspended' => ':n معلّق',
+        'seats_sold' => ':n مقعدًا مباعًا',
         'save' => 'حفظ الإعدادات',
         'support_whatsapp' => 'واتساب الدعم',
         'logo_hint' => 'PNG أو JPG أو WebP حتى ٢ ميغابايت. صيغة SVG غير مقبولة لأسباب أمنية.',
