@@ -9,19 +9,27 @@
 
 @theme {
     /*
-     * Instrument Sans carries the Latin text; IBM Plex Sans Arabic follows it
-     * in the stack so Arabic glyphs resolve to a real face rather than an OS
-     * fallback. Listing both means mixed-script strings (an Arabic title next
-     * to a Latin venue name) stay visually consistent.
+     * Latin display / text, then Arabic display / text. IBM Plex Sans Arabic
+     * stays the Arabic text face — a locked decision — while Rubik takes the
+     * Arabic headings, where it holds up better at large sizes.
      */
     --font-sans:
-        'Instrument Sans', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui,
-        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Public Sans', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --font-display:
+        'Bricolage Grotesque', 'Rubik', 'Public Sans', ui-sans-serif, system-ui,
+        sans-serif;
 
     --font-arabic:
-        'IBM Plex Sans Arabic', 'Instrument Sans', ui-sans-serif, system-ui,
+        'IBM Plex Sans Arabic', 'Public Sans', ui-sans-serif, system-ui,
         sans-serif;
+
+    --font-arabic-display:
+        'Rubik', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+
+    --font-mono:
+        'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /*
      * Booking CTA accent. Orange carries high-intent actions so they never
@@ -29,10 +37,12 @@
      * near-black text in both modes: 7.06:1 (AAA). White on this orange is
      * only 2.80:1, so the foreground is deliberately dark, not light.
      */
-    --color-brand-cta: #f97316;
-    --color-brand-cta-foreground: #0a0a0a;
+    --color-brand-cta: #e8a72b;
+    --color-brand-cta-foreground: #12110e;
 
-    --radius-lg: var(--radius);
+    --radius-sm: 0.625rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.75rem;
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
@@ -81,74 +91,123 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: #4f46e5;
-    --primary-foreground: #ffffff;
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: #4f46e5;
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    /*
+     * Basalt & Saffron.
+     *
+     * Jade carries structure, navigation and the paid state — the good
+     * outcome is the brand. Saffron is reserved for high intent and appears
+     * on at most one control per screen; the moment it is used for anything
+     * routine it stops meaning "act here".
+     */
+    --brand-jade-900: #062e24;
+    --brand-jade-700: #0a5c49;
+    --brand-jade-500: #12876a;
+    --brand-jade-300: #4fcba5;
+    --brand-jade-100: #ddece5;
+
+    --brand-saffron-900: #8a5a0c;
+    --brand-saffron-700: #c88414;
+    --brand-saffron-500: #e8a72b;
+    --brand-saffron-300: #f3c766;
+    --brand-saffron-100: #fbebce;
+
+    --brand-basalt-900: #12110e;
+    --brand-basalt-700: #191712;
+    --brand-basalt-400: #6e675a;
+    --brand-paper-300: #e5dccc;
+    --brand-paper-100: #faf7f2;
+
+    /* Warm paper base rather than white: this is read on a phone in a dark
+       venue, where a pure-white field is a torch. */
+    --background: #e8e2d6;
+    --foreground: #191712;
+    --card: #faf7f2;
+    --card-foreground: #191712;
+    --popover: #faf7f2;
+    --popover-foreground: #191712;
+
+    --primary: #0a5c49;
+    --primary-foreground: #faf7f2;
+    --secondary: #f2ece2;
+    --secondary-foreground: #332f27;
+    --muted: #ede5d8;
+    --muted-foreground: #6e675a;
+    --accent: #ddece5;
+    --accent-foreground: #06392c;
+
+    --destructive: #a3341f;
+    --destructive-foreground: #faf7f2;
+
+    --border: #d6c9b3;
+    --input: #d6c9b3;
+    --ring: #0a5c49;
+
+    --chart-1: #0a5c49;
+    --chart-2: #12876a;
+    --chart-3: #4fcba5;
+    --chart-4: #e8a72b;
+    --chart-5: #c88414;
+
+    /* Was one flat 10px. Three steps: controls, cards, surfaces. */
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: #4f46e5;
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+
+    --sidebar: #f5f0e6;
+    --sidebar-foreground: #332f27;
+    --sidebar-primary: #0a5c49;
+    --sidebar-primary-foreground: #faf7f2;
+    --sidebar-accent: #ede5d8;
+    --sidebar-accent-foreground: #191712;
+    --sidebar-border: #d6c9b3;
+    --sidebar-ring: #0a5c49;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: #818cf8;
-    --primary-foreground: #0a0a0a;
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: #818cf8;
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: #818cf8;
-    --sidebar-primary-foreground: #0a0a0a;
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --color-brand-cta: #e8a72b;
+    --color-brand-cta-foreground: #12110e;
+
+    /*
+     * The design is paper-first. Dark keeps the same jade and saffron so the
+     * product stays recognisable, and swaps the basalt/paper roles rather
+     * than inventing a second palette.
+     */
+    --background: #12110e;
+    --foreground: #f2ece2;
+    --card: #191712;
+    --card-foreground: #f2ece2;
+    --popover: #191712;
+    --popover-foreground: #f2ece2;
+
+    /* Jade-700 on basalt is too dark to read, so dark mode steps up a tone. */
+    --primary: #4fcba5;
+    --primary-foreground: #062e24;
+    --secondary: #262218;
+    --secondary-foreground: #f2ece2;
+    --muted: #262218;
+    --muted-foreground: #a8a091;
+    --accent: #16342b;
+    --accent-foreground: #ddece5;
+
+    --destructive: #e0674c;
+    --destructive-foreground: #12110e;
+
+    --border: #332f27;
+    --input: #332f27;
+    --ring: #4fcba5;
+
+    --chart-1: #4fcba5;
+    --chart-2: #12876a;
+    --chart-3: #ddece5;
+    --chart-4: #e8a72b;
+    --chart-5: #f3c766;
+
+    --sidebar: #191712;
+    --sidebar-foreground: #f2ece2;
+    --sidebar-primary: #4fcba5;
+    --sidebar-primary-foreground: #062e24;
+    --sidebar-accent: #262218;
+    --sidebar-accent-foreground: #f2ece2;
+    --sidebar-border: #332f27;
+    --sidebar-ring: #4fcba5;
 }
 
 @layer base {
@@ -192,6 +251,19 @@
     --arabic-leading: 1.75;
 }
 
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+}
+
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3 {
+    font-family: var(--font-arabic-display);
+}
+
 [dir='rtl'] body {
     font-family: var(--font-arabic);
     line-height: var(--arabic-leading);
@@ -225,6 +297,17 @@
     select,
     textarea {
         min-height: 44px;
+    }
+
+    /*
+     * Primary controls go to 52px. At a venue door, in the dark, with one
+     * hand full, 44px is the floor rather than a comfortable target.
+     */
+    button[type='submit'],
+    [data-slot='button'][data-size='lg'],
+    input:not([type='checkbox']):not([type='radio']):not([type='color']),
+    select {
+        min-height: 52px;
     }
 
     /*
@@ -400,4 +483,12 @@ p {
     pointer-events: none;
     opacity: 0.035;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/*
+ * Focus. A 2px ring in jade, offset so it reads on both paper and basalt.
+ */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
 }

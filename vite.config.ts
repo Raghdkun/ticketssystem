@@ -12,8 +12,21 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                // Latin: Bricolage Grotesque displays, Public Sans reads.
+                // Public Sans has a taller x-height than Instrument Sans,
+                // which is what keeps 15px legible on a phone at arm's length.
+                bunny('Bricolage Grotesque', {
+                    weights: [500, 600, 700],
+                }),
+                bunny('Public Sans', {
+                    weights: [400, 500, 600, 700],
+                }),
+                // Arabic display. IBM Plex Sans Arabic still carries the text.
+                bunny('Rubik', {
+                    weights: [400, 500, 600, 700],
+                }),
+                bunny('IBM Plex Mono', {
+                    weights: [400, 500],
                 }),
                 // Instrument Sans has no Arabic coverage, so Arabic would fall
                 // back to whatever the OS provides. This ships a real Arabic face.
