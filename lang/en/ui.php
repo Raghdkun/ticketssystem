@@ -41,6 +41,9 @@ return [
     ],
 
     'ticket' => [
+        'amount_paid' => 'Amount paid',
+        'pay_or_released' => 'to pay :amount at the venue, or the seat is released.',
+        'time_left' => ':hours h :minutes m left',
         'stamp' => 'Paid',
         'qr_alt' => 'Ticket QR code',
         'name' => 'Name',

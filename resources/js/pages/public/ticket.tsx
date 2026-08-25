@@ -8,6 +8,7 @@ import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PushOptIn } from '@/components/push-opt-in';
 import { ShareButton } from '@/components/share-button';
+import { HoldCountdown } from '@/components/ticket/hold-countdown';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { StatusBanner } from '@/components/ticket/status-banner';
 import { WhatsAppButton } from '@/components/whatsapp-button';
@@ -209,7 +210,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                                     className="font-mono text-xs font-medium"
                                     dir="ltr"
                                 >
-                                    {ticket.token.slice(0, 8).toUpperCase()}
+                                    {`${ticket.token.slice(0, 4)} ${ticket.token.slice(4, 8)}`.toUpperCase()}
                                 </dd>
                             </div>
                         </dl>
@@ -253,16 +254,14 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         )}
 
                         {status === 'pending' && ticket.hold_expires_at && (
-                            <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
-                                {t('ticket.pay_before', {
-                                    time: new Date(
-                                        ticket.hold_expires_at,
-                                    ).toLocaleString(dateLocale, {
-                                        dateStyle: 'medium',
-                                        timeStyle: 'short',
-                                    }),
-                                })}
-                            </p>
+                            <HoldCountdown
+                                expiresAt={ticket.hold_expires_at}
+                                amount={
+                                    event.is_free
+                                        ? t('event.free')
+                                        : `${(event.price * ticket.quantity).toLocaleString()} ${event.currency}`
+                                }
+                            />
                         )}
                     </div>
                 </motion.article>
@@ -272,7 +271,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
 
                     <WhatsAppButton
                         number={place.whatsapp_number}
-                        message={`${title} — ${ticket.full_name} (${ticket.token.slice(0, 8).toUpperCase()})`}
+                        message={`${title} — ${ticket.full_name} (${`${ticket.token.slice(0, 4)} ${ticket.token.slice(4, 8)}`.toUpperCase()})`}
                         label={t('common.whatsapp')}
                         className="w-full"
                     />

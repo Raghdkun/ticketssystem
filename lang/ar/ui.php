@@ -41,6 +41,9 @@ return [
     ],
 
     'ticket' => [
+        'amount_paid' => 'المبلغ المدفوع',
+        'pay_or_released' => 'تبقّى لدفع :amount في المكان، وإلا يُحرَّر المقعد.',
+        'time_left' => ':hours ساعة و :minutes دقيقة',
         'stamp' => 'مدفوعة',
         'qr_alt' => 'رمز التذكرة',
         'name' => 'الاسم',
