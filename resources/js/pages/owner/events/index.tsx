@@ -158,7 +158,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                         nest. A stretched overlay keeps the whole
                                         card clickable without nesting. */}
                                     <article className="brand-surface group relative flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-200 hover:border-primary/40 hover:shadow-md">
-                                        <div className="relative aspect-video bg-muted">
+                                        <div className="relative grid aspect-video place-items-center bg-muted">
                                             {event.cover ? (
                                                 <img
                                                     src={`/storage/${event.cover}`}
@@ -168,7 +168,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                 />
                                             ) : (
                                                 <ImageIcon
-                                                    className="absolute top-1/2 left-1/2 size-7 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/60"
+                                                    className="size-7 text-muted-foreground/60"
                                                     aria-hidden
                                                 />
                                             )}

@@ -102,6 +102,7 @@ realtime status flip.
 | 6 | Rebrand + logo/icons, platform settings, audited impersonation, unified indigo/orange theme |
 | 7 | Sitemap, `DEPLOYMENT.md`, this file |
 | 8 | Redesign pass: branded error pages, legal pages, public footer, skip link, social meta, press feedback |
+| 9 | Artboard match: owner dashboard, events, admin owners, auth — composition block-by-block at 1280 / 1100 / 375 |
 
 **204 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
 
@@ -167,5 +168,9 @@ control per screen. Basalt on warm paper, light by default.
 ## Open — needs the owner, not code
 
 - **FCM credentials.** `FCM_*` and `VITE_FCM_*` are blank by design; push is inert until filled.
+- **Numeral script in Arabic.** Dates render Arabic-Indic (`ar-SY`), every other figure
+  renders Latin, so a single line can carry both — "14 من 89 مقعد · ١٣ أيلول". The artboards
+  use Arabic-Indic for counts and dates and Latin only for currency. Picking one rule is a
+  product call, not a code call, and it touches every page that prints a number.
 - **Real-device testing.** The camera scanner and PWA install flow have only ever run in a desktop
   browser. This is the largest remaining risk.
