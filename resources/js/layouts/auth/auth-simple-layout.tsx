@@ -1,5 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { LanguageToggle } from '@/components/language-toggle';
+import { useTranslation } from '@/lib/translation';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -8,29 +10,63 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: AuthLayoutProps) {
-    return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link
-                            href={home()}
-                            className="flex flex-col items-center gap-2 font-medium"
-                        >
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
-                        </Link>
+    const t = useTranslation();
+    const { platform } = usePage<{ platform: { name: string } }>().props;
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-center text-sm text-muted-foreground">
+    return (
+        <div className="flex min-h-svh flex-col bg-background">
+            {/* A brand band anchors the page before any content loads. It
+                carries jade, not basalt: basalt on the dark theme's basalt
+                background is invisible. */}
+            <div
+                className="h-1.5 w-full shrink-0"
+                style={{ backgroundColor: 'var(--brand-jade-700)' }}
+            />
+
+            <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10">
+                <div className="w-full max-w-sm">
+                    <div className="flex flex-col gap-8">
+                        <div className="flex items-center justify-between gap-4">
+                            <Link
+                                href={home()}
+                                className="flex items-center gap-2 rounded-md font-medium"
+                            >
+                                <AppLogoIcon className="size-9 fill-current text-primary" />
+                                <span className="sr-only">{title}</span>
+                            </Link>
+
+                            <LanguageToggle className="min-h-9 border bg-transparent py-1 text-foreground hover:bg-muted" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <h1 className="text-2xl font-bold">{title}</h1>
+                            <p className="text-sm text-muted-foreground">
                                 {description}
                             </p>
                         </div>
+
+                        {children}
+
+                        {/* Registration is closed by design, so the footer
+                            carries the legal links a sign-up flow would. */}
+                        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                            <span>{platform?.name}</span>
+                            <span aria-hidden>·</span>
+                            <Link
+                                href="/privacy"
+                                className="rounded-sm underline-offset-4 hover:text-foreground hover:underline"
+                            >
+                                {t('legal.privacy')}
+                            </Link>
+                            <span aria-hidden>·</span>
+                            <Link
+                                href="/terms"
+                                className="rounded-sm underline-offset-4 hover:text-foreground hover:underline"
+                            >
+                                {t('legal.terms')}
+                            </Link>
+                        </p>
                     </div>
-                    {children}
                 </div>
             </div>
         </div>

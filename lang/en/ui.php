@@ -309,6 +309,10 @@ return [
     ],
 
     'auth' => [
+        'or_password' => 'Or confirm with password',
+        'confirming' => 'Confirming…',
+        'confirm_passkey' => 'Confirm with passkey',
+        'or' => 'or',
         'authenticating' => 'Authenticating…',
         'save_password' => 'Save password',
         'or_confirm_password' => 'Or confirm with password',
@@ -317,7 +321,7 @@ return [
         'email_reset_link' => 'Email password reset link',
         'log_in' => 'Log in',
         'log_in_title' => 'Log in to your account',
-        'log_in_sub' => 'Enter your email and password below to log in',
+        'log_in_sub' => 'For venue owners and platform administration. Self sign-up is closed.',
         'email' => 'Email address',
         'password' => 'Password',
         'remember' => 'Remember me',

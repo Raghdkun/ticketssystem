@@ -24,8 +24,6 @@ export default function Login({ status, canResetPassword }: Props) {
         <>
             <Head title={t('auth.log_in')} />
 
-            <PasskeyVerify />
-
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
@@ -44,6 +42,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoFocus
                                     tabIndex={1}
                                     autoComplete="email"
+                                    dir="ltr"
                                     placeholder="email@example.com"
                                 />
                                 <InputError message={errors.email} />
@@ -75,7 +74,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                 <InputError message={errors.password} />
                             </div>
 
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center gap-3">
                                 <Checkbox
                                     id="remember"
                                     name="remember"
@@ -100,6 +99,11 @@ export default function Login({ status, canResetPassword }: Props) {
                     </>
                 )}
             </Form>
+
+            <PasskeyVerify
+                separator={t('auth.or')}
+                separatorPosition="before"
+            />
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
