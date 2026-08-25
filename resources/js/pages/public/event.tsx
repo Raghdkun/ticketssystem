@@ -101,6 +101,19 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <div className="absolute inset-x-0 bottom-0">
                         <div className="mx-auto w-full max-w-6xl p-5 pe-16 sm:p-8 sm:pe-20">
                             <div className="min-w-0">
+                                <div className="mb-3 flex flex-wrap items-center gap-2">
+                                    {!soldOut && (
+                                        <span className="inline-flex items-center rounded-full bg-brand-cta px-2.5 py-1 text-xs font-semibold text-brand-cta-foreground">
+                                            {t('event.seats_only', {
+                                                n: event.seats_remaining,
+                                            })}
+                                        </span>
+                                    )}
+                                    <span className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
+                                        {t('event.pay_at_venue')}
+                                    </span>
+                                </div>
+
                                 <p className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80">
                                     <MapPin className="size-4" />
                                     {placeName}
@@ -134,7 +147,15 @@ export default function EventPage({ event, place, siblings }: Props) {
                             <p className="font-medium">
                                 {new Date(event.starts_at).toLocaleDateString(
                                     locale === 'ar' ? 'ar-SY' : 'en-GB',
-                                    { dateStyle: 'medium' },
+                                    { day: 'numeric', month: 'long' },
+                                )}
+                            </p>
+                            {/* The weekday is what people check to decide
+                                whether they can actually go. */}
+                            <p className="text-xs text-muted-foreground">
+                                {new Date(event.starts_at).toLocaleDateString(
+                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
+                                    { weekday: 'long', year: 'numeric' },
                                 )}
                             </p>
                         </div>

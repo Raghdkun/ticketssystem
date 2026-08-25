@@ -14,6 +14,8 @@ return [
     ],
 
     'event' => [
+        'pay_at_venue' => 'Pay at the venue',
+        'seats_only' => 'Only :n seats left',
         'per_person' => 'per person',
         'status' => [
             'draft' => 'Draft',

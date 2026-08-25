@@ -14,6 +14,8 @@ return [
     ],
 
     'event' => [
+        'pay_at_venue' => 'الدفع في المكان',
+        'seats_only' => ':n مقعدًا فقط',
         'per_person' => 'للشخص',
         'status' => [
             'draft' => 'مسودة',

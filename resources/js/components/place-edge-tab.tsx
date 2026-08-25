@@ -35,7 +35,7 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                 type="button"
                 onClick={() => setOpen(true)}
                 aria-label={placeName}
-                className="fixed start-0 top-1/2 z-40 flex -translate-y-1/2 items-center gap-2 rounded-e-xl bg-neutral-900/90 py-4 ps-2.5 pe-2 text-white shadow-lg backdrop-blur transition hover:bg-neutral-900 rtl:rounded-s-xl rtl:rounded-e-none dark:bg-white/90 dark:text-neutral-900"
+                className="fixed start-0 top-1/2 z-40 hidden -translate-y-1/2 items-center gap-2 rounded-e-xl bg-neutral-900/90 py-4 ps-2.5 pe-2 text-white shadow-lg backdrop-blur transition hover:bg-neutral-900 md:flex rtl:rounded-s-xl rtl:rounded-e-none dark:bg-white/90 dark:text-neutral-900"
             >
                 <Store className="size-4 shrink-0" />
                 <span
