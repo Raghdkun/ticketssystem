@@ -30,7 +30,6 @@ class HomeController extends Controller
                 'title_en' => $event->title_en,
                 'starts_at' => $event->starts_at->toIso8601String(),
                 'cover' => $event->cover_variants['thumb'] ?? null,
-                'primary_color' => $event->primary_color ?? '#6d28d9',
                 'is_free' => $event->isFree(),
                 'price' => (float) $event->price,
                 'currency' => $event->currency,

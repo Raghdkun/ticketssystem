@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
-use App\Enums\ThemeMode;
 use Carbon\CarbonImmutable;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -33,10 +32,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $ends_at
  * @property CarbonImmutable $appointments_close_at
  * @property EventStatus $status
- * @property ThemeMode $theme_mode
- * @property string|null $primary_color
- * @property string|null $secondary_color
- * @property string|null $on_primary_color
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Place $place
@@ -45,7 +40,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'slug', 'title_ar', 'title_en', 'description_ar', 'description_en',
     'price', 'currency', 'total_quantity', 'max_per_appointment', 'hold_hours',
     'starts_at', 'ends_at', 'appointments_close_at', 'status',
-    'theme_mode', 'primary_color', 'secondary_color',
 ])]
 class Event extends Model
 {
@@ -64,7 +58,6 @@ class Event extends Model
             'ends_at' => 'datetime',
             'appointments_close_at' => 'datetime',
             'status' => EventStatus::class,
-            'theme_mode' => ThemeMode::class,
         ];
     }
 

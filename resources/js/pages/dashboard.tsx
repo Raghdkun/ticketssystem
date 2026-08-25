@@ -46,7 +46,6 @@ type Upcoming = {
     starts_at: string;
     total_quantity: number;
     seats_taken: number;
-    primary_color: string;
 };
 
 type PlatformStats = {
@@ -339,7 +338,7 @@ export default function Dashboard({
                                                         style={{
                                                             width: `${pct}%`,
                                                             backgroundColor:
-                                                                event.primary_color,
+                                                                'var(--brand-jade-700)',
                                                         }}
                                                     />
                                                 </div>

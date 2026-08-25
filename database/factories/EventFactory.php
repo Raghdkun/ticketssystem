@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\EventStatus;
-use App\Enums\ThemeMode;
 use App\Models\Event;
 use App\Models\Place;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -40,10 +39,6 @@ class EventFactory extends Factory
             'ends_at' => (clone $startsAt)->addHours(4),
             'appointments_close_at' => (clone $startsAt)->subDay(),
             'status' => EventStatus::Published,
-            'theme_mode' => ThemeMode::Auto,
-            'primary_color' => '#6d28d9',
-            'secondary_color' => '#db2777',
-            'on_primary_color' => '#ffffff',
         ];
     }
 

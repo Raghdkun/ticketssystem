@@ -53,16 +53,7 @@ export default function EventPage({ event, place, siblings }: Props) {
     const canAppoint = event.is_open && !soldOut && allRulesAccepted;
 
     return (
-        <div
-            className="event-theme min-h-dvh bg-background"
-            style={
-                {
-                    '--event-primary': event.theme.primary,
-                    '--event-secondary': event.theme.secondary,
-                    '--event-on-primary': event.theme.on_primary,
-                } as React.CSSProperties
-            }
-        >
+        <div className="min-h-dvh bg-background">
             <Head title={title}>
                 <meta
                     name="description"
@@ -90,7 +81,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                 <div
                     className="relative aspect-[4/5] max-h-[62dvh] w-full overflow-hidden sm:aspect-[16/9] lg:aspect-[3/1]"
                     style={{
-                        background: `linear-gradient(135deg, var(--event-primary), var(--event-secondary))`,
+                        background: `linear-gradient(140deg, var(--brand-jade-700), var(--brand-jade-900))`,
                     }}
                 >
                     {event.promo_video ? (

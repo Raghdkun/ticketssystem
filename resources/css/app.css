@@ -221,28 +221,6 @@
 }
 
 /*
- * Event pages inject their extracted palette as --event-* custom properties.
- * Re-pointing the design-system tokens at them inside this scope lets every
- * vendored shadcn/ui component inherit the event's colours automatically,
- * instead of each call site overriding `background-color` inline.
- *
- * Only the primary trio is remapped: --accent and --muted drive hover and
- * surface states whose paired foregrounds are not derived from the cover, so
- * remapping those too would risk unreadable combinations.
- */
-.event-theme {
-    /*
-     * Override the Tailwind colour tokens, not the raw --primary variables.
-     * `@theme` emits `--color-primary: var(--primary)` on :root, so that
-     * indirection is already resolved against the root value and re-pointing
-     * --primary further down the tree has no effect on `bg-primary`.
-     */
-    --color-primary: var(--event-primary);
-    --color-primary-foreground: var(--event-on-primary);
-    --color-ring: var(--event-primary);
-}
-
-/*
  * Arabic script needs more vertical room than Latin at the same size, and the
  * tight tracking used for Latin headings makes it harder to read.
  */

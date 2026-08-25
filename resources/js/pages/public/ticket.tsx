@@ -69,16 +69,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
         status === 'cancelled' || status === 'expired' || status === 'no_show';
 
     return (
-        <div
-            className="event-theme min-h-dvh bg-neutral-100 py-6 dark:bg-neutral-950"
-            style={
-                {
-                    '--event-primary': event.theme.primary,
-                    '--event-secondary': event.theme.secondary,
-                    '--event-on-primary': event.theme.on_primary,
-                } as React.CSSProperties
-            }
-        >
+        <div className="min-h-dvh bg-neutral-100 py-6 dark:bg-neutral-950">
             <Head title={title}>
                 <meta name="description" content={`${title} — ${placeName}`} />
                 <meta name="robots" content="noindex" />
@@ -119,8 +110,8 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         className="relative p-6"
                         style={{
                             background:
-                                'linear-gradient(135deg, var(--event-primary), var(--event-secondary))',
-                            color: 'var(--event-on-primary)',
+                                'linear-gradient(140deg, var(--brand-jade-700), var(--brand-jade-900))',
+                            color: 'var(--brand-paper-100)',
                         }}
                     >
                         <p className="inline-flex items-center gap-1.5 text-sm opacity-80">

@@ -25,9 +25,6 @@ export type EventFormValues = {
     ends_at: string | null;
     appointments_close_at: string;
     status: string;
-    theme_mode: string;
-    primary_color: string | null;
-    secondary_color: string | null;
     cover?: string | null;
     rules: EventRule[];
     perks: EventPerk[];
@@ -70,7 +67,6 @@ export default function EventForm({ action, values, submitLabel }: Props) {
     const t = useTranslation();
     const [rules, setRules] = useState<EventRule[]>(values?.rules ?? []);
     const [perks, setPerks] = useState<EventPerk[]>(values?.perks ?? []);
-    const [themeMode, setThemeMode] = useState(values?.theme_mode ?? 'auto');
 
     return (
         <Form
@@ -306,60 +302,6 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 alt={t('form.cover')}
                                 className="aspect-video w-full max-w-sm rounded-lg object-cover"
                             />
-                        )}
-
-                        <Field
-                            id="theme_mode"
-                            label={t('form.theme')}
-                            error={errors.theme_mode}
-                        >
-                            <select
-                                id="theme_mode"
-                                name="theme_mode"
-                                value={themeMode}
-                                onChange={(e) => setThemeMode(e.target.value)}
-                                className="h-9 max-w-xs rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
-                            >
-                                <option value="auto">
-                                    {t('form.theme_auto')}
-                                </option>
-                                <option value="manual">
-                                    {t('form.theme_manual')}
-                                </option>
-                            </select>
-                        </Field>
-
-                        {themeMode === 'manual' && (
-                            <div className="grid max-w-sm gap-4 sm:grid-cols-2">
-                                <Field
-                                    id="primary_color"
-                                    label={t('form.primary')}
-                                    error={errors.primary_color}
-                                >
-                                    <Input
-                                        id="primary_color"
-                                        name="primary_color"
-                                        type="color"
-                                        defaultValue={
-                                            values?.primary_color ?? '#6d28d9'
-                                        }
-                                    />
-                                </Field>
-                                <Field
-                                    id="secondary_color"
-                                    label={t('form.secondary')}
-                                    error={errors.secondary_color}
-                                >
-                                    <Input
-                                        id="secondary_color"
-                                        name="secondary_color"
-                                        type="color"
-                                        defaultValue={
-                                            values?.secondary_color ?? '#db2777'
-                                        }
-                                    />
-                                </Field>
-                            </div>
                         )}
                     </section>
 

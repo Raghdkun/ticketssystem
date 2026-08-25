@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Owner;
 
 use App\Enums\EventStatus;
-use App\Enums\ThemeMode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -41,11 +40,6 @@ class EventRequest extends FormRequest
             'appointments_close_at' => ['required', 'date', 'before_or_equal:starts_at'],
 
             'status' => ['required', new Enum(EventStatus::class)],
-            'theme_mode' => ['required', new Enum(ThemeMode::class)],
-
-            // Only meaningful in manual mode; auto mode derives them from the cover.
-            'primary_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'secondary_color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
 
             'cover' => [
                 Rule::requiredIf(fn () => $this->routeIs('owner.events.store')),

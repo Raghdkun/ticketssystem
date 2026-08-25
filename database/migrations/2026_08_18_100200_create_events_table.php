@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\EventStatus;
-use App\Enums\ThemeMode;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,8 +31,8 @@ return new class extends Migration
             $table->timestamp('ends_at')->nullable();
             $table->timestamp('appointments_close_at');
 
-            $table->string('status')->default(EventStatus::Draft->value);
-            $table->string('theme_mode')->default(ThemeMode::Auto->value);
+            $table->string('status')->default('draft');
+            $table->string('theme_mode')->default('auto');
             $table->string('primary_color', 7)->nullable();
             $table->string('secondary_color', 7)->nullable();
             $table->string('on_primary_color', 7)->nullable();

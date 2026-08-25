@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\TicketStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +19,7 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('phone', 20);
             $table->unsignedSmallInteger('quantity');
-            $table->string('status')->default(TicketStatus::Pending->value);
+            $table->string('status')->default('pending');
 
             $table->timestamp('hold_expires_at')->nullable();
             $table->timestamp('verified_at')->nullable();

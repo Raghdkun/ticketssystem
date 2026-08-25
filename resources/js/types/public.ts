@@ -1,9 +1,3 @@
-export type EventTheme = {
-    primary: string;
-    secondary: string;
-    on_primary: string;
-};
-
 export type EventCover = {
     portrait?: string;
     landscape?: string;
@@ -48,7 +42,6 @@ export type PublicEvent = {
     ends_at: string | null;
     appointments_close_at: string;
     cover: EventCover;
-    theme: EventTheme;
     seats_remaining: number;
     is_open: boolean;
     max_per_appointment: number;
@@ -79,7 +72,6 @@ export type SiblingEvent = {
     title_en: string;
     starts_at: string;
     cover: string | null;
-    primary_color: string;
     is_free: boolean;
     price: number;
     currency: string;

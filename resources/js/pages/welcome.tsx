@@ -15,7 +15,6 @@ type HomeEvent = {
     title_en: string;
     starts_at: string;
     cover: string | null;
-    primary_color: string;
     is_free: boolean;
     price: number;
     currency: string;
@@ -117,7 +116,7 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
                                                 className="relative aspect-video"
                                                 style={{
                                                     backgroundColor:
-                                                        event.primary_color,
+                                                        'var(--brand-jade-700)',
                                                 }}
                                             >
                                                 {event.cover && (

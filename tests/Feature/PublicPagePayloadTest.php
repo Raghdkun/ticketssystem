@@ -19,16 +19,20 @@ class PublicPagePayloadTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Keys the ticket page reads off `event`. */
+    /**
+     * Keys the ticket page reads off `event`. There is deliberately no
+     * `theme`: per-event palettes were retired in favour of one platform
+     * identity.
+     */
     private const TICKET_EVENT_KEYS = [
         'title_ar', 'title_en', 'starts_at', 'price', 'currency',
-        'is_free', 'cover', 'theme', 'perks',
+        'is_free', 'cover', 'perks',
     ];
 
     /** Keys the event page reads off `event`. */
     private const EVENT_PAGE_KEYS = [
         'title_ar', 'title_en', 'starts_at', 'price', 'currency', 'is_free',
-        'cover', 'theme', 'rules', 'perks', 'gallery', 'promo_video',
+        'cover', 'rules', 'perks', 'gallery', 'promo_video',
         'seats_remaining', 'is_open', 'max_per_appointment', 'slug',
     ];
 

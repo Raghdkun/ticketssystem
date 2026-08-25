@@ -104,7 +104,6 @@ class DashboardController extends Controller
                 'starts_at' => $event->starts_at->toIso8601String(),
                 'total_quantity' => $event->total_quantity,
                 'seats_taken' => $event->seatsTaken(),
-                'primary_color' => $event->primary_color ?? '#6d28d9',
             ])
             ->all();
     }

@@ -51,7 +51,6 @@ final class EventPresenter
                 'title_en' => $event->title_en,
                 'starts_at' => $event->starts_at->toIso8601String(),
                 'cover' => $event->cover_variants['thumb'] ?? null,
-                'primary_color' => $event->primary_color ?? '#6d28d9',
                 'is_free' => $event->isFree(),
                 'price' => (float) $event->price,
                 'currency' => $event->currency,
@@ -125,11 +124,6 @@ final class EventPresenter
                 'src' => $event->promoVideo->path,
                 'poster' => $event->promoVideo->poster_path ?? ($event->cover_variants['landscape'] ?? null),
                 'mime' => $event->promoVideo->mime,
-            ],
-            'theme' => [
-                'primary' => $event->primary_color ?? '#6d28d9',
-                'secondary' => $event->secondary_color ?? '#db2777',
-                'on_primary' => $event->on_primary_color ?? '#ffffff',
             ],
         ];
     }

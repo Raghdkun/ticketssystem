@@ -71,7 +71,7 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                                         className="size-12 shrink-0 overflow-hidden rounded-lg"
                                         style={{
                                             backgroundColor:
-                                                event.primary_color,
+                                                'var(--brand-jade-700)',
                                         }}
                                     >
                                         {event.cover && (

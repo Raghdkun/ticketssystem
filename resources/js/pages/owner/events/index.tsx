@@ -25,7 +25,6 @@ type EventRow = {
     seats_taken: number;
     tickets_count: number;
     cover: string | null;
-    primary_color: string | null;
 };
 
 type Props = {
@@ -93,8 +92,7 @@ export default function EventsIndex({ place, events }: Props) {
                                         className="relative aspect-video bg-muted"
                                         style={{
                                             backgroundColor:
-                                                event.primary_color ??
-                                                undefined,
+                                                'var(--brand-jade-700)',
                                         }}
                                     >
                                         {event.cover && (

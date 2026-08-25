@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Owner;
 
-use App\Enums\ThemeMode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
 use App\Models\Event;
@@ -46,7 +45,6 @@ class EventController extends Controller
                 'seats_taken' => $event->seatsTaken(),
                 'tickets_count' => $event->tickets_count,
                 'cover' => $event->cover_variants['thumb'] ?? null,
-                'primary_color' => $event->primary_color,
             ]);
 
         return Inertia::render('owner/events/index', [
@@ -90,11 +88,9 @@ class EventController extends Controller
                 ...$event->only([
                     'id', 'slug', 'title_ar', 'title_en', 'description_ar', 'description_en',
                     'currency', 'total_quantity', 'max_per_appointment', 'hold_hours',
-                    'primary_color', 'secondary_color',
                 ]),
                 'price' => (float) $event->price,
                 'status' => $event->status->value,
-                'theme_mode' => $event->theme_mode->value,
                 'starts_at' => $event->starts_at->format('Y-m-d\TH:i'),
                 'ends_at' => $event->ends_at?->format('Y-m-d\TH:i'),
                 'appointments_close_at' => $event->appointments_close_at->format('Y-m-d\TH:i'),
@@ -117,11 +113,6 @@ class EventController extends Controller
         $this->authorize('update', $event);
 
         $event->fill($request->safe()->except(['cover', 'rules', 'perks']));
-
-        // Clearing manual colours lets the next upload re-derive them.
-        if ($event->theme_mode === ThemeMode::Auto) {
-            $event->primary_color = $event->primary_color ?: null;
-        }
 
         $event->save();
 

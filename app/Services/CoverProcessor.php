@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\ThemeMode;
 use App\Models\Event;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -10,8 +9,10 @@ use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 
 /**
- * Turns an uploaded cover into the responsive WebP set the mobile UI needs and
- * derives the event's theme colours from it.
+ * Turns an uploaded cover into the responsive WebP set the mobile UI needs.
+ *
+ * Colours are no longer derived from it: one fixed identity carries the whole
+ * product, so a cover is artwork rather than a source of theme tokens.
  */
 final class CoverProcessor
 {
@@ -28,8 +29,6 @@ final class CoverProcessor
     ];
 
     private const DISK = 'public';
-
-    public function __construct(private readonly PaletteExtractor $palette) {}
 
     /**
      * Generate variants + palette for an event from raw image bytes.
@@ -61,13 +60,6 @@ final class CoverProcessor
 
         $event->cover_path = "{$directory}/landscape.webp";
         $event->cover_variants = $variants;
-
-        if ($event->theme_mode === ThemeMode::Auto) {
-            $palette = $this->palette->extract($contents);
-            $event->primary_color = $palette['primary'];
-            $event->secondary_color = $palette['secondary'];
-            $event->on_primary_color = $palette['on_primary'];
-        }
 
         $event->save();
     }
