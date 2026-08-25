@@ -2,6 +2,8 @@
 
 return [
     'common' => [
+        'increase' => 'One more',
+        'decrease' => 'One fewer',
         'platform' => 'Platform',
         'whatsapp' => 'Contact on WhatsApp',
         'language' => 'العربية',

@@ -2,6 +2,8 @@
 
 return [
     'common' => [
+        'increase' => 'واحد أكثر',
+        'decrease' => 'واحد أقل',
         'platform' => 'المنصة',
         'whatsapp' => 'تواصل عبر واتساب',
         'language' => 'English',

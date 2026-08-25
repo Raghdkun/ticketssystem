@@ -8,6 +8,7 @@ import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PromoVideo } from '@/components/promo-video';
 import { ShareButton } from '@/components/share-button';
+import { Stepper } from '@/components/stepper';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ export default function EventPage({ event, place, siblings }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
     const [accepted, setAccepted] = useState<number[]>([]);
+    const [quantity, setQuantity] = useState(1);
 
     const title = localised(locale, event.title_ar, event.title_en);
     const description = localised(
@@ -97,7 +99,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                     <div className="absolute inset-x-0 bottom-0">
-                        <div className="mx-auto w-full max-w-6xl p-5 sm:p-8">
+                        <div className="mx-auto w-full max-w-6xl p-5 pe-16 sm:p-8 sm:pe-20">
                             <div className="min-w-0">
                                 <p className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80">
                                     <MapPin className="size-4" />
@@ -279,15 +281,13 @@ export default function EventPage({ event, place, siblings }: Props) {
                                         <InputError message={errors.phone} />
                                     </div>
 
-                                    <div className="grid gap-2">
+                                    <div className="grid gap-3">
                                         <Label htmlFor="quantity">
                                             {t('event.people')}
                                         </Label>
-                                        <Input
-                                            id="quantity"
-                                            name="quantity"
-                                            type="number"
-                                            min={1}
+                                        <Stepper
+                                            value={quantity}
+                                            onChange={setQuantity}
                                             max={Math.min(
                                                 event.max_per_appointment,
                                                 Math.max(
@@ -295,8 +295,8 @@ export default function EventPage({ event, place, siblings }: Props) {
                                                     1,
                                                 ),
                                             )}
-                                            defaultValue={1}
-                                            required
+                                            name="quantity"
+                                            label={t('event.people')}
                                         />
                                         <InputError message={errors.quantity} />
                                     </div>
@@ -397,6 +397,39 @@ export default function EventPage({ event, place, siblings }: Props) {
                     </section>
                 </aside>
             </main>
+
+            {/*
+             * Sticky action bar. Phone and tablet only: from lg the booking
+             * panel is already sticky in its own column, so repeating the
+             * call to action there would just be two of the same button.
+             */}
+            <div className="sticky bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:hidden">
+                <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3">
+                    <div className="min-w-0">
+                        <p className="truncate font-display text-xl font-semibold text-primary tabular-nums">
+                            {event.is_free
+                                ? t('event.free')
+                                : `${event.price.toLocaleString()} ${event.currency}`}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                            {soldOut
+                                ? t('event.sold_out')
+                                : t('home.seats_left', {
+                                      n: event.seats_remaining,
+                                  })}
+                        </p>
+                    </div>
+
+                    <Button
+                        asChild
+                        size="lg"
+                        disabled={!event.is_open || soldOut}
+                        className="shrink-0 bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
+                    >
+                        <a href="#appoint">{t('event.appoint')}</a>
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 }
