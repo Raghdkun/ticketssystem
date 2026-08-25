@@ -1,3 +1,4 @@
+import { BottomTabBar } from '@/components/bottom-tab-bar';
 import { FlashToaster } from '@/components/flash-toaster';
 import { ImpersonationBanner } from '@/components/impersonation-banner';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
@@ -15,6 +16,8 @@ export default function AppLayout({
             <FlashToaster />
             <ImpersonationBanner />
             {children}
+
+            <BottomTabBar />
         </AppLayoutTemplate>
     );
 }

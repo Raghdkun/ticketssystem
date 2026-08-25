@@ -62,6 +62,7 @@ return [
     ],
 
     'owner' => [
+        'scan' => 'Scan',
         'no_place_events' => 'This account is not linked to a venue, so it has no events. Venues are assigned from platform settings.',
         'no_shows' => 'No-shows',
         'by_status' => 'By status',

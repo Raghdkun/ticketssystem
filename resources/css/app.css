@@ -470,3 +470,14 @@ p {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
 }
+
+/*
+ * The bottom tab bar is fixed, so authenticated pages reserve room for it on
+ * phones. Without this the last row of any list sits under the bar and can
+ * never be scrolled into view.
+ */
+@media (max-width: 767px) {
+    [data-slot='sidebar-inset'] {
+        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    }
+}
