@@ -106,6 +106,24 @@ realtime status flip.
 
 ---
 
+## Design system — Basalt & Saffron
+
+Imported from the Claude Design project. Jade carries structure, navigation and
+the paid state; saffron is reserved for high intent and appears on at most one
+control per screen. Basalt on warm paper, light by default.
+
+- **Per-event palette extraction is retired.** One fixed identity carries the
+  whole product, so a ticket from any venue is recognisably the same platform.
+  `PaletteExtractor`, `ThemeMode` and the `.event-theme` scope are gone.
+- **Status is a dot plus text, never colour alone.** The door is badly lit and
+  some readers are colourblind.
+- **The brand ramp lives on `:root`, not `@theme`.** Tailwind prunes unused
+  `@theme` values, so `var()` lookups from inline styles would resolve to
+  nothing.
+- **Migrations must not reference app enums.** Deleting `ThemeMode` broke every
+  test at the migration step; column defaults are literals now.
+- Primary controls are 52px on coarse pointers, focus is a 2px jade ring.
+
 ## Gotchas learned the hard way
 
 - **`null` and `log` broadcasters no-op their `auth()`.** Channel authorisation tests pass against a
@@ -144,4 +162,3 @@ realtime status flip.
 - **FCM credentials.** `FCM_*` and `VITE_FCM_*` are blank by design; push is inert until filled.
 - **Real-device testing.** The camera scanner and PWA install flow have only ever run in a desktop
   browser. This is the largest remaining risk.
-- Auth screens (login, password reset) are English-only and force LTR until translated.

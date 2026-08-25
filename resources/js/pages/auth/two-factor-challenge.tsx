@@ -10,9 +10,11 @@ import {
     InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { useTranslation } from '@/lib/translation';
 import { store } from '@/routes/two-factor/login';
 
 export default function TwoFactorChallenge() {
+    const t = useTranslation();
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
 
@@ -51,7 +53,7 @@ export default function TwoFactorChallenge() {
 
     return (
         <>
-            <Head title="Two-factor authentication" />
+            <Head title={t('auth.two_factor')} />
 
             <div className="space-y-6">
                 <Form

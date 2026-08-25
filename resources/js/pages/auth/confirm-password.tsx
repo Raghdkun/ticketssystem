@@ -9,12 +9,15 @@ import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslation } from '@/lib/translation';
 import { store } from '@/routes/password/confirm';
 
 export default function ConfirmPassword() {
+    const t = useTranslation();
+
     return (
         <>
-            <Head title="Confirm password" />
+            <Head title={t('auth.confirm_password')} />
 
             <PasskeyVerify
                 routes={{
@@ -30,7 +33,9 @@ export default function ConfirmPassword() {
                 {({ processing, errors }) => (
                     <div className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">
+                                {t('auth.password')}
+                            </Label>
                             <PasswordInput
                                 id="password"
                                 name="password"
