@@ -60,8 +60,31 @@ VITE_REVERB_PORT="443"
 VITE_REVERB_SCHEME="https"
 ```
 
-FCM is optional and inert while blank — the sender reports itself
-unconfigured, no permission prompt is shown, and nothing breaks.
+### Firebase Cloud Messaging
+
+Push is optional and inert while blank. It has **two halves that fail
+independently**, and half-configuring it is the confusing state:
+
+| Missing | What happens | How it looks |
+|---|---|---|
+| `VITE_FCM_VAPID_KEY` | The browser is never asked for permission | The opt-in does not render on the ticket page at all. Deliberate: a prompt that cannot produce a usable token is worse than no prompt |
+| `FCM_CREDENTIALS` | Devices register fine, nothing can ever be sent | Holders tap "notify me", it succeeds, and no notification ever arrives |
+
+`VITE_FCM_VAPID_KEY` is Firebase Console → Project settings → **Cloud
+Messaging → Web Push certificates → key pair**. It is public and ships in the
+JS bundle, like every other `VITE_` value.
+
+`FCM_CREDENTIALS` is an absolute path to the **service-account JSON**. That
+file is a credential: keep it outside the repository and outside `public/`,
+own it by the deploy user, and `chmod 600` it.
+
+`public/firebase-messaging-sw.js` is served raw from the origin root and
+cannot read Vite env vars, so its Firebase config is inlined in the file. If
+you point the app at a different Firebase project, **edit that file too** —
+otherwise foreground messages work and background ones silently do not.
+
+Changing any `VITE_` value requires `npm run build`, not just
+`config:cache` — they are compiled into the bundle.
 
 Run `php artisan config:cache` after editing `.env` or nothing changes.
 
@@ -167,7 +190,46 @@ server {
 
 ---
 
-## 6. Supervisor
+## 6. Maps and outbound requests
+
+The venue map is Leaflet over OpenStreetMap. **Nothing here runs on the
+server** — the app makes no outbound HTTP call for maps. Three hosts are
+fetched by the visitor's browser:
+
+| Host | When | Fetched by |
+|---|---|---|
+| `tile.openstreetmap.org` | A map is on screen | Every visitor who opens a venue sheet, and the owner's picker |
+| `nominatim.openstreetmap.org` | Owner presses **Search** on the venue page | Owners only, never visitors |
+| `www.openstreetmap.org` | "Open in OpenStreetMap" is followed | Only on click |
+
+So the VPS firewall is irrelevant to this feature, and there is no API key to
+provision or rotate. What matters instead:
+
+- **If you ever add a `Content-Security-Policy`**, it must allow
+  `img-src https://tile.openstreetmap.org` and
+  `connect-src https://nominatim.openstreetmap.org`, or maps go blank with
+  nothing in the server log to explain it. There is no CSP today.
+- **Attribution is required** by the OSM tile policy and is rendered by the
+  map itself. Do not strip it with CSS.
+- **Both services are free and rate-limited.** Tiles are fetched one map at a
+  time and geocoding runs only on an explicit press, never as-you-type, which
+  is what keeps us inside Nominatim's one-request-per-second guidance. If you
+  later add map views to list pages, revisit this before shipping.
+
+**If the OSM hosts are slow or unreachable from your users' networks**, the
+feature degrades rather than breaking: the venue name still opens the sheet,
+the address and landmark are server-rendered text, and the **Directions**
+button is a `geo:` URL handled by the phone's own maps app — none of which
+touch OSM. Only the tile image is lost. If that becomes the normal case for
+your audience, the fix is a different tile URL in
+`resources/js/components/map/map-canvas.tsx`; nothing else changes.
+
+A venue with no pin is a supported state. `location` serialises as `null`, the
+public page renders the venue name as plain text, and no map code loads at all.
+
+---
+
+## 7. Supervisor
 
 ```ini
 [program:tickets-queue]
@@ -190,7 +252,7 @@ stopwaitsecs=3600
 
 ---
 
-## 7. First deploy
+## 8. First deploy
 
 ```bash
 git clone <repo> /var/www/tickets && cd /var/www/tickets
@@ -225,9 +287,14 @@ php artisan tinker --execute='
 Then add venue owners from **Admin → Owners → Add owner**, which creates the
 account and its venue together.
 
+Tell each owner to open **Venue** and drop their pin. A venue has no location
+until its owner sets one, and nothing prompts them: the public page just keeps
+rendering the venue name as plain text. It is the one setup step that cannot be
+done for them from the admin side.
+
 ---
 
-## 8. Subsequent deploys
+## 9. Subsequent deploys
 
 ```bash
 cd /var/www/tickets
@@ -249,7 +316,7 @@ until they are cycled, so a deploy without it leaves stale logic broadcasting.
 
 ---
 
-## 9. Verifying the deploy
+## 10. Verifying the deploy
 
 The health endpoint (`/up`) only proves PHP runs. These prove the product works:
 
@@ -268,10 +335,19 @@ Then, by hand:
    to Paid **without a refresh**. If it does not, the queue worker or Reverb is
    down.
 4. Print a door sheet → app chrome gone, black on white.
+5. Sign in as an owner, open **Venue**, press **Search** and then drag the pin
+   → tiles render and the coordinate under the map updates. Save, then open one
+   of that venue's public events and tap the venue name → the sheet shows the
+   map, the address and **Directions**. A blank grey map with a working pin
+   means the tile host is unreachable from that network, not that the deploy is
+   broken — see §6.
+6. Check the browser console on any public event page → clean. Leaflet is
+   lazy-loaded, so a chunk that failed to deploy shows up here and nowhere
+   else.
 
 ---
 
-## 10. Backups
+## 11. Backups
 
 ```bash
 pg_dump swaida_tickets | gzip > /backups/tickets-$(date +%F).sql.gz
