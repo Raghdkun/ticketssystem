@@ -218,9 +218,11 @@ provision or rotate. What matters instead:
 
 **If the OSM hosts are slow or unreachable from your users' networks**, the
 feature degrades rather than breaking: the venue name still opens the sheet,
-the address and landmark are server-rendered text, and the **Directions**
-button is a `geo:` URL handled by the phone's own maps app — none of which
-touch OSM. Only the tile image is lost. If that becomes the normal case for
+the address and landmark are server-rendered text, and on a phone the
+**Directions** button is a `geo:` URL handled by whichever maps app is
+installed. Only the tile image is lost. (On a desktop, where nothing handles
+`geo:`, that button points at OSM's own directions page instead — so it is the
+one part that does depend on OSM being reachable.) If that becomes the normal case for
 your audience, the fix is a different tile URL in
 `resources/js/components/map/map-canvas.tsx`; nothing else changes.
 

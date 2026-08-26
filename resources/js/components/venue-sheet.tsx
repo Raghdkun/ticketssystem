@@ -1,5 +1,5 @@
 import { MapPin, Navigation } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { MapCanvas } from '@/components/map/map-canvas';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +37,19 @@ export function VenueLink({
     const t = useTranslation();
     const { locale } = useLocale();
     const [open, setOpen] = useState(false);
+
+    // A `geo:` URL is the right handoff on a phone -- it opens whichever maps
+    // app is installed rather than assuming Google. On a desktop nothing
+    // handles the scheme, so the button would silently do nothing at all.
+    // Read as an external store: the value never changes for a given device,
+    // which avoids an extra render pass and a hydration mismatch.
+    const coarsePointer = useSyncExternalStore(
+        () => () => {},
+        () =>
+            typeof window !== 'undefined' &&
+            window.matchMedia('(pointer: coarse)').matches,
+        () => false,
+    );
 
     if (!location) {
         return <span>{name}</span>;
@@ -102,12 +115,19 @@ export function VenueLink({
                                 </p>
                             )}
 
-                            {/* Hands off to whatever maps app the phone has, rather
-                            than assuming Google is installed. */}
+                            {/* On a phone this hands off to whichever maps app
+                                is installed, rather than assuming Google. */}
                             <Button asChild className="w-full">
                                 <a
-                                    href={`geo:${location.lat},${location.lng}?q=${location.lat},${location.lng}(${encodeURIComponent(name)})`}
-                                    rel="noreferrer"
+                                    href={
+                                        coarsePointer
+                                            ? `geo:${location.lat},${location.lng}?q=${location.lat},${location.lng}(${encodeURIComponent(name)})`
+                                            : `https://www.openstreetmap.org/directions?to=${location.lat},${location.lng}`
+                                    }
+                                    target={
+                                        coarsePointer ? undefined : '_blank'
+                                    }
+                                    rel="noreferrer noopener"
                                 >
                                     <Navigation />
                                     {t('place.directions')}
