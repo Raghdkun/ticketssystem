@@ -322,6 +322,8 @@ return [
     ],
 
     'auth' => [
+        'hide_password' => 'Hide password',
+        'show_password' => 'Show password',
         'or_password' => 'Or confirm with password',
         'confirming' => 'Confirming…',
         'confirm_passkey' => 'Confirm with passkey',
@@ -365,6 +367,7 @@ return [
     ],
 
     'place' => [
+        'marker_label' => 'Venue pin — drag to move it',
         'address_ar' => 'Address (Arabic)',
         'address_en' => 'Address (English)',
         'landmark_ar' => 'Landmark (Arabic)',

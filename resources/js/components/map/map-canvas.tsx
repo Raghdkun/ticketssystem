@@ -28,6 +28,8 @@ type Props = {
     onMove?: (position: LatLng) => void;
     className?: string;
     ariaLabel: string;
+    /** Accessible name for the pin itself, required when interactive. */
+    markerLabel?: string;
 };
 
 /**
@@ -43,6 +45,7 @@ export function MapCanvas({
     onMove,
     className,
     ariaLabel,
+    markerLabel,
 }: Props) {
     const holder = useRef<HTMLDivElement>(null);
     const map = useRef<LeafletMap | null>(null);
@@ -97,6 +100,14 @@ export function MapCanvas({
             }).addTo(instance);
 
             if (interactive) {
+                // Leaflet gives a draggable marker role="button" and makes it
+                // focusable, but names it only for image icons. Ours is a
+                // divIcon, so the name has to be set here.
+                pin.getElement()?.setAttribute(
+                    'aria-label',
+                    markerLabel ?? ariaLabel,
+                );
+
                 pin.on('dragend', () => {
                     const { lat, lng } = pin.getLatLng();
                     onMoveRef.current?.({ lat, lng });

@@ -7,8 +7,15 @@ type Props = React.ComponentProps<'main'> & {
 };
 
 export function AppContent({ variant = 'sidebar', children, ...props }: Props) {
+    // SidebarInset renders the <main> for the whole authenticated side of the
+    // app, so the skip link's target has to live here too. Without it the
+    // link pointed at nothing on every owner and admin page.
     if (variant === 'sidebar') {
-        return <SidebarInset {...props}>{children}</SidebarInset>;
+        return (
+            <SidebarInset id="main-content" {...props}>
+                {children}
+            </SidebarInset>
+        );
     }
 
     return (

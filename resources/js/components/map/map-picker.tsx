@@ -174,6 +174,7 @@ export function MapPicker({ value, onChange }: Props) {
                 interactive
                 onMove={onChange}
                 ariaLabel={t('place.map_label')}
+                markerLabel={t('place.marker_label')}
                 className="h-72 w-full overflow-hidden rounded-xl border"
             />
 
