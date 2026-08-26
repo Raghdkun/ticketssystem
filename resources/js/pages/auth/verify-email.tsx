@@ -43,7 +43,6 @@ export default function VerifyEmail({ status }: { status?: string }) {
 }
 
 VerifyEmail.layout = {
-    title: 'Email verification',
-    description:
-        'Please verify your email address by clicking on the link we just emailed to you.',
+    title: 'auth.verify_email_title',
+    description: 'auth.verify_email_sub',
 };

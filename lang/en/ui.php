@@ -2,6 +2,8 @@
 
 return [
     'common' => [
+        'continue' => 'Continue',
+        'close' => 'Close',
         'back_home' => 'Back to home',
         'back_to_scan' => 'Back to the scanner',
         'back_to_events' => 'Back to events',
@@ -322,6 +324,22 @@ return [
     ],
 
     'auth' => [
+        'use_recovery_code' => 'log in using a recovery code',
+        'use_auth_code' => 'log in using an authentication code',
+        'tfa_enable_sub' => 'To finish, scan the QR code or enter the setup key in your authenticator app.',
+        'tfa_enable_title' => 'Enable two-factor authentication',
+        'tfa_verify_sub' => 'Enter the 6-digit code from your authenticator app.',
+        'tfa_verify_title' => 'Verify authentication code',
+        'tfa_on_sub' => 'Two-factor authentication is on. Scan the QR code or enter the setup key in your authenticator app.',
+        'tfa_on_title' => 'Two-factor authentication enabled',
+        'verify_email_sub' => 'Verify your email address by clicking the link we just sent you.',
+        'verify_email_title' => 'Email verification',
+        'confirm_password_sub' => 'This is a secure area. Please confirm your password before continuing.',
+        'confirm_password_title' => 'Confirm password',
+        'auth_code_sub' => 'Enter the code from your authenticator app.',
+        'auth_code' => 'Authentication code',
+        'recovery_code_placeholder' => 'Enter recovery code',
+        'recovery_code_sub' => 'Confirm access to your account by entering one of your emergency recovery codes.',
         'hide_password' => 'Hide password',
         'show_password' => 'Show password',
         'or_password' => 'Or confirm with password',

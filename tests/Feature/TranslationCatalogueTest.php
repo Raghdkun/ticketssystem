@@ -58,6 +58,50 @@ class TranslationCatalogueTest extends TestCase
         $this->assertSame([], array_values(array_unique($missing)));
     }
 
+    /**
+     * Breadcrumb and nav titles must be translation keys, not literals.
+     *
+     * They are declared in static page config, outside any component, so they
+     * cannot call the hook and are resolved at render instead. A literal
+     * string there renders untranslated in both locales and looks deliberate.
+     */
+    public function test_every_declared_title_is_a_translation_key(): void
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('js'))
+        );
+
+        $bad = [];
+
+        foreach ($files as $file) {
+            if (! $file->isFile() || $file->getExtension() !== 'tsx') {
+                continue;
+            }
+
+            preg_match_all(
+                "/\btitle:\s*'([^']+)'/",
+                (string) file_get_contents($file->getPathname()),
+                $matches
+            );
+
+            foreach ($matches[1] as $title) {
+                if (! preg_match('/^[a-z0-9_]+\.[a-z0-9_.]+$/i', $title)) {
+                    $bad[] = "\"{$title}\" in ".$file->getFilename();
+
+                    continue;
+                }
+
+                foreach (SetLocale::SUPPORTED as $locale) {
+                    if (! Arr::has(require base_path("lang/{$locale}/ui.php"), $title)) {
+                        $bad[] = "{$title} ({$locale}) in ".$file->getFilename();
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($bad)));
+    }
+
     public function test_every_language_file_parses(): void
     {
         foreach (SetLocale::SUPPORTED as $locale) {
