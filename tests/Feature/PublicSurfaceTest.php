@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Event;
+use App\Models\Place;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -65,6 +67,68 @@ class PublicSurfaceTest extends TestCase
             ->assertOk()
             ->assertSee('skip-to-content', false)
             ->assertSee('#main-content', false);
+    }
+
+    public function test_the_sitemap_never_lists_a_url_robots_forbids(): void
+    {
+        $sitemap = $this->get('/sitemap.xml')->assertOk()->getContent();
+        $robots = $this->get('/robots.txt')->assertOk()->getContent();
+
+        preg_match_all('/<loc>([^<]+)<\/loc>/', (string) $sitemap, $locs);
+        preg_match_all('/^Disallow: (.+)$/m', (string) $robots, $disallowed);
+
+        foreach ($locs[1] as $loc) {
+            $path = parse_url(html_entity_decode($loc), PHP_URL_PATH) ?: '/';
+
+            foreach ($disallowed[1] as $rule) {
+                $rule = trim($rule);
+
+                $this->assertFalse(
+                    $rule !== '/' && str_starts_with($path, $rule),
+                    "Sitemap lists {$path}, which robots.txt disallows via {$rule}."
+                );
+            }
+        }
+    }
+
+    public function test_the_venue_picker_is_allowed_to_read_the_owners_location(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner']);
+        Place::factory()->for($owner)->create();
+
+        // A feature omitted from Permissions-Policy is allowed, and one denied
+        // there cannot be re-enabled by prompting. Denying geolocation here
+        // made "my location" fail silently on every device.
+        $policy = $this->actingAs($owner)
+            ->get('/owner/place')
+            ->assertOk()
+            ->headers->get('Permissions-Policy');
+
+        $this->assertStringContainsString('geolocation=(self)', (string) $policy);
+        $this->assertStringContainsString('camera=()', (string) $policy);
+    }
+
+    public function test_the_scanner_is_allowed_the_camera_and_nothing_else(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner']);
+        Place::factory()->for($owner)->create();
+
+        $policy = $this->actingAs($owner)
+            ->get('/owner/scan')
+            ->assertOk()
+            ->headers->get('Permissions-Policy');
+
+        $this->assertStringContainsString('camera=(self)', (string) $policy);
+        $this->assertStringContainsString('geolocation=()', (string) $policy);
+    }
+
+    public function test_ordinary_pages_are_denied_every_powerful_feature(): void
+    {
+        $policy = (string) $this->get('/')->assertOk()->headers->get('Permissions-Policy');
+
+        foreach (['camera', 'geolocation', 'microphone', 'payment'] as $feature) {
+            $this->assertStringContainsString("{$feature}=()", $policy);
+        }
     }
 
     public function test_the_favicon_is_the_brand_mark_not_laravel(): void

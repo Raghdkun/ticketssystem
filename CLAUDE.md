@@ -211,6 +211,15 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   An apostrophe in a single-quoted English string broke `lang/en/ui.php` again;
   the lint ran, failed silently into `/dev/null`, and the missing "ok" went
   unnoticed. Arabic-locale smoke tests pass right through a broken English file.
+- **`/icons/` is cached by the service worker and is not content-hashed.**
+  Changing an icon without bumping `VERSION` in `public/sw.js` leaves every
+  installed PWA on the old one forever. `/build/` is hashed and looks after
+  itself; `/icons/` does not.
+- **`Permissions-Policy` denies by default, and a denial cannot be prompted
+  past.** A feature missing from the header is *allowed*; one set to `()`
+  cannot be re-enabled by asking the user. Grant per route in
+  `SecurityHeaders`, as the scanner does for the camera and the venue page
+  does for geolocation.
 - **A bare `void el.offsetWidth` is deleted by the minifier.** It is the
   standard trick for restarting a CSS animation, and it works in dev and
   silently stops working in production — the reflow read has no observable

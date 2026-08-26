@@ -7,7 +7,18 @@
  * icons are cached; everything else goes to the network.
  */
 
-const VERSION = 'v1';
+/*
+ * BUMP THIS whenever anything under /icons/ changes.
+ *
+ * Files under /build/ are content-hashed, so a deploy renames them and the
+ * cache misses on its own. The icons are not: `icon-192.png` keeps its name
+ * forever, and this worker serves it cache-first without revalidating. Without
+ * a bump, every already-installed PWA keeps the previous icon indefinitely —
+ * which is exactly what would have happened to the rebrand.
+ *
+ * v2 — The Pass replaces the old indigo mark.
+ */
+const VERSION = 'v2';
 const ASSET_CACHE = `assets-${VERSION}`;
 
 self.addEventListener('install', () => {

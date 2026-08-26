@@ -18,9 +18,11 @@ class SitemapController extends Controller
      */
     public function __invoke(): Response
     {
+        // Deliberately not the ticket lookup: robots.txt disallows it, because
+        // its query variants expose somebody's tickets. Listing a URL here and
+        // forbidding it there is a contradiction crawlers report as an error.
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
-            ['loc' => route('tickets.lookup'), 'priority' => '0.3', 'changefreq' => 'monthly'],
         ];
 
         Event::query()

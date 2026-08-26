@@ -25,10 +25,10 @@ class SecurityHeaders
         $headers = [
             'X-Frame-Options' => 'DENY',
             'X-Content-Type-Options' => 'nosniff',
-            'Referrer-Policy' => 'strict-origin-when-cross-origin',
             // Ticket pages carry a bearer token in the path, so referrers must
             // never leak it to third parties.
-            'Permissions-Policy' => 'geolocation=(), microphone=(), payment=(), interest-cohort=()',
+            'Referrer-Policy' => 'strict-origin-when-cross-origin',
+            'Permissions-Policy' => $this->permissionsPolicy($request),
             'X-Permitted-Cross-Domain-Policies' => 'none',
         ];
 
@@ -36,11 +36,40 @@ class SecurityHeaders
             $response->headers->set($name, $value, false);
         }
 
-        // The camera is needed for the owner's QR scanner, and only there.
+        return $response;
+    }
+
+    /**
+     * Deny every powerful feature, then grant back the two the product needs
+     * on exactly the routes that need them.
+     *
+     * Granting is not optional politeness: a feature absent from this header
+     * is *allowed*, and a feature denied here cannot be re-enabled by asking
+     * the user. Leaving geolocation denied made the venue picker's "my
+     * location" button fail silently on every device.
+     */
+    private function permissionsPolicy(Request $request): string
+    {
+        $features = [
+            'camera' => '()',
+            'geolocation' => '()',
+            'microphone' => '()',
+            'payment' => '()',
+            'interest-cohort' => '()',
+        ];
+
+        // The QR scanner reads the camera, and only there.
         if ($request->routeIs('owner.scan')) {
-            $response->headers->set('Permissions-Policy', 'camera=(self), geolocation=(), microphone=(), payment=()');
+            $features['camera'] = '(self)';
         }
 
-        return $response;
+        // The venue picker offers to drop the pin on where the owner is.
+        if ($request->routeIs('owner.place.*')) {
+            $features['geolocation'] = '(self)';
+        }
+
+        return collect($features)
+            ->map(fn (string $value, string $feature) => $feature.'='.$value)
+            ->implode(', ');
     }
 }

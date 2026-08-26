@@ -316,6 +316,13 @@ php artisan up
 Restarting the workers is not optional: they hold the **old** code in memory
 until they are cycled, so a deploy without it leaves stale logic broadcasting.
 
+**If this release changed anything under `public/icons/`**, bump `VERSION` in
+`public/sw.js` in the same commit. Files under `/build/` are content-hashed, so
+a deploy renames them and the service worker's cache misses on its own. The
+icons are not hashed — the worker serves them cache-first without
+revalidating — so every already-installed PWA keeps the previous icon until
+the cache name changes.
+
 ---
 
 ## 10. Verifying the deploy
@@ -326,6 +333,10 @@ The health endpoint (`/up`) only proves PHP runs. These prove the product works:
 curl -I https://your-domain/            # 200 + X-Frame-Options: DENY
 curl https://your-domain/sitemap.xml    # XML, and contains no /t/ URLs
 curl https://your-domain/robots.txt     # absolute Sitemap: URL for this host
+
+# Powerful features are denied by default and granted per route. The venue
+# page needs geolocation or its "my location" button fails silently.
+curl -sI https://your-domain/ | grep -i permissions-policy   # geolocation=()
 ```
 
 Then, by hand:

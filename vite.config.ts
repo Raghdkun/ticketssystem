@@ -25,8 +25,12 @@ export default defineConfig({
                 bunny('Rubik', {
                     weights: [400, 500, 600, 700],
                 }),
+                // Not preloaded: mono appears on small figure labels and
+                // coordinates, never above the fold, so it should not compete
+                // with the critical CSS and JS for a phone's first megabyte.
                 bunny('IBM Plex Mono', {
                     weights: [400, 500],
+                    preload: false,
                 }),
                 // Instrument Sans has no Arabic coverage, so Arabic would fall
                 // back to whatever the OS provides. This ships a real Arabic face.
