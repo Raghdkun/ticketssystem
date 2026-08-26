@@ -61,10 +61,11 @@ realtime status flip.
 | Path | What |
 |---|---|
 | `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel) |
-| `app/Services/` | `PaletteExtractor`, `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PushSender` |
+| `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender` |
 | `app/Support/` | `Color` (WCAG maths), `QrCode`, presenters |
 | `resources/js/pages/public/` | event, ticket, my-tickets — no app chrome |
-| `resources/js/pages/owner/` | dashboard, events, scan, search, verify, door-sheet, report |
+| `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report |
+| `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
 | `resources/js/pages/admin/` | owners, settings |
 | `lang/{ar,en}/ui.php` | the client string catalogue, shared via Inertia as dot-notation |
 
@@ -103,6 +104,7 @@ realtime status flip.
 | 7 | Sitemap, `DEPLOYMENT.md`, this file |
 | 8 | Redesign pass: branded error pages, legal pages, public footer, skip link, social meta, press feedback |
 | 9 | Artboard match: owner dashboard, events, admin owners, auth — composition block-by-block at 1280 / 1100 / 375 |
+| 10 | Venue location (Leaflet/OSM pin + address + landmark), app-wide back navigation, i18n and a11y sweep |
 
 **204 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
 
@@ -125,6 +127,28 @@ control per screen. Basalt on warm paper, light by default.
 - **Migrations must not reference app enums.** Deleting `ThemeMode` broke every
   test at the migration step; column defaults are literals now.
 - Primary controls are 52px on coarse pointers, focus is a 2px jade ring.
+
+## Maps
+
+Leaflet 1.9 over OpenStreetMap raster tiles. No API key, no per-view cost, and
+no vendor to migrate off. Both the owner's picker and the public sheet share
+`MapCanvas`, which imports Leaflet and its stylesheet dynamically.
+
+- **A venue with no pin exposes `location: null`**, and the public name renders
+  as plain text. A control that opens an empty map is worse than no control.
+- **Latitude and longitude are validated as a pair.** Half a coordinate is a
+  point in the Gulf of Guinea, not a missing value.
+- **Geocoding is on explicit submit only.** Nominatim asks for at most one
+  request a second, and an owner sets this once. The pin, not the search
+  result, is authoritative.
+- **The marker is a `divIcon` with inline SVG.** Leaflet's default icon
+  resolves PNGs relative to its stylesheet, which a bundler rewrites and
+  breaks. It also means Leaflet will not name the marker for us — a draggable
+  marker is a focusable `role="button"`, so `aria-label` is set by hand.
+- **Only `.leaflet-tile-pane` is inverted in dark mode.** OSM has light tiles
+  only; inverting the whole container would invert our own pin and controls.
+- **Landmark is a first-class field**, not part of the address line. Street
+  addressing in As-Suwayda is not what people navigate by.
 
 ## Gotchas learned the hard way
 
@@ -151,6 +175,17 @@ control per screen. Basalt on warm paper, light by default.
 - **Error pages are outside the design system by construction.** Their CSS is inline so it
   survives a missing asset manifest, which also means a rebrand does not reach them. Grep
   `resources/views/errors/` for hex literals whenever the palette changes.
+- **`AppContent` renders `#main-content` only in its non-sidebar variant.** The
+  skip link is emitted by `app.blade.php` for every page, so for a long time it
+  pointed at nothing on the entire authenticated side.
+- **Breadcrumb and nav `title:` values are translation keys**, and nothing
+  resolves a literal — it just renders as typed, in both locales.
+  `TranslationCatalogueTest` now asserts every `title:` is a resolvable
+  dot-path, and separately that every literal `t('a.b')` call site resolves.
+- **`php -l file && echo ok` is not a check if you do not look for the `ok`.**
+  An apostrophe in a single-quoted English string broke `lang/en/ui.php` again;
+  the lint ran, failed silently into `/dev/null`, and the missing "ok" went
+  unnoticed. Arabic-locale smoke tests pass right through a broken English file.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 
@@ -167,7 +202,11 @@ control per screen. Basalt on warm paper, light by default.
 
 ## Open — needs the owner, not code
 
-- **FCM credentials.** `FCM_*` and `VITE_FCM_*` are blank by design; push is inert until filled.
+- **FCM credentials.** The client config is filled in, but the two halves that
+  matter are not, and they fail independently: without `VITE_FCM_VAPID_KEY` the
+  browser is never asked for permission (the opt-in does not render at all), and
+  without `FCM_CREDENTIALS` devices register but nothing can be sent. The VAPID
+  key is public; the service-account JSON is not and belongs on the server.
 - **Numeral script in Arabic.** Dates render Arabic-Indic (`ar-SY`), every other figure
   renders Latin, so a single line can carry both — "14 من 89 مقعد · ١٣ أيلول". The artboards
   use Arabic-Indic for counts and dates and Latin only for currency. Picking one rule is a

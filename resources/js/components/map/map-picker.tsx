@@ -101,7 +101,7 @@ export function MapPicker({ value, onChange }: Props) {
     return (
         <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
-                <div className="relative min-w-0 flex-1">
+                <div className="relative w-full min-w-0 sm:w-auto sm:flex-1">
                     <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
                     <Input
                         type="search"
