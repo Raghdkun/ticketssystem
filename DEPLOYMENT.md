@@ -349,7 +349,26 @@ Then, by hand:
 
 ---
 
-## 11. Backups
+## 11. Icons
+
+Everything under `public/icons/`, plus `favicon.svg`, `favicon.ico` and
+`apple-touch-icon.png`, is **generated** from `resources/brand/*.svg` by
+`npm run icons`, and the output is committed. A deploy does not run it — the
+rasters ship in the repository.
+
+Regenerate only when the brand changes, and commit the result:
+
+```bash
+npm run icons
+```
+
+`@resvg/resvg-js` is a devDependency, so it is present for `npm ci` on the
+build host and absent from `composer install --no-dev` runtime concerns. If a
+platform ever has no prebuilt binary, the icons still ship — they are in git.
+
+---
+
+## 12. Backups
 
 ```bash
 pg_dump swaida_tickets | gzip > /backups/tickets-$(date +%F).sql.gz

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <!--
+    Maskable icon. The platform crops this to a circle, so the edge notches
+    the square icon relies on would simply be cropped away — and uncropped
+    they read as two floating dots. This variant uses the mark itself,
+    reversed onto a full-bleed jade field and held inside the safe zone.
+  -->
+  <defs>
+    <radialGradient id="sheen" cx="1" cy="0" r="1.25">
+      <stop offset="0" stop-color="#4FCBA5" stop-opacity="0.4"/>
+      <stop offset="0.62" stop-color="#4FCBA5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0A5C49"/>
+  <rect width="48" height="48" fill="url(#sheen)"/>
+  <g transform="translate(24 24) scale(0.74) translate(-24 -24)">
+    <path d="M12 10h14.5a3.5 3.5 0 0 0 7 0H36a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-2.5a3.5 3.5 0 0 0-7 0H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="#FAF7F2"/>
+    <path d="M30 16v17" stroke="#062E24" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 5.4"/>
+    <circle cx="18.5" cy="24" r="4.6" fill="#062E24"/>
+    <circle cx="36" cy="24" r="3.2" fill="#E8A72B"/>
+  </g>
+</svg>

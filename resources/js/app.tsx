@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import { PageTransition } from '@/components/page-transition';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -33,13 +34,16 @@ createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
-                {app}
+                <PageTransition>{app}</PageTransition>
                 <Toaster />
             </TooltipProvider>
         );
     },
     progress: {
-        color: '#4B5563',
+        // Jade, not the starter kit's grey. This is the only feedback a slow
+        // visit gives, so it should look like the product.
+        color: '#12876A',
+        delay: 120,
     },
 });
 

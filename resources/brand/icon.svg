@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <!--
+    App icon: the tile itself is the pass, so the notches bite into its edge
+    rather than sitting inside a smaller drawing.
+  -->
+  <defs>
+    <radialGradient id="sheen" cx="1" cy="0" r="1.25">
+      <stop offset="0" stop-color="#4FCBA5" stop-opacity="0.45"/>
+      <stop offset="0.62" stop-color="#4FCBA5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="48" height="48" fill="#0A5C49"/>
+  <rect width="48" height="48" fill="url(#sheen)"/>
+  <path d="M36 8v32" stroke="#FAF7F2" stroke-opacity="0.9" stroke-width="3" stroke-linecap="round" stroke-dasharray="0 6.6"/>
+  <circle cx="36" cy="0" r="5" fill="#062E24"/>
+  <circle cx="36" cy="48" r="5" fill="#062E24"/>
+  <circle cx="19" cy="24" r="6.2" fill="#062E24"/>
+  <circle cx="19" cy="24" r="3.4" fill="#E8A72B"/>
+</svg>

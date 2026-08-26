@@ -43,7 +43,10 @@ export default function Welcome({ events }: { events: HomeEvent[] }) {
             <header className="border-b">
                 <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 p-5">
                     <div className="flex items-center gap-2">
-                        <AppLogoIcon className="size-7 text-primary" />
+                        <AppLogoIcon
+                            detail="compact"
+                            className="size-7 text-primary"
+                        />
                         <span className="font-bold">{platform.name}</span>
                     </div>
 

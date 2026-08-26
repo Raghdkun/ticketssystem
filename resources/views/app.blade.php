@@ -50,7 +50,8 @@
         <meta name="twitter:card" content="summary_large_image">
 
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#0a0a0a">
+        <meta name="theme-color" content="#E8E2D6" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#12110E" media="(prefers-color-scheme: dark)">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Tickets">

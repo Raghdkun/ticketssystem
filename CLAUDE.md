@@ -128,6 +128,31 @@ control per screen. Basalt on warm paper, light by default.
   test at the migration step; column defaults are literals now.
 - Primary controls are 52px on coarse pointers, focus is a 2px jade ring.
 
+## The mark — "The Pass"
+
+Imported from the Claude Design project (`logo-final-the-pass.dc.html`). A
+solid die-cut ticket with no letterform in it, so nothing needs translating:
+any script sits beside the mark. Three moves only — the notch, the tear, and
+the saffron dot that is the person who got in.
+
+- **`resources/brand/*.svg` are the source of truth.** `npm run icons`
+  rasterises them into `public/`. Never edit anything in `public/icons/` by
+  hand; a test asserts the rasters exist at the right sizes.
+- **Detail drops with size.** 48px keeps the perforation, 32px drops it, 16px
+  drops the saffron dot too and widens the seat. The artboard's rule, and the
+  reason `AppLogoIcon` takes a `detail` prop.
+- **The mark mirrors in Arabic** so the stub trails the reading direction.
+  That mirror is an inline `transform` on the `<svg>` root, which is why the
+  entrance animation scales an inner `<g>` — animating the root's transform
+  overrode the mirror and the mark flipped when the animation ended.
+- **Punch-outs follow `--mark-cut`, defaulting to `--background`.** A punch
+  reveals what is behind it, so on the dark theme the holes must go dark or
+  they stop reading as holes. Override it where the mark is reversed onto a
+  solid tile.
+- **The maskable icon is its own drawing.** The square icon's notches bite the
+  tile edge; a maskable icon is cropped to a circle, so those notches either
+  vanish or read as two floating dots. It uses the reversed mark instead.
+
 ## Maps
 
 Leaflet 1.9 over OpenStreetMap raster tiles. No API key, no per-view cost, and
@@ -186,6 +211,10 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   An apostrophe in a single-quoted English string broke `lang/en/ui.php` again;
   the lint ran, failed silently into `/dev/null`, and the missing "ok" went
   unnoticed. Arabic-locale smoke tests pass right through a broken English file.
+- **A bare `void el.offsetWidth` is deleted by the minifier.** It is the
+  standard trick for restarting a CSS animation, and it works in dev and
+  silently stops working in production — the reflow read has no observable
+  effect, so it is dead code. Use the value: `if (el.offsetWidth >= 0) {…}`.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 

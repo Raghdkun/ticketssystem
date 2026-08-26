@@ -523,3 +523,121 @@ p {
     background: none;
     border: none;
 }
+
+/*
+ * Navigation. A soft fade on each Inertia visit, re-triggered from
+ * `PageTransition`. Opacity only — a transform here would capture every fixed
+ * descendant, and the bottom tab bar would ride along with the page.
+ */
+@keyframes page-enter {
+    from {
+        opacity: 0.45;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.page-enter {
+    animation: page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Soft press feedback. Small enough to read as give rather than as a bounce,
+ * and skipped where the pointer is fine and hover already does the work.
+ */
+@media (pointer: coarse) {
+    button:active:not(:disabled),
+    [role='button']:active:not([aria-disabled='true']) {
+        transform: scale(0.985);
+    }
+}
+
+button,
+[role='button'] {
+    transition:
+        transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-enter {
+        animation: none;
+    }
+
+    button,
+    [role='button'] {
+        transition: none;
+    }
+
+    button:active:not(:disabled) {
+        transform: none;
+    }
+}
+
+/*
+ * The mark, arriving. Three beats matching how it is drawn: the pass, the
+ * tear, then the person who got in. Runs once on mount, so it plays on the
+ * auth and landing screens and nowhere else.
+ *
+ * Every part animates from a visible state — the mark is never invisible
+ * waiting for a frame that a throttled tab will not deliver.
+ *
+ * The body scale is applied to an inner group, never the <svg> root: the root
+ * carries the RTL mirror as an inline transform, and animating `transform`
+ * there overrides it, so the mark visibly flipped when the animation ended.
+ */
+@keyframes mark-body {
+    from {
+        transform: scale(0.94);
+    }
+    to {
+        transform: none;
+    }
+}
+
+@keyframes mark-tear {
+    from {
+        stroke-dashoffset: 6;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes mark-admit {
+    0% {
+        transform: scale(0.4);
+    }
+    60% {
+        transform: scale(1.12);
+    }
+    100% {
+        transform: none;
+    }
+}
+
+.mark-animated [data-mark='body'] {
+    animation: mark-body 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.mark-animated [data-mark='tear'] {
+    animation: mark-tear 0.5s 0.12s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.mark-animated [data-mark='admit'] {
+    animation: mark-admit 0.42s 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+    transform-origin: 36px 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mark-animated [data-mark='body'],
+    .mark-animated [data-mark='tear'],
+    .mark-animated [data-mark='admit'] {
+        animation: none;
+    }
+}

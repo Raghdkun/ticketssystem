@@ -37,7 +37,7 @@
             line-height: {{ $rtl ? '1.75' : '1.6' }};
         }
         main { max-width: 32rem; text-align: center; }
-        .mark { width: 3.5rem; height: 3.5rem; margin: 0 auto 1.5rem; }
+        .mark { width: 3.5rem; height: 3.5rem; margin: 0 auto 1.5rem; display: block; }
         .code {
             font-size: .8125rem; letter-spacing: .12em; text-transform: uppercase;
             color: var(--accent); font-weight: 600;
@@ -60,11 +60,11 @@
 </head>
 <body>
     <main>
-        <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-            <rect width="40" height="40" rx="9" fill="#0a5c49"/>
-            <path d="M8 13.5a2.5 2.5 0 0 1 2.5-2.5h19a2.5 2.5 0 0 1 2.5 2.5v2.6a.8.8 0 0 1-.62.78 4.2 4.2 0 0 0 0 8.24.8.8 0 0 1 .62.78v2.6a2.5 2.5 0 0 1-2.5 2.5h-19A2.5 2.5 0 0 1 8 28.5v-2.6a.8.8 0 0 1 .62-.78 4.2 4.2 0 0 0 0-8.24.8.8 0 0 1-.62-.78v-2.6Z"
-                  stroke="#faf7f2" stroke-width="2.4" stroke-linejoin="round"/>
-            <path d="M20 15v2.6M20 20.4v2.6M20 25.8v2.6" stroke="#faf7f2" stroke-width="2.4" stroke-linecap="round"/>
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M12 10h14.5a3.5 3.5 0 0 0 7 0H36a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-2.5a3.5 3.5 0 0 0-7 0H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="#0A5C49"/>
+            <path d="M30 16v17" stroke="#FAF7F2" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 5.4"/>
+            <circle cx="18.5" cy="24" r="4.6" fill="#FAF7F2"/>
+            <circle cx="36" cy="24" r="3.2" fill="#E8A72B"/>
         </svg>
 
         <p class="code">@yield('code')</p>

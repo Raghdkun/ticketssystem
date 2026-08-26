@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <!-- The Pass: a solid die-cut ticket. No letterform, so nothing to translate. -->
+  <path d="M12 10h14.5a3.5 3.5 0 0 0 7 0H36a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-2.5a3.5 3.5 0 0 0-7 0H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="#0A5C49"/>
+  <!-- The tear: a perforation, drawn as round dots via a zero-length dash. -->
+  <path d="M30 16v17" stroke="#FAF7F2" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 5.4"/>
+  <!-- The seat, punched out. -->
+  <circle cx="18.5" cy="24" r="4.6" fill="#FAF7F2"/>
+  <!-- The person who got in: the only accent in the whole mark. -->
+  <circle cx="36" cy="24" r="3.2" fill="#E8A72B"/>
+</svg>
