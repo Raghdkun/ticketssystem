@@ -3,6 +3,11 @@ import type { IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { Camera, CameraOff } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    capabilityMessage,
+    capabilityStatus,
+    statusFromError,
+} from '@/lib/capabilities';
 import { useTranslation } from '@/lib/translation';
 
 type Props = {
@@ -34,6 +39,19 @@ export function QrScanner({ onToken }: Props) {
     const [active, setActive] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Checked on mount, not on tap: if the page is not on HTTPS there is
+    // nothing to try, and offering a button that cannot work is a worse
+    // answer than saying so.
+    const [status] = useState(() =>
+        typeof window === 'undefined'
+            ? 'unsupported'
+            : capabilityStatus('camera'),
+    );
+    const unavailable =
+        status === 'insecure' ||
+        status === 'blocked' ||
+        status === 'unsupported';
+
     const handleScan = (codes: IDetectedBarcode[]) => {
         for (const code of codes) {
             const token = tokenFromScan(code.rawValue);
@@ -53,7 +71,16 @@ export function QrScanner({ onToken }: Props) {
                 <div className="overflow-hidden rounded-xl border">
                     <Scanner
                         onScan={handleScan}
-                        onError={() => setError(t('owner.scan_denied'))}
+                        onError={(cause) =>
+                            setError(
+                                t(
+                                    capabilityMessage(
+                                        'camera',
+                                        statusFromError('camera', cause),
+                                    ),
+                                ),
+                            )
+                        }
                         constraints={{ facingMode: 'environment' }}
                         // The library prefers the native BarcodeDetector where
                         // the browser provides it, and falls back to WASM.
@@ -67,6 +94,7 @@ export function QrScanner({ onToken }: Props) {
                 type="button"
                 variant={active ? 'outline' : 'default'}
                 className="w-full"
+                disabled={unavailable}
                 onClick={() => {
                     setError(null);
                     setActive((value) => !value);
@@ -75,6 +103,12 @@ export function QrScanner({ onToken }: Props) {
                 {active ? <CameraOff /> : <Camera />}
                 {active ? t('owner.scan_stop') : t('owner.scan_start')}
             </Button>
+
+            {unavailable && !error && (
+                <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+                    {t(capabilityMessage('camera', status))}
+                </p>
+            )}
 
             {error && (
                 <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">

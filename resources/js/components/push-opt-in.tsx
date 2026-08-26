@@ -29,6 +29,16 @@ export function PushOptIn({ token }: { token: string }) {
         return null;
     }
 
+    // Worth saying out loud: this one is our deployment's fault, not a
+    // refusal, and it is invisible on a phone otherwise.
+    if (support === 'insecure') {
+        return (
+            <p className="rounded-xl border border-dashed p-3 text-center text-xs text-muted-foreground">
+                {t('perm.insecure')}
+            </p>
+        );
+    }
+
     if (support === 'needs-install') {
         return (
             <p className="rounded-xl border border-dashed p-3 text-center text-xs text-muted-foreground">

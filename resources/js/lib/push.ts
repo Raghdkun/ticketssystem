@@ -11,6 +11,8 @@ export type PushSupport =
     | 'ready'
     | 'unconfigured'
     | 'unsupported'
+    /** Not HTTPS: the Push API is absent entirely, so nothing can be offered. */
+    | 'insecure'
     | 'needs-install'
     | 'denied'
     | 'granted';
@@ -40,6 +42,13 @@ function isStandalone(): boolean {
 export function pushSupport(): PushSupport {
     if (!configured()) {
         return 'unconfigured';
+    }
+
+    // Reported before the API check, because an insecure context is *why*
+    // both APIs are missing. Over plain HTTP on a phone the opt-in would
+    // otherwise just vanish with no explanation.
+    if (!window.isSecureContext) {
+        return 'insecure';
     }
 
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {

@@ -215,6 +215,12 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   Changing an icon without bumping `VERSION` in `public/sw.js` leaves every
   installed PWA on the old one forever. `/build/` is hashed and looks after
   itself; `/icons/` does not.
+- **A device feature can fail for three reasons that look identical.** Not
+  HTTPS, denied by our own `Permissions-Policy`, or refused by the user — only
+  the last is theirs to fix. `lib/capabilities.ts` tells them apart, and every
+  camera/geolocation/notification call site reports which one it hit. Saying
+  "camera denied" when the page is not on HTTPS is the classic "works on my
+  laptop, not on my phone" report.
 - **`Permissions-Policy` denies by default, and a denial cannot be prompted
   past.** A feature missing from the header is *allowed*; one set to `()`
   cannot be re-enabled by asking the user. Grant per route in

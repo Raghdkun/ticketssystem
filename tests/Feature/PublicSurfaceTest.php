@@ -131,6 +131,38 @@ class PublicSurfaceTest extends TestCase
         }
     }
 
+    public function test_every_route_that_uses_a_device_feature_is_granted_it(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner']);
+        Place::factory()->for($owner)->create();
+
+        // Each entry is a route that renders a component calling the matching
+        // browser API. A feature denied in this header cannot be re-enabled by
+        // prompting, so a missing grant is a silent, unfixable failure.
+        $grants = [
+            '/owner/scan' => 'camera',
+            '/owner/place' => 'geolocation',
+        ];
+
+        foreach ($grants as $path => $feature) {
+            $policy = (string) $this->actingAs($owner)
+                ->get($path)
+                ->assertOk()
+                ->headers->get('Permissions-Policy');
+
+            $this->assertStringContainsString(
+                "{$feature}=(self)",
+                $policy,
+                "{$path} uses {$feature} but the header does not grant it."
+            );
+
+            // And nothing beyond what that page actually needs.
+            foreach (array_diff(['camera', 'geolocation'], [$feature]) as $other) {
+                $this->assertStringContainsString("{$other}=()", $policy);
+            }
+        }
+    }
+
     public function test_the_favicon_is_the_brand_mark_not_laravel(): void
     {
         $svg = (string) file_get_contents(public_path('favicon.svg'));

@@ -2,6 +2,11 @@ import { Crosshair, LoaderCircle, MapPin, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    capabilityMessage,
+    capabilityStatus,
+    statusFromError,
+} from '@/lib/capabilities';
 import { useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { MapCanvas, SUWAYDA } from './map-canvas';
@@ -84,7 +89,11 @@ export function MapPicker({ value, onChange }: Props) {
     }
 
     function locate() {
-        if (!('geolocation' in navigator)) {
+        const status = capabilityStatus('geolocation');
+
+        if (status !== 'ready' && status !== 'granted') {
+            setError(t(capabilityMessage('geolocation', status)));
+
             return;
         }
 
@@ -94,7 +103,15 @@ export function MapPicker({ value, onChange }: Props) {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 }),
-            () => setError(t('place.locate_failed')),
+            (cause) =>
+                setError(
+                    t(
+                        capabilityMessage(
+                            'geolocation',
+                            statusFromError('geolocation', cause),
+                        ),
+                    ),
+                ),
         );
     }
 

@@ -407,4 +407,15 @@ return [
         'tap_to_pin' => 'Tap the map or drag the pin to set the location.',
         'clear_pin' => 'Remove pin',
     ],
+
+    'perm' => [
+        'insecure' => 'This page must be served over HTTPS for the device feature to work. On a phone over plain HTTP the browser blocks it entirely.',
+        'blocked' => 'The site is blocking this feature on this page. That is a configuration problem on our side, not something you can allow.',
+        'camera_denied' => 'Camera access was refused. Allow the camera for this site in your browser settings, then try again.',
+        'camera_unsupported' => 'No usable camera was found on this device.',
+        'geolocation_denied' => 'Location access was refused. Allow location for this site in your browser settings, or place the pin by hand.',
+        'geolocation_unsupported' => 'This device cannot report its location.',
+        'notifications_denied' => 'Notifications were refused. Allow them for this site in your browser settings.',
+        'notifications_unsupported' => 'This browser cannot show notifications.',
+    ],
 ];
