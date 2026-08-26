@@ -5,6 +5,7 @@ import {
     ScanLine,
     Search,
     ShieldCheck,
+    Store,
     SlidersHorizontal,
 } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
@@ -26,6 +27,7 @@ import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import { owners, settings as platformSettings } from '@/routes/admin';
 import { scan, search } from '@/routes/owner';
+import placeRoute from '@/routes/owner/place';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -43,6 +45,11 @@ const mainNavItems: NavItem[] = [
         title: 'owner.verify_title',
         href: scan(),
         icon: ScanLine,
+    },
+    {
+        title: 'owner.place',
+        href: placeRoute.edit(),
+        icon: Store,
     },
     {
         title: 'owner.search_all',

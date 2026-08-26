@@ -2,6 +2,10 @@
 
 return [
     'common' => [
+        'back_home' => 'Back to home',
+        'back_to_scan' => 'Back to the scanner',
+        'back_to_events' => 'Back to events',
+        'back_to_event' => 'Back to the event',
         'increase' => 'One more',
         'decrease' => 'One fewer',
         'administration' => 'Administration',
@@ -68,6 +72,15 @@ return [
     ],
 
     'owner' => [
+        'whatsapp' => 'WhatsApp number',
+        'name_en' => 'Name (English)',
+        'name_ar' => 'Name (Arabic)',
+        'place_saved' => 'Venue saved.',
+        'place_location_hint' => 'Visitors see this when they tap your venue name on an event page.',
+        'place_location' => 'Location',
+        'place_details' => 'Basics',
+        'place_sub' => "Your venue's details and where it is on the map.",
+        'place' => 'Venue',
         'finish_publish' => 'Finish and publish',
         'draft_meta' => 'No cover · :n seats · :date',
         'seats_meta' => ':taken of :total seats · :date',
@@ -349,5 +362,28 @@ return [
         'two_factor_sub' => 'Enter the code from your authenticator app',
         'recovery_code' => 'Enter recovery code',
         'continue' => 'Continue',
+    ],
+
+    'place' => [
+        'address_ar' => 'Address (Arabic)',
+        'address_en' => 'Address (English)',
+        'landmark_ar' => 'Landmark (Arabic)',
+        'landmark_en' => 'Landmark (English)',
+        'landmark_placeholder' => 'e.g. beside the old mosque',
+        'landmark' => 'Landmark',
+        'directions' => 'Directions',
+        'open_in_osm' => 'Open in OpenStreetMap',
+        'no_address' => 'No address added yet',
+        'map_label' => 'Map for choosing the venue location',
+        'map_of' => 'Map showing :name',
+        'search' => 'Search',
+        'search_placeholder' => 'Search an address or area…',
+        'no_results' => 'No results. Move the pin by hand instead.',
+        'search_failed' => 'Search unavailable. You can still place the pin by hand.',
+        'locate_failed' => 'Could not read your location.',
+        'use_my_location' => 'My location',
+        'pinned_at' => 'Pinned at :lat, :lng',
+        'tap_to_pin' => 'Tap the map or drag the pin to set the location.',
+        'clear_pin' => 'Remove pin',
     ],
 ];

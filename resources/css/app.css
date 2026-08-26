@@ -481,3 +481,45 @@ p {
         padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
     }
 }
+
+/*
+ * OpenStreetMap ships light tiles only. Inverting just the tile pane keeps a
+ * dark-mode map from being a glaring white rectangle, while markers, controls
+ * and attribution -- which are ours, and already themed -- stay untouched.
+ */
+.dark .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9)
+        saturate(0.75);
+}
+
+/* Leaflet's own chrome, brought into the design system. */
+.leaflet-container {
+    background: var(--muted);
+    font-family: inherit;
+}
+
+.leaflet-control-attribution {
+    background: color-mix(in srgb, var(--card) 88%, transparent) !important;
+    color: var(--muted-foreground) !important;
+    font-size: 0.6875rem;
+}
+
+.leaflet-control-attribution a {
+    color: var(--muted-foreground) !important;
+}
+
+.leaflet-bar a {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+}
+
+.leaflet-bar a:hover {
+    background: var(--muted) !important;
+}
+
+/* The pin is an inline SVG in a divIcon; it must not inherit a marker box. */
+.leaflet-marker-icon.border-0 {
+    background: none;
+    border: none;
+}

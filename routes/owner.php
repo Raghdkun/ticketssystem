@@ -4,6 +4,7 @@ use App\Http\Controllers\Owner\DoorSheetController;
 use App\Http\Controllers\Owner\EventController;
 use App\Http\Controllers\Owner\EventMediaController;
 use App\Http\Controllers\Owner\EventReportController;
+use App\Http\Controllers\Owner\PlaceController;
 use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,9 @@ Route::middleware(['auth', 'verified'])
     ->name('owner.')
     ->group(function () {
         Route::resource('events', EventController::class)->except(['show']);
+
+        Route::get('place', [PlaceController::class, 'edit'])->name('place.edit');
+        Route::patch('place', [PlaceController::class, 'update'])->name('place.update');
 
         Route::get('scan', [VerificationController::class, 'scanner'])->name('scan');
         Route::get('search', TicketSearchController::class)->name('search');

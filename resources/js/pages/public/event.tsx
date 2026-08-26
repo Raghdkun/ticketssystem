@@ -1,12 +1,14 @@
 import { Head } from '@inertiajs/react';
-import { CalendarDays, Check, Clock, Gift, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Check, Clock, Gift, Users } from 'lucide-react';
 import { useState } from 'react';
+import { BackLink } from '@/components/back-link';
 import { BookingForm } from '@/components/booking-form';
 import { EventCover } from '@/components/event-cover';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PromoVideo } from '@/components/promo-video';
+import { PublicFooter } from '@/components/public-footer';
 import { ShareButton } from '@/components/share-button';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +19,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { VenueLink } from '@/components/venue-sheet';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import type { PublicEvent, PublicPlace, SiblingEvent } from '@/types/public';
@@ -69,6 +72,14 @@ export default function EventPage({ event, place, siblings }: Props) {
             <PlaceEdgeTab place={place} siblings={siblings} />
 
             <header className="relative">
+                <div className="absolute start-4 top-4 z-30">
+                    <BackLink
+                        href="/"
+                        label="common.back_home"
+                        className="rounded-lg border border-white/25 bg-black/25 px-3 text-white backdrop-blur hover:bg-black/40 hover:text-white"
+                    />
+                </div>
+
                 <div className="absolute end-4 top-4 z-30 flex items-center gap-2">
                     <ShareButton
                         url={shareUrl}
@@ -114,9 +125,11 @@ export default function EventPage({ event, place, siblings }: Props) {
                                     </span>
                                 </div>
 
-                                <p className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80">
-                                    <MapPin className="size-4" />
-                                    {placeName}
+                                <p className="text-sm font-medium text-white/80">
+                                    <VenueLink
+                                        name={placeName}
+                                        location={place.location}
+                                    />
                                 </p>
                                 <h1 className="mt-1 text-3xl leading-tight font-bold text-white sm:text-4xl lg:text-5xl">
                                     {title}
@@ -319,6 +332,8 @@ export default function EventPage({ event, place, siblings }: Props) {
                     </Sheet>
                 </div>
             </div>
+
+            <PublicFooter />
         </div>
     );
 }

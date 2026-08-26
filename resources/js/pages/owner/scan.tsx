@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/lib/translation';
 import { scan } from '@/routes/owner';
 import type { TicketStatus } from '@/types/public';
@@ -52,21 +53,31 @@ export default function ScanPage({ phone, results }: Props) {
                     method="get"
                     className="flex items-end gap-2"
                 >
-                    <div className="grid flex-1 gap-2">
-                        <Label htmlFor="phone">{t('event.mobile')}</Label>
-                        <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            dir="ltr"
-                            defaultValue={phone}
-                            placeholder="09XXXXXXXX"
-                        />
-                    </div>
-                    <Button type="submit">
-                        <Search />
-                        {t('common.search')}
-                    </Button>
+                    {({ processing }) => (
+                        <>
+                            <div className="grid flex-1 gap-2">
+                                <Label htmlFor="phone">
+                                    {t('event.mobile')}
+                                </Label>
+                                <Input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    dir="ltr"
+                                    defaultValue={phone}
+                                    placeholder="09XXXXXXXX"
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                className="cursor-pointer"
+                            >
+                                {processing ? <Spinner /> : <Search />}
+                                {t('common.search')}
+                            </Button>
+                        </>
+                    )}
                 </Form>
 
                 {phone && results.length === 0 && (

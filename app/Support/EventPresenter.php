@@ -27,6 +27,9 @@ final class EventPresenter
             'name_en' => $place->name_en,
             'whatsapp_number' => $place->whatsapp_number,
             'logo' => $place->logo_path,
+            // Null when the owner has not pinned the venue, so the public page
+            // renders a plain name rather than a control opening an empty map.
+            'location' => $place->location(),
         ];
     }
 

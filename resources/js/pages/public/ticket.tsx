@@ -1,16 +1,19 @@
 import { Head } from '@inertiajs/react';
-import { CalendarDays, Check, Clock, Gift, MapPin, Users } from 'lucide-react';
+import { CalendarDays, Check, Clock, Gift, Users } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
+import { BackLink } from '@/components/back-link';
 import { FlashToaster } from '@/components/flash-toaster';
 import { InstallPrompt } from '@/components/install-prompt';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PlaceEdgeTab } from '@/components/place-edge-tab';
+import { PublicFooter } from '@/components/public-footer';
 import { PushOptIn } from '@/components/push-opt-in';
 import { ShareButton } from '@/components/share-button';
 import { HoldCountdown } from '@/components/ticket/hold-countdown';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { StatusBanner } from '@/components/ticket/status-banner';
+import { VenueLink } from '@/components/venue-sheet';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { useTicketStatus } from '@/hooks/use-ticket-status';
 import { localised, useLocale } from '@/lib/locale';
@@ -80,7 +83,13 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
             <PlaceEdgeTab place={place} siblings={siblings} />
             <InstallPrompt />
 
-            <div className="mx-auto flex w-full max-w-md justify-end px-4 pb-4 lg:max-w-4xl">
+            <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 pb-4 lg:max-w-4xl">
+                {/* A ticket is usually opened from a saved link, so the way
+                    back is to the event it is for, not browser history. */}
+                <BackLink
+                    href={`/${place.slug}/${event.slug}`}
+                    label="common.back_to_event"
+                />
                 <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
             </div>
 
@@ -115,9 +124,13 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                             color: 'var(--brand-paper-100)',
                         }}
                     >
-                        <p className="inline-flex items-center gap-1.5 text-sm opacity-80">
-                            <MapPin className="size-4" />
-                            {placeName}
+                        {/* The ticket is what someone opens on the way to the
+                            door, so the venue has to be reachable from here. */}
+                        <p className="text-sm opacity-80">
+                            <VenueLink
+                                name={placeName}
+                                location={place.location}
+                            />
                         </p>
                         <h1 className="mt-1 text-2xl leading-tight font-bold">
                             {title}
@@ -293,6 +306,8 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                     </p>
                 </div>
             </main>
+
+            <PublicFooter />
         </div>
     );
 }

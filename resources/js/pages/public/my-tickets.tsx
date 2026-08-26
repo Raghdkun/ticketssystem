@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { Search, Ticket as TicketIcon, Users } from 'lucide-react';
+import { BackLink } from '@/components/back-link';
 import { EmptyState } from '@/components/empty-state';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
@@ -7,6 +8,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { localised, useLocale } from '@/lib/locale';
 import { useStoredTickets } from '@/lib/tickets';
 import { useTranslation } from '@/lib/translation';
@@ -40,6 +42,8 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                 id="main-content"
                 className="mx-auto w-full max-w-md space-y-8 p-5"
             >
+                <BackLink href="/" label="common.back_home" />
+
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">
                         {t('ticket.my_tickets')}
@@ -94,25 +98,32 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                         method="get"
                         className="flex items-end gap-2"
                     >
-                        <div className="grid flex-1 gap-2">
-                            <Label htmlFor="phone">{t('event.mobile')}</Label>
-                            <Input
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                dir="ltr"
-                                inputMode="tel"
-                                defaultValue={phone}
-                                placeholder="09XXXXXXXX"
-                            />
-                        </div>
-                        <Button
-                            type="submit"
-                            aria-label={t('common.search')}
-                            className="cursor-pointer"
-                        >
-                            <Search />
-                        </Button>
+                        {({ processing }) => (
+                            <>
+                                <div className="grid flex-1 gap-2">
+                                    <Label htmlFor="phone">
+                                        {t('event.mobile')}
+                                    </Label>
+                                    <Input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        dir="ltr"
+                                        inputMode="tel"
+                                        defaultValue={phone}
+                                        placeholder="09XXXXXXXX"
+                                    />
+                                </div>
+                                <Button
+                                    type="submit"
+                                    aria-label={t('common.search')}
+                                    disabled={processing}
+                                    className="cursor-pointer"
+                                >
+                                    {processing ? <Spinner /> : <Search />}
+                                </Button>
+                            </>
+                        )}
                     </Form>
 
                     {searched && results.length === 0 && (

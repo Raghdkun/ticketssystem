@@ -28,8 +28,20 @@ class DatabaseSeeder extends Seeder
         ];
 
         collect([
-            ['owner' => 'Rawan Owner', 'email' => 'owner@example.com', 'place' => 'Swaida Grand Hall'],
-            ['owner' => 'Samer Owner', 'email' => 'owner2@example.com', 'place' => 'Cloud Nine Rooftop'],
+            [
+                'owner' => 'Rawan Owner', 'email' => 'owner@example.com', 'place' => 'Swaida Grand Hall',
+                // Real As-Suwayda coordinates, so the seeded map is not a
+                // plausible-looking pin in the wrong country.
+                'lat' => 32.7093878, 'lng' => 36.5687496,
+                'address_ar' => 'شارع القوتلي، السويداء', 'address_en' => 'Al-Qwatli Street, As-Suwayda',
+                'landmark_ar' => 'مقابل السرايا القديمة', 'landmark_en' => 'Opposite the old Saraya',
+            ],
+            [
+                'owner' => 'Samer Owner', 'email' => 'owner2@example.com', 'place' => 'Cloud Nine Rooftop',
+                'lat' => 32.7051, 'lng' => 36.5641,
+                'address_ar' => 'حي المزرعة، السويداء', 'address_en' => 'Al-Mazraa, As-Suwayda',
+                'landmark_ar' => 'فوق مقهى الغيمة', 'landmark_en' => 'Above Cloud Cafe',
+            ],
         ])->each(function (array $data) use ($rules) {
             $user = User::factory()->create([
                 'name' => $data['owner'],
@@ -39,6 +51,12 @@ class DatabaseSeeder extends Seeder
             $place = Place::factory()->for($user)->create([
                 'name_en' => $data['place'],
                 'name_ar' => 'قاعة '.$data['place'],
+                'latitude' => $data['lat'],
+                'longitude' => $data['lng'],
+                'address_ar' => $data['address_ar'],
+                'address_en' => $data['address_en'],
+                'landmark_ar' => $data['landmark_ar'],
+                'landmark_en' => $data['landmark_en'],
             ]);
 
             Event::factory()->count(3)->for($place)->create()->each(

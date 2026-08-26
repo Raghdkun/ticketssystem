@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { CheckCircle2, UserX, Users, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { BackLink } from '@/components/back-link';
 import Heading from '@/components/heading';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
+import { scan } from '@/routes/owner';
 
 type OwnerTicket = {
     arrived_quantity: number;
@@ -41,6 +43,7 @@ export default function VerifyTicket({ ticket }: { ticket: OwnerTicket }) {
             <Head title={`${t('owner.verify_title')} — ${ticket.full_name}`} />
 
             <div className="mx-auto w-full max-w-md space-y-6 p-4">
+                <BackLink href={scan().url} label="common.back_to_scan" />
                 <Heading
                     variant="small"
                     title={t('owner.verify_title')}

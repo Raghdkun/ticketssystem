@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { Printer } from 'lucide-react';
+import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
+import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/ui/button';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
@@ -48,9 +50,15 @@ export default function DoorSheet({ event, place, summary, rows }: Props) {
 
             {/* Screen-only controls; the printed page starts at the header. */}
             <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-                <p className="text-sm text-muted-foreground">
-                    {t('owner.door_sheet_hint')}
-                </p>
+                <div>
+                    <BackLink
+                        href={EventController.index().url}
+                        label="common.back_to_events"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                        {t('owner.door_sheet_hint')}
+                    </p>
+                </div>
                 <Button
                     type="button"
                     onClick={() => window.print()}

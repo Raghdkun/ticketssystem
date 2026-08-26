@@ -5,12 +5,22 @@ export type EventCover = {
     placeholder?: string;
 } | null;
 
+export type PublicPlaceLocation = {
+    lat: number;
+    lng: number;
+    address_ar: string | null;
+    address_en: string | null;
+    landmark_ar: string | null;
+    landmark_en: string | null;
+};
+
 export type PublicPlace = {
     slug: string;
     name_ar: string;
     name_en: string;
     whatsapp_number: string | null;
     logo: string | null;
+    location: PublicPlaceLocation | null;
 };
 
 export type PublicEventRule = {

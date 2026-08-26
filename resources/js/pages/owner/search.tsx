@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { search } from '@/routes/owner';
@@ -44,17 +45,27 @@ export default function TicketSearch({ q, results }: Props) {
                     method="get"
                     className="flex items-end gap-2"
                 >
-                    <div className="grid flex-1 gap-2">
-                        <Label htmlFor="q">{t('common.search')}</Label>
-                        <Input id="q" name="q" defaultValue={q} autoFocus />
-                    </div>
-                    <Button
-                        type="submit"
-                        aria-label={t('common.search')}
-                        className="cursor-pointer"
-                    >
-                        <Search />
-                    </Button>
+                    {({ processing }) => (
+                        <>
+                            <div className="grid flex-1 gap-2">
+                                <Label htmlFor="q">{t('common.search')}</Label>
+                                <Input
+                                    id="q"
+                                    name="q"
+                                    defaultValue={q}
+                                    autoFocus
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                aria-label={t('common.search')}
+                                disabled={processing}
+                                className="cursor-pointer"
+                            >
+                                {processing ? <Spinner /> : <Search />}
+                            </Button>
+                        </>
+                    )}
                 </Form>
 
                 {q.length > 0 && q.length < 3 && (

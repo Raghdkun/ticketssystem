@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { Download } from 'lucide-react';
+import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
@@ -171,5 +172,8 @@ export default function EventReportPage({ event, report }: Props) {
 }
 
 EventReportPage.layout = {
-    breadcrumbs: [{ title: 'owner.report', href: '#' }],
+    breadcrumbs: [
+        { title: 'owner.events', href: EventController.index() },
+        { title: 'owner.report', href: '' },
+    ],
 };
