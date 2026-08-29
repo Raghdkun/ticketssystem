@@ -11,13 +11,13 @@ export default function Appearance() {
         <>
             <Head title={t('settings.appearance')} />
 
-            <h1 className="sr-only">Appearance settings</h1>
+            <h1 className="sr-only">{t('settings.appearance')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Appearance settings"
-                    description="Update the appearance settings for your account"
+                    title={t('settings.appearance')}
+                    description={t('settings.appearance_sub')}
                 />
                 <AppearanceTabs />
             </div>

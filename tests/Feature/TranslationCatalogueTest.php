@@ -112,7 +112,7 @@ class TranslationCatalogueTest extends TestCase
     public function test_no_page_title_is_a_hardcoded_string(): void
     {
         $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(resource_path('js/pages'))
+            new \RecursiveDirectoryIterator(resource_path('js'))
         );
 
         $bad = [];
@@ -134,6 +134,44 @@ class TranslationCatalogueTest extends TestCase
         }
 
         $this->assertSame([], $bad);
+    }
+
+    /**
+     * No English prose sits directly in the markup.
+     *
+     * Arabic is the default language, so a literal sentence in a component
+     * shows in English to every Arabic reader. The catalogue tests catch keys
+     * that do not resolve; this catches text that never reached a key at all.
+     */
+    public function test_no_english_sentence_is_hardcoded_in_the_markup(): void
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('js'))
+        );
+
+        $found = [];
+
+        foreach ($files as $file) {
+            // The vendored shadcn primitives carry their own English in
+            // places no user reads, and are replaced wholesale on upgrade.
+            if (! $file->isFile()
+                || $file->getExtension() !== 'tsx'
+                || str_contains($file->getPathname(), '/components/ui/')) {
+                continue;
+            }
+
+            $source = (string) file_get_contents($file->getPathname());
+
+            // Two or more capitalised-then-lowercase words sitting as a text
+            // node between tags: prose, not a class name or an identifier.
+            preg_match_all('/>\s*([A-Z][a-z]+ [a-z]{2,}[^<>{}]{0,60})</', $source, $matches);
+
+            foreach ($matches[1] as $text) {
+                $found[] = trim($text).' — '.$file->getFilename();
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($found)));
     }
 
     public function test_every_language_file_parses(): void

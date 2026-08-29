@@ -30,13 +30,13 @@ export default function Profile({
         <>
             <Head title={t('settings.profile')} />
 
-            <h1 className="sr-only">Profile settings</h1>
+            <h1 className="sr-only">{t('settings.profile')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Profile"
-                    description="Update your name and email address"
+                    title={t('settings.profile')}
+                    description={t('settings.profile_sub')}
                 />
 
                 <Form
@@ -49,7 +49,9 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">
+                                    {t('settings.name')}
+                                </Label>
 
                                 <Input
                                     id="name"
@@ -58,7 +60,7 @@ export default function Profile({
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder={t('settings.full_name')}
                                 />
 
                                 <InputError
@@ -68,7 +70,9 @@ export default function Profile({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {t('settings.email_address')}
+                                </Label>
 
                                 <Input
                                     id="email"
@@ -78,7 +82,7 @@ export default function Profile({
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder={t('settings.email_address')}
                                 />
 
                                 <InputError
@@ -117,7 +121,7 @@ export default function Profile({
                                     disabled={processing}
                                     data-test="update-profile-button"
                                 >
-                                    Save
+                                    {t('common.save')}
                                 </Button>
                             </div>
                         </>

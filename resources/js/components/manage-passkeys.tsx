@@ -4,6 +4,7 @@ import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegi
 import Heading from '@/components/heading';
 import PasskeyItem from '@/components/passkey-item';
 import PasskeyRegistration from '@/components/passkey-register';
+import { useTranslation } from '@/lib/translation';
 import type { Passkey } from '@/types/auth';
 
 export type Props = {
@@ -12,20 +13,23 @@ export type Props = {
 };
 
 const EmptyState = () => {
+    const t = useTranslation();
+
     return (
         <div className="p-8 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
                 <KeyRound className="h-7 w-7 text-muted-foreground" />
             </div>
-            <p className="font-medium">No passkeys yet</p>
+            <p className="font-medium">{t('settings.no_passkeys')}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-                Add a passkey to sign in without a password
+                {t('settings.add_passkey_hint')}
             </p>
         </div>
     );
 };
 
 export default function ManagePasskeys(props: Props) {
+    const t = useTranslation();
     const passkeys = props.passkeys ?? [];
 
     const handleDelete = (id: number, onError: () => void) => {
@@ -47,8 +51,8 @@ export default function ManagePasskeys(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Passkeys"
-                description="Manage your passkeys for passwordless sign-in"
+                title={t('settings.passkeys')}
+                description={t('settings.passkeys_sub')}
             />
 
             <div className="overflow-hidden rounded-lg border border-border">
