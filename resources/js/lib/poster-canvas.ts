@@ -12,9 +12,47 @@ export type PosterLayout = {
     height: number;
     title: string;
     meta: string;
+    price: string | null;
+    cta: string;
     rtl: boolean;
     qrUrl: string;
+    /** A cover is the event page's own hero; nothing is laid over it. */
+    bare?: boolean;
 };
+
+/** Basalt and paper, the two ends of the brand's own range. */
+const DARK = '#12110E';
+const LIGHT = '#FAF7F2';
+const MUTED_ON_DARK = '#E5DCCC';
+const MUTED_ON_LIGHT = '#4A453C';
+
+/**
+ * Average brightness of the band the furniture lands on.
+ *
+ * The prompt asks for a calm lower third but says nothing about whether it
+ * comes back light or dark, and it is genuinely both -- a cream screenprint
+ * one time, a night scene the next. Reading it is the only way to know which
+ * way the text has to go.
+ */
+function bandLuminance(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+): number {
+    const top = Math.round(height * 0.66);
+    const { data } = ctx.getImageData(0, top, width, height - top);
+    let sum = 0;
+    let n = 0;
+
+    // Every fortieth pixel: enough to judge a flat band, cheap enough to run
+    // on every redraw.
+    for (let i = 0; i < data.length; i += 4 * 40) {
+        sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+        n++;
+    }
+
+    return n === 0 ? 0 : sum / n;
+}
 
 function load(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
@@ -57,12 +95,23 @@ export async function drawPoster(
 
     cover(ctx, await load(artwork), width, height);
 
+    // A cover is the event page's own hero: it already shows the title and a
+    // booking button, so laying them on again would only cover the artwork.
+    if (layout.bare) {
+        return;
+    }
+
+    const light = bandLuminance(ctx, width, height) > 140;
+    const ink = light ? DARK : LIGHT;
+    const muted = light ? MUTED_ON_LIGHT : MUTED_ON_DARK;
+    const veil = light ? '250,247,242' : '18,17,14';
+
     // The prompt asks for a calm lower third, but a model does not always
     // oblige, and the code has to read against whatever turns up.
     const band = height * 0.4;
     const scrim = ctx.createLinearGradient(0, height - band, 0, height);
-    scrim.addColorStop(0, 'rgba(18,17,14,0)');
-    scrim.addColorStop(1, 'rgba(18,17,14,0.95)');
+    scrim.addColorStop(0, `rgba(${veil},0)`);
+    scrim.addColorStop(1, `rgba(${veil},0.96)`);
     ctx.fillStyle = scrim;
     ctx.fillRect(0, height - band, width, band);
 
@@ -73,7 +122,9 @@ export async function drawPoster(
     const plateX = rtl ? width - margin - plate : margin;
     const plateY = height - margin - plate;
 
-    ctx.fillStyle = '#ffffff';
+    // The plate is always the opposite of the band, so the code keeps its
+    // quiet zone whichever way the artwork went.
+    ctx.fillStyle = light ? DARK : LIGHT;
     ctx.beginPath();
     ctx.roundRect(plateX, plateY, plate, plate, plate * 0.08);
     ctx.fill();
@@ -99,19 +150,37 @@ export async function drawPoster(
 
     const titleSize = width * 0.055;
     ctx.font = `700 ${titleSize}px "IBM Plex Sans Arabic", "Bricolage Grotesque", system-ui, sans-serif`;
-    ctx.fillStyle = '#faf7f2';
+    ctx.fillStyle = ink;
 
     const lines = wrap(ctx, layout.title, available).slice(0, 3);
-    let y = plateY + plate / 2 - ((lines.length - 1) * titleSize * 1.2) / 2;
+    const metaSize = width * 0.03;
+    const ctaSize = width * 0.024;
+    const blockHeight =
+        lines.length * titleSize * 1.2 + metaSize * 1.5 + ctaSize * 1.6;
+    let y = plateY + plate / 2 - blockHeight / 2 + titleSize;
 
     for (const line of lines) {
         ctx.fillText(line, textX, y);
         y += titleSize * 1.2;
     }
 
-    ctx.font = `400 ${width * 0.03}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
-    ctx.fillStyle = '#e5dccc';
-    ctx.fillText(layout.meta, textX, y + width * 0.012);
+    ctx.font = `400 ${metaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
+    ctx.fillStyle = muted;
+    ctx.fillText(layout.meta, textX, y + metaSize * 0.2);
+    y += metaSize * 1.5;
+
+    // Price, then what to do about it. Somebody reading a poster on a wall
+    // needs both, and neither is on the artwork.
+    if (layout.price) {
+        ctx.font = `700 ${metaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
+        ctx.fillStyle = '#E8A72B';
+        ctx.fillText(layout.price, textX, y);
+        y += metaSize * 1.4;
+    }
+
+    ctx.font = `500 ${ctaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
+    ctx.fillStyle = muted;
+    ctx.fillText(layout.cta, textX, y);
 }
 
 /** Greedy wrap on whitespace; long single words are left to overflow. */

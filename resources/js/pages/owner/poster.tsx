@@ -10,7 +10,13 @@ import { drawPoster } from '@/lib/poster-canvas';
 import { useTranslation } from '@/lib/translation';
 import { cn } from '@/lib/utils';
 
-type Format = { key: string; width: number; height: number; ratio: string };
+type Format = {
+    key: string;
+    width: number;
+    height: number;
+    ratio: string;
+    reserves: boolean;
+};
 type Palette = { key: string; colors: string[] };
 
 type Props = {
@@ -22,10 +28,14 @@ type Props = {
         place_ar: string;
         place_en: string;
         qr_url: string;
+        price: number;
+        currency: string;
     };
     formats: Format[];
     kinds: string[];
     moods: string[];
+    styles: string[];
+    elements: string[];
     palettes: Palette[];
 };
 
@@ -73,6 +83,8 @@ export default function PosterWorkshop({
     formats,
     kinds,
     moods,
+    styles,
+    elements: elementOptions,
     palettes,
 }: Props) {
     const t = useTranslation();
@@ -81,6 +93,9 @@ export default function PosterWorkshop({
 
     const [kind, setKind] = useState(kinds[0]);
     const [mood, setMood] = useState(moods[0]);
+    const [style, setStyle] = useState(styles[0]);
+    // Any number of these, so it is a toggle rather than a choice.
+    const [elements, setElements] = useState<string[]>([]);
     const [palette, setPalette] = useState(palettes[0].key);
     const [format, setFormat] = useState(formats[0].key);
 
@@ -108,7 +123,15 @@ export default function PosterWorkshop({
                         'meta[name="csrf-token"]',
                     )?.content ?? '',
             },
-            body: JSON.stringify({ kind, mood, palette, format, locale }),
+            body: JSON.stringify({
+                kind,
+                mood,
+                style,
+                palette,
+                format,
+                elements,
+                locale,
+            }),
         })
             .then((response) => (response.ok ? response.json() : null))
             .then((data) => {
@@ -123,6 +146,9 @@ export default function PosterWorkshop({
                     width: data.width,
                     height: data.height,
                     ratio: data.ratio,
+                    // A cover is the event page's own hero, so nothing is
+                    // composited onto it and nothing is reserved for it.
+                    reserves: data.reserves,
                 });
             })
             .catch(() => {
@@ -130,7 +156,7 @@ export default function PosterWorkshop({
             });
 
         return () => controller.abort();
-    }, [event.id, kind, mood, palette, format, locale]);
+    }, [event.id, kind, mood, style, palette, format, elements, locale]);
 
     // Redraw whenever the artwork or the target size changes.
     useEffect(() => {
@@ -148,8 +174,15 @@ export default function PosterWorkshop({
                 locale === 'ar' ? 'ar-SY' : 'en-GB',
                 { day: 'numeric', month: 'long' },
             )}  ·  ${localised(locale, event.place_ar, event.place_en)}`,
+            price:
+                event.price > 0
+                    ? `${event.price.toLocaleString('en-US')} ${event.currency}`
+                    : t('event.free'),
+            cta: t('poster.cta'),
             rtl: direction === 'rtl',
             qrUrl: event.qr_url,
+            // A cover is the event page's own hero; nothing is laid over it.
+            bare: !size.reserves,
         }).catch(() => setDrawError(t('poster.draw_failed')));
     }, [artwork, size, locale, direction, event, t]);
 
@@ -188,6 +221,59 @@ export default function PosterWorkshop({
                             onChange={setMood}
                             render={(m) => t(`poster.mood_${m}`)}
                         />
+                        <Choice
+                            label={t('poster.style_label')}
+                            options={styles}
+                            value={style}
+                            onChange={setStyle}
+                            render={(s) => t(`poster.style_${s}`)}
+                        />
+
+                        <div className="space-y-2">
+                            <Label>{t('poster.elements_label')}</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {elementOptions.map((option) => {
+                                    const on = elements.includes(option);
+
+                                    return (
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            aria-pressed={on}
+                                            onClick={() =>
+                                                setElements((current) =>
+                                                    on
+                                                        ? current.filter(
+                                                              (e) =>
+                                                                  e !== option,
+                                                          )
+                                                        : // Five is the point past which a
+                                                          // model starts averaging them out.
+                                                          current.length >= 5
+                                                          ? current
+                                                          : [
+                                                                ...current,
+                                                                option,
+                                                            ],
+                                                )
+                                            }
+                                            className={cn(
+                                                'min-h-11 cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors',
+                                                on
+                                                    ? 'border-primary bg-primary/10 font-medium text-primary'
+                                                    : 'hover:bg-muted/60',
+                                            )}
+                                        >
+                                            {t(`poster.element_${option}`)}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {t('poster.elements_hint')}
+                            </p>
+                        </div>
+
                         <Choice
                             label={t('poster.palette_label')}
                             options={palettes.map((p) => p.key)}

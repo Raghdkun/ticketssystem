@@ -199,6 +199,12 @@ brings the artwork back, and the real details go on here.
 - **Verified by decoding.** The finished canvas is read back with
   `BarcodeDetector` and must yield the event URL — looking right is not the
   same as scanning.
+- **Models invent QR codes unless told not to.** A real owner test came back
+  with two drawn ones sitting in the reserved band, so the prompt now forbids
+  QR codes, barcodes, data matrices and small checkerboard grids by name.
+- **The reserved band comes back light as often as dark.** The compositor
+  samples its luminance and flips the scrim, the text and the code plate
+  accordingly; assuming a dark band puts dark text on a cream screenprint.
 
 ## Locations
 

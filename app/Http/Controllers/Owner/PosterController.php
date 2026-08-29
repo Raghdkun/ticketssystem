@@ -35,13 +35,18 @@ class PosterController extends Controller
                 'place_ar' => $event->place->name_ar,
                 'place_en' => $event->place->name_en,
                 'qr_url' => route('owner.events.qr', $event),
+                'price' => (float) $event->price,
+                'currency' => $event->currency,
             ],
             'formats' => collect(PosterPrompt::FORMATS)
                 ->map(fn (array $f, string $key) => [
-                    'key' => $key, 'width' => $f[0], 'height' => $f[1], 'ratio' => $f[2],
+                    'key' => $key, 'width' => $f[0], 'height' => $f[1],
+                    'ratio' => $f[2], 'reserves' => $f[3],
                 ])->values()->all(),
             'kinds' => PosterPrompt::KINDS,
             'moods' => PosterPrompt::MOODS,
+            'styles' => PosterPrompt::STYLES,
+            'elements' => PosterPrompt::ELEMENTS,
             'palettes' => collect(PosterPrompt::PALETTES)
                 ->map(fn (array $colors, string $key) => ['key' => $key, 'colors' => $colors])
                 ->values()->all(),
@@ -58,6 +63,9 @@ class PosterController extends Controller
         $choices = $request->validate([
             'kind' => ['required', 'string', 'in:'.implode(',', PosterPrompt::KINDS)],
             'mood' => ['required', 'string', 'in:'.implode(',', PosterPrompt::MOODS)],
+            'style' => ['required', 'string', 'in:'.implode(',', PosterPrompt::STYLES)],
+            'elements' => ['array', 'max:5'],
+            'elements.*' => ['string', 'in:'.implode(',', PosterPrompt::ELEMENTS)],
             'palette' => ['required', 'string', 'in:'.implode(',', array_keys(PosterPrompt::PALETTES))],
             'format' => ['required', 'string', 'in:'.implode(',', array_keys(PosterPrompt::FORMATS))],
             'locale' => ['required', 'string', 'in:ar,en'],
