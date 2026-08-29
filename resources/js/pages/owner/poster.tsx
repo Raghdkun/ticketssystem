@@ -5,6 +5,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { drawPoster } from '@/lib/poster-canvas';
 import { useTranslation } from '@/lib/translation';
@@ -171,7 +172,7 @@ export default function PosterWorkshop({
             height: size.height,
             title: localised(locale, event.title_ar, event.title_en),
             meta: `${new Date(event.starts_at).toLocaleDateString(
-                locale === 'ar' ? 'ar-SY' : 'en-GB',
+                dateTag(locale),
                 { day: 'numeric', month: 'long' },
             )}  ·  ${localised(locale, event.place_ar, event.place_en)}`,
             price:

@@ -61,12 +61,27 @@ final class VerifyTicket
     }
 
     /**
+     * The holder released their own seats.
+     *
+     * Same terminal status as a venue cancellation -- the seats go back either
+     * way -- but there is no actor, because the person doing it has no account.
+     * The note is what tells the two apart in the log and on the door sheet.
+     */
+    public function releaseByHolder(Ticket $ticket): Ticket
+    {
+        return $this->transition($ticket, TicketStatus::Cancelled, null, function (Ticket $ticket) {
+            $ticket->cancelled_at = now();
+            $ticket->hold_expires_at = null;
+        }, note: 'released by holder');
+    }
+
+    /**
      * @param  callable(Ticket): void  $mutate
      */
     private function transition(
         Ticket $ticket,
         TicketStatus $to,
-        User $actor,
+        ?User $actor,
         callable $mutate,
         ?string $note = null,
     ): Ticket {
@@ -94,7 +109,7 @@ final class VerifyTicket
             $locked->statusLogs()->create([
                 'from_status' => $from->value,
                 'to_status' => $to->value,
-                'actor_id' => $actor->id,
+                'actor_id' => $actor?->id,
                 'note' => $note,
             ]);
 

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { dateTag } from '@/lib/format';
 import { initials } from '@/lib/initials';
 import { useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
@@ -29,7 +30,7 @@ type Props = { hasPlace: boolean; staff: Member[]; invitations: Invitation[] };
 export default function OwnerStaff({ hasPlace, staff, invitations }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
     const [copied, copy] = useClipboard();
 
     const link = usePage<{ flash?: { invitation_link?: string } }>().props.flash

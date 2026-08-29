@@ -13,8 +13,11 @@ import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { Counter } from '@/components/motion/counter';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
+import { SetupChecklist } from '@/components/owner/setup-checklist';
+import type { SetupSteps } from '@/components/owner/setup-checklist';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import { dateTag } from '@/lib/format';
 import { initials } from '@/lib/initials';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
@@ -69,6 +72,7 @@ type PlatformStats = {
 
 type Props = {
     hasPlace: boolean;
+    setup: SetupSteps | null;
     platform: PlatformStats | null;
     place?: { name_ar: string; name_en: string; currency: string };
     stats: Stats | null;
@@ -107,6 +111,7 @@ function Stat({
 
 export default function Dashboard({
     hasPlace,
+    setup,
     platform,
     place,
     stats,
@@ -115,7 +120,7 @@ export default function Dashboard({
 }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
 
     // A super admin owns no venue, so an owner dashboard telling them to
     // "contact the platform administrator" is addressed to themselves. Show
@@ -225,6 +230,10 @@ export default function Dashboard({
                         </Button>
                     </div>
                 </div>
+
+                {/* Only ever present before the venue's first event goes
+                    live; it removes itself from then on. */}
+                {setup && <SetupChecklist steps={setup} />}
 
                 <section className="brand-surface flex flex-wrap items-end justify-between gap-6 rounded-2xl border p-5 sm:p-6">
                     <div className="min-w-0">

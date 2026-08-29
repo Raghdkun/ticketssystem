@@ -1,9 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import { BarChart3, ImageIcon, Plus, Printer } from 'lucide-react';
+import { BarChart3, ImageIcon, Plus, Printer, Sparkles } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
+import { RepeatEvent } from '@/components/owner/repeat-event';
 import { Button } from '@/components/ui/button';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
@@ -57,7 +59,7 @@ function StatusChip({ status, label }: { status: string; label: string }) {
 export default function EventsIndex({ place, events, counts, filter }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
 
     return (
         <>
@@ -246,7 +248,13 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                             )}
                                         </div>
 
-                                        <div className="relative z-10 flex items-center gap-4 border-t px-4 py-2.5">
+                                        {/* The poster workshop and the repeat
+                                            control belong on every card. Both
+                                            were reachable only from part-way
+                                            down the edit form, which is a long
+                                            way to bury the most distinctive
+                                            thing an owner can do here. */}
+                                        <div className="relative z-10 flex flex-wrap items-center gap-x-4 gap-y-2 border-t px-4 py-2.5">
                                             {draft ? (
                                                 <Link
                                                     href={EventController.edit(
@@ -275,6 +283,20 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                     </a>
                                                 </>
                                             )}
+
+                                            <Link
+                                                href={`/owner/events/${event.id}/poster`}
+                                                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                                            >
+                                                <Sparkles className="size-3.5" />
+                                                {t('owner.poster')}
+                                            </Link>
+
+                                            <span className="ms-auto">
+                                                <RepeatEvent
+                                                    eventId={event.id}
+                                                />
+                                            </span>
                                         </div>
                                     </article>
                                 </StaggerItem>

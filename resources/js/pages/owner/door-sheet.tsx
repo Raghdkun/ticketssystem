@@ -3,6 +3,7 @@ import { Printer } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/ui/button';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
@@ -39,7 +40,7 @@ type Props = {
 export default function DoorSheet({ event, place, summary, rows }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
 
     const title = localised(locale, event.title_ar, event.title_en);
     const placeName = localised(locale, place.name_ar, place.name_en);
@@ -142,7 +143,7 @@ export default function DoorSheet({ event, place, summary, rows }: Props) {
                                 </td>
                                 <td className="p-2 text-center tabular-nums">
                                     {row.amount_due > 0
-                                        ? `${row.amount_due.toLocaleString()} ${event.currency}`
+                                        ? `${row.amount_due.toLocaleString('en-GB')} ${event.currency}`
                                         : '—'}
                                 </td>
                                 <td className="p-2 text-center">

@@ -80,6 +80,33 @@ realtime status flip.
    both logged, nesting is refused, super admins cannot be impersonated, banner is always visible.
 14. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
     alongside it. Do not remove it — Arabic silently falls back to an OS font.
+15. **Latin digits everywhere, Arabic month names kept.** Arabic has two
+    numeral scripts and the app was using both — dates came out Arabic-Indic
+    through `ar-SY` while prices, seat counts, phone numbers and reference
+    codes came out Latin, so one line could carry both. Half the figures here
+    cannot be anything else: a price sits beside a Latin currency code, a
+    phone number is dialled as typed, a booking reference is read out
+    character by character. `lib/format.ts` pins the rule with the
+    `-u-nu-latn` extension; PHP already behaved this way, so this aligned the
+    client to the server rather than the other way round.
+16. **Notification wording rotates; the subject never does.** A paid ticket
+    always says paid, but not in the same sentence twice running. Every kind
+    is a list of variants in `lang/{ar,en}/push.php`, `NotificationCopy` picks
+    one minus whatever that recipient heard last. The exclusion is cached, not
+    stored: forgetting it costs nothing and it must not become a column that
+    needs migrating for every new message.
+17. **A sold-out event is not an ending.** Holds lapse and people cancel, so
+    seats come back constantly. `event_watchers` holds the queue, and it is
+    worked in join order and capped at the number of seats actually free —
+    telling forty people about one returned seat is a race thirty-nine lose.
+    People are stamped as told whether or not a device was reachable, because
+    the phone number is the real deliverable: with no mailer configured, the
+    owner reaching them on WhatsApp from the event report is the fallback.
+18. **A holder may release their own seats, quietly.** The control is behind an
+    overflow menu on the ticket, never a button: the loudest thing on a ticket
+    must not be what destroys it. It is a POST, and the status log carries
+    `released by holder` with a null actor, which is what distinguishes it from
+    a venue cancelling somebody.
 
 ---
 
@@ -87,9 +114,9 @@ realtime status flip.
 
 | Path | What |
 |---|---|
-| `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel) |
+| `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel, holder release), `RepeatEvent`, `NotifyWatchers` |
 | `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender` |
-| `app/Support/` | `Color` (WCAG maths), `QrCode`, presenters |
+| `app/Support/` | `Color` (WCAG maths), `QrCode`, `NotificationCopy` (variant rotation), `PosterPrompt`, presenters |
 | `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation — no app chrome |
 | `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report |
 | `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
@@ -100,6 +127,10 @@ realtime status flip.
 
 ## Conventions that are load-bearing
 
+- **Every figure goes through `lib/format.ts`.** `dateTag(locale)` for dates,
+  `formatNumber`/`formatMoney` for figures. A bare `toLocaleString()` follows
+  the *device* locale, so the same page renders Arabic-Indic digits on an
+  Arabic phone and Latin ones on the laptop it was built on.
 - **Logical CSS properties only** (`ms-`, `pe-`, `start-`, `text-start`). Physical ones do not mirror
   in Arabic. There is a grep in the verification sweep for this.
 - **Inputs holding a fixed language declare their own `dir`.** An English field inside the Arabic
@@ -135,8 +166,9 @@ realtime status flip.
 | 8 | Redesign pass: branded error pages, legal pages, public footer, skip link, social meta, press feedback |
 | 9 | Artboard match: owner dashboard, events, admin owners, auth — composition block-by-block at 1280 / 1100 / 375 |
 | 10 | Venue location (Leaflet/OSM pin + address + landmark), app-wide back navigation, i18n and a11y sweep |
+| 11 | Rotating notification copy, hold reminders, waiting list, holder self-release, repeatable events, home listing filters, collapsible event form, first-run checklist, one numeral rule |
 
-**204 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
+**361 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
 
 ---
 
@@ -211,6 +243,25 @@ brings the artwork back, and the real details go on here.
 - **The reserved band comes back light as often as dark.** The compositor
   samples its luminance and flips the scrim, the text and the code plate
   accordingly; assuming a dark band puts dark text on a cream screenprint.
+
+## Notifications
+
+Every message the app sends is a push, because there is no mailer and no SMS
+gateway. `PushSender` composes; `NotificationCopy` chooses the words.
+
+- **Wording never lives in the sender.** Each kind is a list in
+  `lang/{ar,en}/push.php` and both languages must offer the same number of
+  variants — `NotificationCopyTest` asserts it, so an English-only addition
+  fails rather than silently making Arabic repetitive.
+- **The title is always the event, the body is what rotates.** The tray has to
+  say what this is about at a glance.
+- **`tickets:remind` runs hourly, `tickets:expire` every minute.** The reminder
+  is a courtesy with a wide window; releasing a seat is not. A hold that has
+  already lapsed is never reminded — "pay by 4pm" arriving at 5pm is worse
+  than silence.
+- **One nudge per hold, stamped whether or not a device accepted it.** The
+  point is one reminder, not one successful delivery; retrying every hour
+  against a dead phone is spam.
 
 ## Locations
 
@@ -328,6 +379,27 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   standard trick for restarting a CSS animation, and it works in dev and
   silently stops working in production — the reflow read has no observable
   effect, so it is dead code. Use the value: `if (el.offsetWidth >= 0) {…}`.
+- **Laravel discovers listeners in `app/Listeners` on its own.** Registering
+  one *again* with `Event::listen` in a service provider does not replace the
+  discovered binding, it adds a second — so every ticket status push went out
+  twice, to every device, for as long as both were in place. `php artisan
+  event:list` shows the duplicate; `PushSenderTest` now asserts one send per
+  device per status change.
+- **Postgres will not accept a `HAVING` clause against a subquery alias.**
+  `withCount()` compiles to a correlated subquery, so `having('events_count',
+  '>', 0)` is a hard error rather than a slow query. Filter the collection in
+  PHP when the result set is small enough to warrant it.
+- **A collapsed section must keep its fields mounted.** `CollapsibleContent`
+  unmounts by default; on a form that silently discards whatever was typed
+  into a section before it was folded away. `FormSection` passes `forceMount`
+  and hides with CSS instead.
+- **Carbon's `->locale()` is a getter/setter overload**, so PHPStan types it
+  `static|string` and refuses the next chained call. `->settings(['locale' =>
+  ...])` is the same thing with an honest return type.
+- **An unencoded UTF-8 query string is mangled by the test client.**
+  `$this->get('/?q=شعرية')` corrupts a byte before the request ever reaches
+  the app, which looks exactly like a broken search. Browsers percent-encode;
+  tests must too.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 
@@ -349,9 +421,5 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   browser is never asked for permission (the opt-in does not render at all), and
   without `FCM_CREDENTIALS` devices register but nothing can be sent. The VAPID
   key is public; the service-account JSON is not and belongs on the server.
-- **Numeral script in Arabic.** Dates render Arabic-Indic (`ar-SY`), every other figure
-  renders Latin, so a single line can carry both — "14 من 89 مقعد · ١٣ أيلول". The artboards
-  use Arabic-Indic for counts and dates and Latin only for currency. Picking one rule is a
-  product call, not a code call, and it touches every page that prints a number.
 - **Real-device testing.** The camera scanner and PWA install flow have only ever run in a desktop
   browser. This is the largest remaining risk.

@@ -115,6 +115,12 @@ class Event extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    /** @return HasMany<EventWatcher, $this> */
+    public function watchers(): HasMany
+    {
+        return $this->hasMany(EventWatcher::class);
+    }
+
     /**
      * @param  Builder<Event>  $query
      */

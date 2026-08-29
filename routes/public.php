@@ -9,6 +9,7 @@ use App\Http\Controllers\Public\PushSubscriptionController;
 use App\Http\Controllers\Public\SitemapController;
 use App\Http\Controllers\Public\TicketController;
 use App\Http\Controllers\Public\TicketLookupController;
+use App\Http\Controllers\Public\WatchlistController;
 use Illuminate\Support\Facades\Route;
 
 // Recover a booking by mobile number. Throttled and deliberately partial,
@@ -47,6 +48,12 @@ Route::delete('t/{ticket}/push', [PushSubscriptionController::class, 'destroy'])
 // The holder's own ticket. Addressed only by its unguessable token.
 Route::get('t/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 
+// Releasing your own seats. A POST because it changes state, and throttled
+// because the token is the only thing standing in front of it.
+Route::post('t/{ticket}/release', [TicketController::class, 'release'])
+    ->middleware('throttle:10,1')
+    ->name('tickets.release');
+
 // Public event pages. Event slugs are only unique within a place, so these
 // bindings are scoped: the event is resolved through the place relationship.
 Route::scopeBindings()->group(function () {
@@ -56,6 +63,11 @@ Route::scopeBindings()->group(function () {
     Route::post('{place}/{event:slug}/appoint', [AppointmentController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('events.appoint');
+
+    // Join the queue for a sold-out event.
+    Route::post('{place}/{event:slug}/watch', [WatchlistController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('events.watch');
 });
 
 /*

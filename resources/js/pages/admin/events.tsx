@@ -3,6 +3,7 @@ import { CalendarDays, Check, Trash2, X } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { events as eventsRoute } from '@/routes/admin/index';
@@ -43,7 +44,7 @@ function StatusChip({ status, label }: { status: string; label: string }) {
 export default function AdminEvents({ events, pending }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
 
     return (
         <>

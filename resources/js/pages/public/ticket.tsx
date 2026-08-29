@@ -12,10 +12,12 @@ import { PushOptIn } from '@/components/push-opt-in';
 import { ShareButton } from '@/components/share-button';
 import { HoldCountdown } from '@/components/ticket/hold-countdown';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
+import { ReleaseSeats } from '@/components/ticket/release-seats';
 import { StatusBanner } from '@/components/ticket/status-banner';
 import { VenueLink } from '@/components/venue-sheet';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { useTicketStatus } from '@/hooks/use-ticket-status';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { rememberTicket } from '@/lib/tickets';
 import { useTranslation } from '@/lib/translation';
@@ -47,7 +49,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
 
     const title = localised(locale, event.title_ar, event.title_en);
     const placeName = localised(locale, place.name_ar, place.name_en);
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
 
     useEffect(() => {
         rememberTicket({
@@ -90,7 +92,16 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                     href={`/${place.slug}/${event.slug}`}
                     label="common.back_to_event"
                 />
-                <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+                <div className="flex items-center gap-1">
+                    <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+
+                    {/* Only a live hold has seats to give back, and the
+                        control is tucked into an overflow menu: the loudest
+                        thing on a ticket must never be what destroys it. */}
+                    {status === 'pending' && (
+                        <ReleaseSeats token={ticket.token} />
+                    )}
+                </div>
             </div>
 
             <main
@@ -212,7 +223,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                                 <dd className="font-medium">
                                     {event.is_free
                                         ? t('event.free')
-                                        : `${(event.price * ticket.quantity).toLocaleString()} ${event.currency}`}
+                                        : `${(event.price * ticket.quantity).toLocaleString('en-GB')} ${event.currency}`}
                                 </dd>
                             </div>
                             <div>
@@ -272,7 +283,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                                 amount={
                                     event.is_free
                                         ? t('event.free')
-                                        : `${(event.price * ticket.quantity).toLocaleString()} ${event.currency}`
+                                        : `${(event.price * ticket.quantity).toLocaleString('en-GB')} ${event.currency}`
                                 }
                             />
                         )}

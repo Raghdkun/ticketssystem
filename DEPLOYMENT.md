@@ -23,8 +23,15 @@ A fourth entry belongs in cron:
 * * * * * cd /var/www/tickets && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Without it `tickets:expire` never runs, unpaid holds keep their seats forever,
-and events sell out to bookings nobody paid for.
+Without it neither scheduled command runs:
+
+| Command | Every | Without it |
+|---|---|---|
+| `tickets:expire` | minute | Unpaid holds keep their seats forever, and events sell out to bookings nobody paid for |
+| `tickets:remind` | hour | Holders are never nudged before their hold lapses, so seats that were only forgotten about are lost anyway |
+
+`tickets:expire` is also what feeds the waiting list: releasing a seat is what
+triggers the offer to whoever is queued for it.
 
 ---
 
@@ -108,6 +115,17 @@ Changing any `VITE_` value requires `npm run build`, not just
 `config:cache` — they are compiled into the bundle.
 
 Run `php artisan config:cache` after editing `.env` or nothing changes.
+
+Once both halves are in place, check the whole path rather than trusting the
+config:
+
+```bash
+php artisan tinker --execute="var_dump(app(App\\Services\\PushSender::class)->isConfigured());"
+```
+
+`true` means the file is readable and the project id is set. It does **not**
+mean Google will accept the key — the first real send is what proves that, and
+it fails loudly in the queue worker's log if the key is wrong.
 
 ---
 
@@ -389,6 +407,17 @@ Then, by hand:
 6. Check the browser console on any public event page → clean. Leaflet is
    lazy-loaded, so a chunk that failed to deploy shows up here and nowhere
    else.
+7. Open a **sold-out** event → the booking form is replaced by the waiting
+   list, not a disabled button. Leave a number, then release a hold on that
+   event from the owner side; the waiting list on the event report shows the
+   person as told.
+8. Open a pending ticket → the overflow menu beside the language toggle offers
+   **Release my seats**, and the seats come back to the event afterwards. It
+   must be a POST: `curl -I https://your-domain/t/<token>/release` returns 405.
+9. Switch to Arabic anywhere and check a line that carries both a count and a
+   date — "13 من 89 مقعد · 8 أيلول". Latin digits, Arabic month name. Two
+   numeral scripts on one line means a call site is bypassing
+   `resources/js/lib/format.ts`.
 
 ---
 

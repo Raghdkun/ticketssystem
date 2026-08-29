@@ -62,8 +62,7 @@ export default function TwoFactorRecoveryCodes({
                     2FA recovery codes
                 </CardTitle>
                 <CardDescription>
-                    Recovery codes let you regain access if you lose your 2FA
-                    device. Store them in a secure password manager.
+                    {t('settings.recovery_codes_hint')}
                 </CardDescription>
             </CardHeader>
             <CardContent>

@@ -40,7 +40,7 @@ export function Counter({
 
     return (
         <span className={className} aria-label={String(value)}>
-            {display.toLocaleString()}
+            {display.toLocaleString('en-GB')}
         </span>
     );
 }

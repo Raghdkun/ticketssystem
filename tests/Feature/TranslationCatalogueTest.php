@@ -152,11 +152,7 @@ class TranslationCatalogueTest extends TestCase
         $found = [];
 
         foreach ($files as $file) {
-            // The vendored shadcn primitives carry their own English in
-            // places no user reads, and are replaced wholesale on upgrade.
-            if (! $file->isFile()
-                || $file->getExtension() !== 'tsx'
-                || str_contains($file->getPathname(), '/components/ui/')) {
+            if (! $file->isFile() || $file->getExtension() !== 'tsx') {
                 continue;
             }
 
@@ -164,7 +160,11 @@ class TranslationCatalogueTest extends TestCase
 
             // Two or more capitalised-then-lowercase words sitting as a text
             // node between tags: prose, not a class name or an identifier.
-            preg_match_all('/>\s*([A-Z][a-z]+ [a-z]{2,}[^<>{}]{0,60})</', $source, $matches);
+            //
+            // The tail is unbounded. It used to stop at sixty characters,
+            // which quietly exempted every sentence longer than that -- and
+            // the sentences that most need translating are the long ones.
+            preg_match_all('/>\s*([A-Z][a-z]+ [a-z]{2,}[^<>{}]*)</', $source, $matches);
 
             foreach ($matches[1] as $text) {
                 $found[] = trim($text).' — '.$file->getFilename();

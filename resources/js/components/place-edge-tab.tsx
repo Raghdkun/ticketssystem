@@ -8,6 +8,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import type { PublicPlace, SiblingEvent } from '@/types/public';
@@ -104,9 +105,7 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                                             {new Date(
                                                 event.starts_at,
                                             ).toLocaleDateString(
-                                                locale === 'ar'
-                                                    ? 'ar-SY'
-                                                    : 'en-GB',
+                                                dateTag(locale),
                                                 { dateStyle: 'medium' },
                                             )}
                                         </span>
@@ -115,7 +114,7 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                                     <span className="shrink-0 text-xs font-semibold">
                                         {event.is_free
                                             ? t('event.free')
-                                            : `${event.price.toLocaleString()} ${event.currency}`}
+                                            : `${event.price.toLocaleString('en-GB')} ${event.currency}`}
                                     </span>
                                 </Link>
                             </li>

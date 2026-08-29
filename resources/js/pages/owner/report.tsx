@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { Download } from 'lucide-react';
+import { Download, MessageCircle } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Counter } from '@/components/motion/counter';
@@ -39,6 +39,12 @@ type Props = {
         is_free: boolean;
     };
     report: Report;
+    waiting: {
+        id: number;
+        full_name: string;
+        phone: string;
+        notified_at: string | null;
+    }[];
 };
 
 function Metric({
@@ -65,7 +71,7 @@ function Metric({
     );
 }
 
-export default function EventReportPage({ event, report }: Props) {
+export default function EventReportPage({ event, report, waiting }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
 
@@ -166,6 +172,69 @@ export default function EventReportPage({ event, report }: Props) {
                             ))}
                     </ul>
                 </section>
+
+                {/*
+                 * Who wanted in and could not get in. With no mailer in the
+                 * product this list is how a venue actually reaches people
+                 * when a seat comes back -- and on its own it is the only
+                 * measure of demand the event could not meet.
+                 */}
+                {waiting.length > 0 && (
+                    <section className="space-y-3">
+                        <div>
+                            <h2 className="text-sm font-medium">
+                                {t('owner.waiting_list')}
+                            </h2>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                {t('owner.waiting_hint')}
+                            </p>
+                        </div>
+
+                        <ul className="divide-y rounded-xl border">
+                            {waiting.map((person) => (
+                                <li
+                                    key={person.id}
+                                    className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm"
+                                >
+                                    <span className="min-w-0">
+                                        <span className="block truncate font-medium">
+                                            {person.full_name}
+                                        </span>
+                                        <span
+                                            className="block text-xs text-muted-foreground"
+                                            dir="ltr"
+                                        >
+                                            {person.phone}
+                                        </span>
+                                    </span>
+
+                                    <span className="flex items-center gap-3">
+                                        {person.notified_at && (
+                                            <span className="text-xs text-muted-foreground">
+                                                {t('owner.waiting_told')}
+                                            </span>
+                                        )}
+
+                                        <Button
+                                            asChild
+                                            size="sm"
+                                            variant="outline"
+                                        >
+                                            <a
+                                                href={`https://wa.me/${person.phone.replace(/[^0-9]/g, '')}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <MessageCircle />
+                                                {t('common.whatsapp')}
+                                            </a>
+                                        </Button>
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
             </div>
         </>
     );

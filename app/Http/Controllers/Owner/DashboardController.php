@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Place;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Services\PlatformStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class DashboardController extends Controller
                 'platform' => $user->isSuperAdmin()
                     ? app(PlatformStats::class)->all()
                     : null,
+                'setup' => null,
                 'stats' => null,
                 'recent' => [],
                 'upcoming' => [],
@@ -47,10 +49,40 @@ class DashboardController extends Controller
                 // the first one is representative for the summary figures.
                 'currency' => $place->events()->value('currency') ?? 'SYP',
             ],
+            'setup' => $this->setupSteps($place),
             'stats' => $this->stats($place),
             'recent' => $this->recentAppointments($place),
             'upcoming' => $this->upcomingEvents($place),
         ]);
+    }
+
+    /**
+     * The first-run checklist, or null once the venue is properly up.
+     *
+     * A freshly invited owner used to land on a dashboard of zeroes with
+     * nothing telling them what to do next -- the invitation sets their venue
+     * up beautifully and then abandons them in an empty room.
+     *
+     * It disappears the moment something is published, which is the point at
+     * which the venue is actually open for business. Inviting door staff is
+     * listed but never gates that: plenty of venues are one person.
+     *
+     * @return array<string, bool>|null
+     */
+    private function setupSteps(Place $place): ?array
+    {
+        $published = $place->events()->where('status', EventStatus::Published)->exists();
+
+        if ($published) {
+            return null;
+        }
+
+        return [
+            'location' => $place->locations()->exists(),
+            'event' => $place->events()->exists(),
+            'published' => false,
+            'staff' => User::query()->where('door_staff_for', $place->id)->exists(),
+        ];
     }
 
     /**

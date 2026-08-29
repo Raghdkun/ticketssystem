@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])
     ->group(function () {
         Route::middleware(EnsureManagesVenue::class)->group(function () {
             Route::resource('events', EventController::class)->except(['show']);
+            Route::post('events/{event}/repeat', [EventController::class, 'repeat'])->name('events.repeat');
 
             Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
             Route::post('staff', [StaffController::class, 'store'])->name('staff.store');

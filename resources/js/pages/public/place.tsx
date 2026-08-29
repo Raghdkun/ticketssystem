@@ -7,6 +7,7 @@ import { LanguageToggle } from '@/components/language-toggle';
 import { PublicFooter } from '@/components/public-footer';
 import { VenueLink } from '@/components/venue-sheet';
 import type { VenueLocation } from '@/components/venue-sheet';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
@@ -39,7 +40,7 @@ type Props = {
 export default function PlacePage({ place, locations, upcoming, past }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
     const name = localised(locale, place.name_ar, place.name_en);
 
     const card = (event: EventCard, dim = false) => (

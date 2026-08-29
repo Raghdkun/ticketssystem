@@ -2,7 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Actions\VerifyTicket;
+use App\Models\Event;
+use App\Models\Ticket;
+use App\Models\User;
 use App\Services\PushSender;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -12,6 +17,8 @@ use Tests\TestCase;
  */
 class PushSenderTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Writes a throwaway service-account key with a real RSA pair, so the
      * signature is genuinely produced rather than mocked around.
@@ -108,5 +115,32 @@ class PushSenderTest extends TestCase
         $token = new \ReflectionMethod(PushSender::class, 'accessToken');
         $token->setAccessible(true);
         $token->invoke(app(PushSender::class));
+    }
+
+    /**
+     * A status change must reach each device exactly once.
+     *
+     * Both listeners live in app/Listeners, which Laravel discovers on its
+     * own, and they were *also* registered by hand in AppServiceProvider --
+     * so every ticket status push went out twice, to every device.
+     */
+    public function test_a_status_change_pushes_once_per_device(): void
+    {
+        config([
+            'services.fcm.project_id' => 'swaida-tickets',
+            'services.fcm.credentials' => __FILE__,
+            'services.fcm.access_token' => 'test-token',
+        ]);
+
+        Http::fake(['fcm.googleapis.com/*' => Http::response(['name' => 'ok'])]);
+
+        $ticket = Ticket::factory()
+            ->for(Event::factory())
+            ->create();
+        $ticket->pushSubscriptions()->create(['fcm_token' => 'device-1', 'locale' => 'ar']);
+
+        app(VerifyTicket::class)->markPaid($ticket, User::factory()->create());
+
+        Http::assertSentCount(1);
     }
 }

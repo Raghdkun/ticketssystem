@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\EventWatcher;
 use App\Models\Ticket;
+use App\Support\NotificationCopy;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -10,11 +12,15 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Sends ticket status pushes through Firebase Cloud Messaging.
+ * Sends pushes through Firebase Cloud Messaging.
  *
  * Unconfigured is a supported state: with no credentials the sender reports
  * that it is disabled and does nothing. Nothing in the booking or verification
  * flow depends on a push being delivered.
+ *
+ * Wording never lives here -- every body comes from NotificationCopy, which
+ * rotates between variants so repeat bookers are not read the same sentence
+ * every time.
  */
 final class PushSender
 {
@@ -29,6 +35,71 @@ final class PushSender
      */
     public function ticketStatusChanged(Ticket $ticket): int
     {
+        return $this->toTicket($ticket, 'status.'.$ticket->status->value);
+    }
+
+    /**
+     * The hold is about to lapse. Sent once per ticket by `tickets:remind`.
+     */
+    public function holdReminder(Ticket $ticket): int
+    {
+        return $this->toTicket($ticket, 'reminder', function (string $locale) use ($ticket): array {
+            $deadline = $ticket->hold_expires_at;
+
+            return ['time' => $deadline === null
+                ? ''
+                // ar-SY gives Levantine month names and Latin digits, which
+                // is the one numeral rule the whole product follows.
+                // settings(), not locale(): the latter is a getter/setter
+                // overload that PHPStan sees as possibly returning a string.
+                : $deadline->settings(['locale' => $locale === 'ar' ? 'ar-SY' : 'en-GB'])
+                    ->isoFormat('D MMM, HH:mm')];
+        });
+    }
+
+    /**
+     * A seat came back on an event somebody is waiting for.
+     */
+    public function seatFreed(EventWatcher $watcher): int
+    {
+        if (! $this->isConfigured() || blank($watcher->fcm_token)) {
+            return 0;
+        }
+
+        $event = $watcher->event;
+        $locale = $watcher->locale;
+
+        $body = NotificationCopy::pick('seat_freed', $locale, [
+            'event' => $event->title($locale),
+        ], 'watcher:'.$watcher->getKey());
+
+        $accepted = $this->deliver(
+            (string) $watcher->fcm_token,
+            $event->place->name($locale),
+            $body,
+            route('events.show', ['place' => $event->place->slug, 'event' => $event->slug]),
+        );
+
+        if ($accepted === false) {
+            $watcher->forceFill(['fcm_token' => null])->save();
+
+            return 0;
+        }
+
+        return $accepted ? 1 : 0;
+    }
+
+    /**
+     * Sends one message kind to every device registered against a ticket.
+     *
+     * The title is always the event, so the notification tray shows what this
+     * is about; only the body rotates.
+     *
+     * @param  (callable(string): array<string, string|int>)|null  $replace
+     *                                                                       Placeholder values, resolved per device locale.
+     */
+    private function toTicket(Ticket $ticket, string $kind, ?callable $replace = null): int
+    {
         if (! $this->isConfigured()) {
             return 0;
         }
@@ -36,42 +107,67 @@ final class PushSender
         $sent = 0;
 
         foreach ($ticket->pushSubscriptions as $subscription) {
-            $body = __('push.status.'.$ticket->status->value, [], $subscription->locale);
+            $locale = $subscription->locale;
 
-            try {
-                $response = Http::withToken($this->accessToken())
-                    ->post($this->endpoint(), [
-                        'message' => [
-                            'token' => $subscription->fcm_token,
-                            'notification' => [
-                                'title' => $ticket->event->title($subscription->locale),
-                                'body' => $body,
-                            ],
-                            'webpush' => [
-                                'fcm_options' => ['link' => route('tickets.show', $ticket)],
-                            ],
-                        ],
-                    ]);
+            $body = NotificationCopy::pick(
+                $kind,
+                $locale,
+                $replace === null ? [] : $replace($locale),
+                'ticket:'.$ticket->getKey(),
+            );
 
-                if ($response->successful()) {
-                    $subscription->forceFill(['last_used_at' => now()])->save();
-                    $sent++;
+            $accepted = $this->deliver(
+                $subscription->fcm_token,
+                $ticket->event->title($locale),
+                $body,
+                route('tickets.show', $ticket),
+            );
 
-                    continue;
-                }
-
+            if ($accepted === false) {
                 // A 404 or 410 means the device token is dead; stop using it.
-                if (in_array($response->status(), [404, 410], true)) {
-                    $subscription->delete();
-                }
-            } catch (Throwable $e) {
-                // Push is best-effort: never let it break the request that
-                // triggered it.
-                Log::warning('FCM push failed', ['ticket' => $ticket->id, 'error' => $e->getMessage()]);
+                $subscription->delete();
+
+                continue;
+            }
+
+            if ($accepted) {
+                $subscription->forceFill(['last_used_at' => now()])->save();
+                $sent++;
             }
         }
 
         return $sent;
+    }
+
+    /**
+     * @return bool|null true accepted, false the token is dead and should be
+     *                   discarded, null a transient failure worth keeping the
+     *                   token for.
+     */
+    private function deliver(string $token, string $title, string $body, string $link): ?bool
+    {
+        try {
+            $response = Http::withToken($this->accessToken())
+                ->post($this->endpoint(), [
+                    'message' => [
+                        'token' => $token,
+                        'notification' => ['title' => $title, 'body' => $body],
+                        'webpush' => ['fcm_options' => ['link' => $link]],
+                    ],
+                ]);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            return in_array($response->status(), [404, 410], true) ? false : null;
+        } catch (Throwable $e) {
+            // Push is best-effort: never let it break the request that
+            // triggered it.
+            Log::warning('FCM push failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     private function endpoint(): string

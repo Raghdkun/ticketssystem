@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Actions\PublishEvent;
+use App\Actions\RepeatEvent;
 use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
@@ -160,6 +161,27 @@ class EventController extends Controller
 
         return to_route('owner.events.index')
             ->with('success', __('events.updated'));
+    }
+
+    /**
+     * Copy this event forward on a cadence.
+     *
+     * Guarded by the same policy as an edit: making twelve copies of an event
+     * is at least as consequential as changing one.
+     */
+    public function repeat(Request $request, Event $event, RepeatEvent $repeat): RedirectResponse
+    {
+        $this->authorize('update', $event);
+
+        $validated = $request->validate([
+            'cadence' => ['required', 'string', 'in:'.implode(',', array_keys(RepeatEvent::CADENCES))],
+            'count' => ['required', 'integer', 'min:1', 'max:'.RepeatEvent::MAX_COPIES],
+        ]);
+
+        $copies = $repeat->handle($event, $validated['cadence'], (int) $validated['count']);
+
+        return to_route('owner.events.index')
+            ->with('success', __('events.repeated', ['count' => $copies->count()]));
     }
 
     public function destroy(Request $request, Event $event): RedirectResponse

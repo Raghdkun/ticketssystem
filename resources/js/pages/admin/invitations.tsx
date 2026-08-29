@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { dateTag } from '@/lib/format';
 import { useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { invitations as invitationsRoute } from '@/routes/admin/index';
@@ -31,7 +32,7 @@ export default function AdminInvitations({
 }) {
     const t = useTranslation();
     const { locale } = useLocale();
-    const dateLocale = locale === 'ar' ? 'ar-SY' : 'en-GB';
+    const dateLocale = dateTag(locale);
     const [copied, copy] = useClipboard();
 
     // Flashed by the server exactly once. Only the hash is stored, so this is

@@ -27,6 +27,19 @@ class EventReportController extends Controller
                 'is_free' => $event->isFree(),
             ],
             'report' => $this->report->for($event),
+            // Who wanted in and could not get in. There is no mailer, so this
+            // list is how a venue reaches people when a seat comes back --
+            // and it is the only measure of demand it could not meet.
+            'waiting' => $event->watchers()
+                ->orderBy('id')
+                ->get()
+                ->map(fn ($watcher) => [
+                    'id' => $watcher->id,
+                    'full_name' => $watcher->full_name,
+                    'phone' => $watcher->phone,
+                    'notified_at' => $watcher->notified_at?->toIso8601String(),
+                ])
+                ->all(),
         ]);
     }
 

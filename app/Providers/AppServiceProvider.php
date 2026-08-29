@@ -2,12 +2,9 @@
 
 namespace App\Providers;
 
-use App\Events\TicketStatusChanged;
-use App\Listeners\SendTicketStatusPush;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -36,8 +33,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
-        Event::listen(TicketStatusChanged::class, SendTicketStatusPush::class);
-
+        /*
+         * Listeners are not registered here. Both live in app/Listeners with
+         * a handle() method type-hinting the event, so Laravel discovers them
+         * on its own -- and registering them by hand as well made every
+         * ticket status push go out twice, to every device.
+         */
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
         );

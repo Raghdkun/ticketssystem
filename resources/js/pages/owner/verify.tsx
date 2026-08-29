@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { scan } from '@/routes/owner';
@@ -57,13 +58,10 @@ export default function VerifyTicket({ ticket }: { ticket: OwnerTicket }) {
                             ? t('owner.already_verified', {
                                   time: new Date(
                                       ticket.verified_at,
-                                  ).toLocaleString(
-                                      locale === 'ar' ? 'ar-SY' : 'en-GB',
-                                      {
-                                          dateStyle: 'medium',
-                                          timeStyle: 'short',
-                                      },
-                                  ),
+                                  ).toLocaleString(dateTag(locale), {
+                                      dateStyle: 'medium',
+                                      timeStyle: 'short',
+                                  }),
                               })
                             : t('owner.arrived_of', {
                                   arrived: ticket.arrived_quantity,

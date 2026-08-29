@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 
 // Release lapsed holds promptly so seats return to sale without operator action.
 Schedule::command('tickets:expire')->everyMinute()->withoutOverlapping();
+
+// Nudge holders a few hours before their seats are released. Hourly rather
+// than by the minute: this is a courtesy, and the window is wide.
+Schedule::command('tickets:remind')->hourly()->withoutOverlapping();

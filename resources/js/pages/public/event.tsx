@@ -20,6 +20,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { VenueLink } from '@/components/venue-sheet';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import type { PublicEvent, PublicPlace, SiblingEvent } from '@/types/public';
@@ -51,10 +52,9 @@ export default function EventPage({ event, place, siblings }: Props) {
     const shareText = t('share.share_text', {
         title,
         place: placeName,
-        date: new Date(event.starts_at).toLocaleDateString(
-            locale === 'ar' ? 'ar-SY' : 'en-GB',
-            { dateStyle: 'medium' },
-        ),
+        date: new Date(event.starts_at).toLocaleDateString(dateTag(locale), {
+            dateStyle: 'medium',
+        }),
     });
 
     return (
@@ -159,7 +159,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                             </p>
                             <p className="font-medium">
                                 {new Date(event.starts_at).toLocaleDateString(
-                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
+                                    dateTag(locale),
                                     { day: 'numeric', month: 'long' },
                                 )}
                             </p>
@@ -167,7 +167,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                                 whether they can actually go. */}
                             <p className="text-xs text-muted-foreground">
                                 {new Date(event.starts_at).toLocaleDateString(
-                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
+                                    dateTag(locale),
                                     { weekday: 'long', year: 'numeric' },
                                 )}
                             </p>
@@ -180,7 +180,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                             </p>
                             <p className="font-medium">
                                 {new Date(event.starts_at).toLocaleTimeString(
-                                    locale === 'ar' ? 'ar-SY' : 'en-GB',
+                                    dateTag(locale),
                                     { timeStyle: 'short' },
                                 )}
                             </p>
@@ -280,7 +280,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                         <p className="truncate font-display text-xl font-semibold text-primary tabular-nums">
                             {event.is_free
                                 ? t('event.free')
-                                : `${event.price.toLocaleString()} ${event.currency}`}
+                                : `${event.price.toLocaleString('en-GB')} ${event.currency}`}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
                             {soldOut
@@ -293,13 +293,16 @@ export default function EventPage({ event, place, siblings }: Props) {
 
                     <Sheet open={bookingOpen} onOpenChange={setBookingOpen}>
                         <SheetTrigger asChild>
+                            {/* Sold out still opens the sheet -- there is a
+                                waiting list behind it. Only a closed event
+                                has nothing to offer. */}
                             <Button
                                 size="lg"
-                                disabled={!event.is_open || soldOut}
+                                disabled={!event.is_open}
                                 className="shrink-0 cursor-pointer bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
                             >
                                 {soldOut
-                                    ? t('event.sold_out')
+                                    ? t('event.notify_me')
                                     : t('event.appoint')}
                             </Button>
                         </SheetTrigger>
@@ -310,10 +313,15 @@ export default function EventPage({ event, place, siblings }: Props) {
                         >
                             <SheetHeader className="text-start">
                                 <SheetTitle>
-                                    {t('event.reserve_title')}
+                                    {soldOut
+                                        ? t('event.waitlist_title')
+                                        : t('event.reserve_title')}
                                 </SheetTitle>
                                 <SheetDescription>
-                                    {title} · {t('event.reserve_subtitle')}
+                                    {title} ·{' '}
+                                    {soldOut
+                                        ? t('event.waitlist_hint')
+                                        : t('event.reserve_subtitle')}
                                 </SheetDescription>
                             </SheetHeader>
 
