@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Enums\UserRole;
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -20,7 +19,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property UserRole $role
+ * @property bool $is_super_admin
+ * @property bool $requires_approval
  * @property CarbonImmutable|null $banned_at
  * @property CarbonImmutable|null $email_verified_at
  * @property string $password
@@ -49,7 +49,8 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
-            'role' => UserRole::class,
+            'is_super_admin' => 'boolean',
+            'requires_approval' => 'boolean',
             'banned_at' => 'datetime',
         ];
     }
@@ -62,7 +63,29 @@ class User extends Authenticatable implements PasskeyUser
 
     public function isSuperAdmin(): bool
     {
-        return $this->role === UserRole::SuperAdmin;
+        return $this->is_super_admin;
+    }
+
+    /**
+     * Whether this account manages a venue.
+     *
+     * Ownership is not a role any more, it is simply whether they own
+     * anything -- which means an administrator can run a hall too.
+     */
+    public function isOwner(): bool
+    {
+        return $this->places()->exists();
+    }
+
+    /**
+     * Whether publishing an event needs a super admin's sign-off.
+     *
+     * The gate is on publishing only: drafting and editing stay free, so an
+     * owner is never stuck waiting to do their own preparation.
+     */
+    public function needsPublishApproval(): bool
+    {
+        return $this->requires_approval && ! $this->isSuperAdmin();
     }
 
     public function isBanned(): bool

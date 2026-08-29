@@ -64,7 +64,6 @@ type PlatformStats = {
     paid_tickets: number;
     pending_tickets: number;
     seats_paid: number;
-    revenue: number;
     banned: number;
 };
 
@@ -167,11 +166,6 @@ export default function Dashboard({
                         <Stat
                             label={t('admin.stat_seats')}
                             value={platform.seats_paid}
-                        />
-                        <Stat
-                            label={t('admin.stat_revenue')}
-                            value={platform.revenue}
-                            tone="text-emerald-600 dark:text-emerald-400"
                         />
                         <Stat
                             label={t('admin.suspended')}

@@ -1,12 +1,14 @@
 import { Link, router } from '@inertiajs/react';
 import {
     CalendarDays,
+    ClipboardCheck,
     LayoutGrid,
     MapPin,
     ScanLine,
     Search,
     ShieldCheck,
     Store,
+    UserCog,
     SlidersHorizontal,
 } from 'lucide-react';
 import { useEffect } from 'react';
@@ -28,7 +30,12 @@ import {
 import { useIsSuperAdmin } from '@/lib/auth';
 import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
-import { owners, settings as platformSettings } from '@/routes/admin';
+import {
+    events as adminEvents,
+    owners,
+    roles as adminRoles,
+    settings as platformSettings,
+} from '@/routes/admin';
 import { scan, search } from '@/routes/owner';
 import locationsRoute from '@/routes/owner/locations';
 import placeRoute from '@/routes/owner/place';
@@ -72,6 +79,16 @@ const adminNavItems: NavItem[] = [
         title: 'admin.title',
         href: owners(),
         icon: ShieldCheck,
+    },
+    {
+        title: 'roles.title',
+        href: adminRoles(),
+        icon: UserCog,
+    },
+    {
+        title: 'review.title',
+        href: adminEvents(),
+        icon: ClipboardCheck,
     },
     {
         title: 'admin.settings',

@@ -29,6 +29,7 @@ return [
         'seats_only' => 'Only :n seats left',
         'per_person' => 'per person',
         'status' => [
+            'pending_review' => 'Pending review',
             'draft' => 'Draft',
             'published' => 'Published',
             'archived' => 'Archived',
@@ -445,5 +446,30 @@ return [
         'too_many_images' => 'A location can hold at most :max photos.',
         'pick' => 'Where is it happening?',
         'use_default' => 'Venue default',
+    ],
+
+    'roles' => [
+        'title' => 'People & roles',
+        'subtitle' => 'Who administers the platform, and which owners need sign-off before publishing.',
+        'admin' => 'Administrator',
+        'needs_approval' => 'Needs approval',
+        'venues' => 'Venues',
+        'saved' => 'Role updated.',
+        'last_admin_hint' => 'The only administrator',
+        'cannot_demote_self' => 'You cannot remove your own administrator access. Ask another administrator to do it.',
+        'cannot_demote_last' => 'This is the only administrator left. Appoint another one first — registration is closed, so there is no way back in.',
+    ],
+
+    'review' => [
+        'title' => 'All events',
+        'subtitle' => 'Every event on the platform.',
+        'none' => 'No events yet.',
+        'pending_count' => ':n awaiting your review',
+        'approve' => 'Approve',
+        'reject' => 'Send back',
+        'approved' => 'Published.',
+        'rejected' => 'Sent back to the owner as a draft.',
+        'deleted' => 'Event deleted.',
+        'confirm_delete' => 'Delete this event? :n tickets go with it, and this cannot be undone.',
     ],
 ];

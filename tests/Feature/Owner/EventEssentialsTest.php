@@ -15,7 +15,7 @@ class EventEssentialsTest extends TestCase
 
     private function owner(): User
     {
-        $owner = User::factory()->create(['role' => 'owner']);
+        $owner = User::factory()->create();
         Place::factory()->for($owner)->create();
 
         return $owner;
@@ -77,7 +77,7 @@ class EventEssentialsTest extends TestCase
     {
         $event = Event::factory()->for($this->owner()->places()->first())->create();
 
-        $intruder = User::factory()->create(['role' => 'owner']);
+        $intruder = User::factory()->create();
         Place::factory()->for($intruder)->create();
 
         $this->actingAs($intruder)

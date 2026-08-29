@@ -35,7 +35,6 @@ type Stats = {
     paid_tickets: number;
     pending_tickets: number;
     seats_paid: number;
-    revenue: number;
 };
 
 type Props = { stats: Stats; owners: Owner[] };
@@ -93,20 +92,6 @@ export default function AdminOwners({ stats, owners: rows }: Props) {
                         {t('admin.new_owner')}
                     </Button>
                 </div>
-
-                <section className="brand-surface flex flex-wrap items-end justify-between gap-6 rounded-2xl border p-5 sm:p-6">
-                    <div>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin.stat_revenue')}
-                        </p>
-                        <p className="mt-1 text-3xl font-bold tabular-nums sm:text-4xl">
-                            {stats.revenue.toLocaleString('en-US')}
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('admin.seats_sold', { n: stats.seats_paid })}
-                        </p>
-                    </div>
-                </section>
 
                 <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     <Stat

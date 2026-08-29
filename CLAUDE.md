@@ -37,21 +37,38 @@ realtime status flip.
 1. **The QR encodes an auth-gated verify URL, never a signed one-click URL.** The attendee's phone
    displays the same URL the owner scans. A signed link would let any holder mark themselves paid.
    Verification requires being signed in **and** owning the event, and every state change is a POST.
-2. **Public registration is closed.** Super admins provision owners (account + venue in one
+2. **Administering and owning are independent.** `users.is_super_admin` is a
+   flag, not a role: an account can administer the platform, run a venue, both
+   or neither. The flag and `requires_approval` are deliberately **absent from
+   the model's fillable list** — nothing should be able to grant itself
+   administrator access by smuggling a field into an unrelated request. Two
+   guards exist because there is no way back in: nobody may demote themselves,
+   and the last administrator may not be demoted at all.
+3. **Publishing is what approval gates, not editing.** An owner with
+   `requires_approval` drafts and edits freely; asking to publish parks the
+   event in `EventStatus::PendingReview`, which the public scope does not
+   match, so it is invisible by construction rather than by remembering to
+   filter it. Editing an already-live event leaves it live — an owner fixing a
+   typo must not pull their own event offline.
+4. **An administrator never sees a venue's income.** `PlatformStats` carries
+   scale, not money. The figures live on the owner dashboard, which an
+   administrator reaches by impersonating, and that leaves a record of who
+   looked.
+5. **Public registration is closed.** Super admins provision owners (account + venue in one
    transaction) from `/admin/owners`. Re-enabling `Features::registration()` would let anyone create
    an account on a venue-management platform.
-3. **Pending reservations hold seats**, with auto-expiry after `hold_hours` (default 24).
-4. **Seat safety is a row lock.** `AppointTicket` does `lockForUpdate()` on the *event* row. Removing
+6. **Pending reservations hold seats**, with auto-expiry after `hold_hours` (default 24).
+7. **Seat safety is a row lock.** `AppointTicket` does `lockForUpdate()` on the *event* row. Removing
    it makes `OverbookingTest` fail — verified by deleting it and watching all 12 contenders win 5 seats.
-5. **Arrivals are separate from bookings.** Someone who paid for 5 and brought 3 still paid for 5;
+8. **Arrivals are separate from bookings.** Someone who paid for 5 and brought 3 still paid for 5;
    revenue follows `seats_paid`, never `seats_arrived`.
-6. **No-show ≠ cancelled ≠ expired.** Three distinct facts: not used, called off, timed out.
-7. **Ticket pages are `noindex`** and excluded from the sitemap. Lighthouse scores that as an SEO
+9. **No-show ≠ cancelled ≠ expired.** Three distinct facts: not used, called off, timed out.
+10. **Ticket pages are `noindex`** and excluded from the sitemap. Lighthouse scores that as an SEO
    failure; it is correct — the URL is a bearer token beside a name and phone number.
-8. **SVG is never an accepted upload.** Script-carrying markup on our own origin.
-9. **Impersonation is full-access**, so the audit log is the only record of who acted. Start/stop are
+11. **SVG is never an accepted upload.** Script-carrying markup on our own origin.
+12. **Impersonation is full-access**, so the audit log is the only record of who acted. Start/stop are
    both logged, nesting is refused, super admins cannot be impersonated, banner is always visible.
-10. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
+13. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
     alongside it. Do not remove it — Arabic silently falls back to an OS font.
 
 ---
@@ -245,6 +262,10 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   cannot be re-enabled by asking the user. Grant per route in
   `SecurityHeaders`, as the scanner does for the camera and the venue page
   does for geolocation.
+- **`getOriginal()` applies the cast; `getRawOriginal()` does not.** Comparing
+  `getOriginal('status')` to `EventStatus::Published->value` compares an enum
+  to a string and is always false, which silently knocked every edited live
+  event back into review.
 - **A bare `void el.offsetWidth` is deleted by the minifier.** It is the
   standard trick for restarting a CSS animation, and it works in dev and
   silently stops working in production — the reflow read has no observable

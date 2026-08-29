@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreOwnerRequest;
 use App\Models\Event;
@@ -43,7 +42,6 @@ class OwnerController extends Controller
             $user->name = $request->string('name')->value();
             $user->email = $request->string('email')->value();
             $user->password = Hash::make($request->string('password')->value());
-            $user->role = UserRole::Owner;
             // Provisioned by an administrator, so the address is already trusted.
             $user->email_verified_at = now();
             $user->save();
@@ -101,7 +99,7 @@ class OwnerController extends Controller
     private function owners(): array
     {
         return User::query()
-            ->where('role', UserRole::Owner)
+            ->whereHas('places')
             ->withCount('places')
             ->with('places:id,user_id,name_ar,name_en,slug')
             ->orderBy('name')

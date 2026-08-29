@@ -94,7 +94,7 @@ class PublicSurfaceTest extends TestCase
 
     public function test_the_venue_picker_is_allowed_to_read_the_owners_location(): void
     {
-        $owner = User::factory()->create(['role' => 'owner']);
+        $owner = User::factory()->create();
         Place::factory()->for($owner)->create();
 
         // A feature omitted from Permissions-Policy is allowed, and one denied
@@ -111,7 +111,7 @@ class PublicSurfaceTest extends TestCase
 
     public function test_the_scanner_is_allowed_the_camera_and_nothing_else(): void
     {
-        $owner = User::factory()->create(['role' => 'owner']);
+        $owner = User::factory()->create();
         Place::factory()->for($owner)->create();
 
         $policy = $this->actingAs($owner)
@@ -134,7 +134,7 @@ class PublicSurfaceTest extends TestCase
 
     public function test_every_route_that_uses_a_device_feature_is_granted_it(): void
     {
-        $owner = User::factory()->create(['role' => 'owner']);
+        $owner = User::factory()->create();
         Place::factory()->for($owner)->create();
 
         // Each entry is a route that renders a component calling the matching

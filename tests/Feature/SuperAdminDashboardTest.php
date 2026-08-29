@@ -46,7 +46,7 @@ class SuperAdminDashboardTest extends TestCase
                 ->where('platform.owners', 1)
                 ->where('platform.events', 1)
                 ->where('platform.seats_paid', 3)
-                ->where('platform.revenue', 3000)
+                ->missing('platform.revenue')
             );
     }
 

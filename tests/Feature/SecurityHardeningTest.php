@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\UserRole;
 use App\Models\Event;
 use App\Models\Place;
 use App\Models\Ticket;
@@ -85,7 +84,7 @@ class SecurityHardeningTest extends TestCase
 
         $user = User::where('email', 'nadia@example.com')->sole();
 
-        $this->assertSame(UserRole::Owner, $user->role);
+        $this->assertFalse($user->is_super_admin);
         $this->assertNotNull($user->email_verified_at);
         // Account and venue are created together, never half-provisioned.
         $this->assertSame(1, $user->places()->count());

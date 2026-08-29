@@ -83,7 +83,7 @@ class AdminTest extends TestCase
         $this->assertNull($other->fresh()->banned_at);
     }
 
-    public function test_the_stats_count_paid_seats_and_revenue(): void
+    public function test_the_stats_count_seats_but_never_income(): void
     {
         $event = Event::factory()->create(['price' => 1000]);
         Ticket::factory()->paid()->for($event)->create(['quantity' => 3]);
@@ -95,7 +95,10 @@ class AdminTest extends TestCase
                 ->where('stats.paid_tickets', 1)
                 ->where('stats.pending_tickets', 1)
                 ->where('stats.seats_paid', 3)
-                ->where('stats.revenue', 3000)
+                // What a venue takes at its own door is the venue's business.
+                // An administrator sees scale, and reaches the money only by
+                // impersonating, which leaves a record of who looked.
+                ->missing('stats.revenue')
             );
     }
 }

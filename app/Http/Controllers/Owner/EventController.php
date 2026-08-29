@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Actions\PublishEvent;
 use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
@@ -83,7 +84,7 @@ class EventController extends Controller
         ]);
     }
 
-    public function store(EventRequest $request): RedirectResponse
+    public function store(EventRequest $request, PublishEvent $publisher): RedirectResponse
     {
         $place = $this->place($request);
 
@@ -91,6 +92,9 @@ class EventController extends Controller
 
         $event = new Event($request->safe()->except(['cover', 'rules', 'perks']));
         $event->place_id = $place->id;
+        // An owner on the approval tier asking to publish gets pending review
+        // instead, which the public scope does not match.
+        $event->status = $publisher->resolve($request->user(), $event->status);
         $event->slug = $this->uniqueSlug($place, $request->string('title_en')->value());
         $event->save();
 
@@ -132,11 +136,21 @@ class EventController extends Controller
         ]);
     }
 
-    public function update(EventRequest $request, Event $event): RedirectResponse
+    public function update(EventRequest $request, Event $event, PublishEvent $publisher): RedirectResponse
     {
         $this->authorize('update', $event);
 
         $event->fill($request->safe()->except(['cover', 'rules', 'perks']));
+
+        // Edits to an event that is already live stay live: the gate is on
+        // becoming public, not on every subsequent correction. An owner
+        // fixing a typo must not take their own event offline.
+        // getRawOriginal, not getOriginal: the latter applies the cast and
+        // hands back an enum, so comparing it to a string was always true and
+        // every edit knocked a live event back into review.
+        if ($event->getRawOriginal('status') !== EventStatus::Published->value) {
+            $event->status = $publisher->resolve($request->user(), $event->status);
+        }
 
         $event->save();
 
