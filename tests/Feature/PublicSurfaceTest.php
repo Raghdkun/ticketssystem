@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\EventStatus;
 use App\Models\Event;
 use App\Models\Place;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -204,6 +205,28 @@ class PublicSurfaceTest extends TestCase
         $this->assertStringContainsString('events/8/landscape.webp', $html);
         $this->assertStringContainsString('content="1600"', $html);
         $this->assertStringNotContainsString('content="1200"', $html);
+    }
+
+    public function test_a_shared_ticket_link_previews_the_event_and_never_the_holder(): void
+    {
+        $event = Event::factory()->create(['status' => EventStatus::Published]);
+        $ticket = Ticket::factory()->for($event)->create([
+            'full_name' => 'Rana Al-Atrash',
+            'phone' => '+963991234567',
+        ]);
+
+        $html = $this->get("/t/{$ticket->public_token}")->assertOk()->getContent();
+
+        preg_match_all('/<meta (?:property|name)="(?:og|twitter):[^"]*" content="([^"]*)"/', (string) $html, $tags);
+        $card = implode(' ', $tags[1]);
+
+        // Holders share the link with whoever is coming with them, so it has
+        // to unfurl as the event. noindex does not stop a preview fetcher.
+        $this->assertStringContainsString($event->title_en, $card);
+
+        // And the name and number are the whole reason the page is noindex.
+        $this->assertStringNotContainsString('Rana Al-Atrash', $card);
+        $this->assertStringNotContainsString('991234567', $card);
     }
 
     public function test_the_favicon_is_the_brand_mark_not_laravel(): void
