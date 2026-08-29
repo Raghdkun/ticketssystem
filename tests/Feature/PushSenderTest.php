@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Actions\VerifyTicket;
 use App\Models\Event;
+use App\Models\PushSubscription;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\PushSender;
@@ -142,5 +143,93 @@ class PushSenderTest extends TestCase
         app(VerifyTicket::class)->markPaid($ticket, User::factory()->create());
 
         Http::assertSentCount(1);
+    }
+
+    /**
+     * @return array{0: Ticket, 1: PushSubscription}
+     */
+    private function subscribedTicket(): array
+    {
+        config([
+            'services.fcm.project_id' => 'swaida-tickets',
+            'services.fcm.credentials' => __FILE__,
+            'services.fcm.access_token' => 'test-token',
+        ]);
+
+        $ticket = Ticket::factory()->for(Event::factory())->create();
+        $subscription = $ticket->pushSubscriptions()->create([
+            'fcm_token' => 'device-1',
+            'locale' => 'ar',
+        ]);
+
+        return [$ticket, $subscription];
+    }
+
+    /**
+     * FCM rejects a malformed device token with a 400, not a 404 -- verified
+     * against the live API. Kept, it would be retried on every status change
+     * for the life of the booking.
+     */
+    public function test_a_token_fcm_calls_invalid_is_discarded(): void
+    {
+        [$ticket, $subscription] = $this->subscribedTicket();
+
+        Http::fake(['fcm.googleapis.com/*' => Http::response([
+            'error' => [
+                'code' => 400,
+                'status' => 'INVALID_ARGUMENT',
+                'message' => 'The registration token is not a valid FCM registration token',
+            ],
+        ], 400)]);
+
+        app(PushSender::class)->ticketStatusChanged($ticket);
+
+        $this->assertModelMissing($subscription);
+    }
+
+    /**
+     * A 400 about anything else is our own bug, and deleting every real
+     * subscription over it would be unrecoverable.
+     */
+    public function test_a_400_about_our_own_payload_keeps_the_subscription(): void
+    {
+        [$ticket, $subscription] = $this->subscribedTicket();
+
+        Http::fake(['fcm.googleapis.com/*' => Http::response([
+            'error' => [
+                'code' => 400,
+                'status' => 'INVALID_ARGUMENT',
+                'message' => 'Invalid JSON payload received. Unknown name "notifcation".',
+            ],
+        ], 400)]);
+
+        app(PushSender::class)->ticketStatusChanged($ticket);
+
+        $this->assertModelExists($subscription);
+    }
+
+    public function test_a_dead_device_is_discarded(): void
+    {
+        [$ticket, $subscription] = $this->subscribedTicket();
+
+        Http::fake(['fcm.googleapis.com/*' => Http::response(['error' => ['status' => 'UNREGISTERED']], 404)]);
+
+        app(PushSender::class)->ticketStatusChanged($ticket);
+
+        $this->assertModelMissing($subscription);
+    }
+
+    /**
+     * A five hundred is FCM having a bad minute, not a verdict on the device.
+     */
+    public function test_a_server_error_keeps_the_subscription(): void
+    {
+        [$ticket, $subscription] = $this->subscribedTicket();
+
+        Http::fake(['fcm.googleapis.com/*' => Http::response([], 503)]);
+
+        app(PushSender::class)->ticketStatusChanged($ticket);
+
+        $this->assertModelExists($subscription);
     }
 }

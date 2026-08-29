@@ -41,7 +41,16 @@ return [
      */
     'fcm' => [
         'project_id' => env('FCM_PROJECT_ID'),
-        'credentials' => env('FCM_CREDENTIALS'),
+        /*
+         * Path to the Firebase service-account JSON. Absolute is honoured as
+         * given; anything else is resolved against the project root, because
+         * a relative path would otherwise resolve against the working
+         * directory -- which is the project root under artisan and something
+         * else entirely under php-fpm.
+         */
+        'credentials' => ($fcmKey = env('FCM_CREDENTIALS')) === null || $fcmKey === ''
+            ? null
+            : (str_starts_with((string) $fcmKey, '/') ? $fcmKey : base_path((string) $fcmKey)),
         'access_token' => env('FCM_ACCESS_TOKEN'),
         'vapid_key' => env('VITE_FCM_VAPID_KEY'),
     ],

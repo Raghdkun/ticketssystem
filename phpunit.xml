@@ -32,5 +32,20 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!--
+            Push is unconfigured under test unless a case configures it.
+            Inherited from .env, the tests asserting "disabled without
+            credentials" pass on a machine that has none and fail the moment a
+            real service-account key is installed, which is exactly backwards.
+
+            The project id is pinned rather than blanked: it is not a secret
+            (it is already inlined in public/firebase-messaging-sw.js) and
+            FirebaseMessagingWorkerTest compares the two. isConfigured()
+            requires both halves, so blanking the credentials alone is what
+            keeps push off.
+        -->
+        <env name="FCM_PROJECT_ID" value="swaida-tickets"/>
+        <env name="FCM_CREDENTIALS" value=""/>
+        <env name="FCM_ACCESS_TOKEN" value=""/>
     </php>
 </phpunit>

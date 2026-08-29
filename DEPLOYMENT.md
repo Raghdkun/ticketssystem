@@ -90,7 +90,8 @@ independently**, and half-configuring it is the confusing state:
 Messaging → Web Push certificates → key pair**. It is public and ships in the
 JS bundle, like every other `VITE_` value.
 
-`FCM_CREDENTIALS` is an absolute path to the **service-account JSON**, from
+`FCM_CREDENTIALS` is a path to the **service-account JSON** — absolute, or
+relative to the project root, which the config resolves either way — from
 Firebase Console → Project settings → **Service accounts** → *Generate new
 private key*. That file is a credential — anyone holding it can send as your
 project — so keep it outside the repository and outside `public/`, own it by

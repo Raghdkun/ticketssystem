@@ -160,7 +160,25 @@ final class PushSender
                 return true;
             }
 
-            return in_array($response->status(), [404, 410], true) ? false : null;
+            // 404 and 410 are FCM saying the device is gone.
+            if (in_array($response->status(), [404, 410], true)) {
+                return false;
+            }
+
+            /*
+             * A 400 is ambiguous: FCM says INVALID_ARGUMENT both for a message
+             * we built wrong and for a registration token that is simply not
+             * one. Only the second is the subscription's fault, and it will
+             * never become valid -- so it is dropped, while a 400 about
+             * anything else keeps the token rather than deleting real
+             * subscriptions over a bug of ours.
+             */
+            if ($response->status() === 400
+                && str_contains((string) $response->json('error.message'), 'registration token')) {
+                return false;
+            }
+
+            return null;
         } catch (Throwable $e) {
             // Push is best-effort: never let it break the request that
             // triggered it.
