@@ -90,7 +90,7 @@ realtime status flip.
 | `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel) |
 | `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender` |
 | `app/Support/` | `Color` (WCAG maths), `QrCode`, presenters |
-| `resources/js/pages/public/` | event, ticket, my-tickets — no app chrome |
+| `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation — no app chrome |
 | `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report |
 | `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
 | `resources/js/pages/admin/` | owners, settings |
@@ -252,6 +252,10 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   only; inverting the whole container would invert our own pin and controls.
 - **Landmark is a first-class field**, not part of the address line. Street
   addressing in As-Suwayda is not what people navigate by.
+- **`/{place}` is registered dead last and excludes reserved segments.** One
+  free segment at the end of the table otherwise answers every fixed path, and
+  a clean 404 on `/register` turns into a 405 that tells a prober something
+  lives there.
 
 ## Gotchas learned the hard way
 

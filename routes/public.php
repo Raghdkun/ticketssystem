@@ -4,6 +4,7 @@ use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\LegalController;
+use App\Http\Controllers\Public\PlaceController;
 use App\Http\Controllers\Public\PushSubscriptionController;
 use App\Http\Controllers\Public\SitemapController;
 use App\Http\Controllers\Public\TicketController;
@@ -56,3 +57,20 @@ Route::scopeBindings()->group(function () {
         ->middleware('throttle:10,1')
         ->name('events.appoint');
 });
+
+/*
+ * A venue's own page. Registered dead last, after every fixed path in the
+ * application: a single free segment would otherwise swallow /login and
+ * /privacy on its way past.
+ */
+Route::get('{place}', [PlaceController::class, 'show'])
+    ->where('place', '(?!(?:'.implode('|', [
+        // Anything the application already owns. Without this the catch-all
+        // answers every single-segment path, which turns a clean 404 on
+        // /register into a 405 and tells a prober something lives there.
+        'register', 'login', 'logout', 'dashboard', 'settings', 'admin',
+        'owner', 'verify', 'invite', 'privacy', 'terms', 'my-tickets',
+        'sitemap\.xml', 'robots\.txt', 'up', 'storage', 'build', 'api', 'user',
+        't', 'forgot-password', 'reset-password', 'two-factor-challenge',
+    ]).')$)[a-z0-9-]+')
+    ->name('places.show');

@@ -50,7 +50,14 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                 <SheetContent side={side} className="w-[88vw] sm:w-96">
                     <SheetHeader>
                         <SheetTitle className="text-start">
-                            {placeName}
+                            {/* The venue's own page: everything it runs, its
+                                locations and how to get to them. */}
+                            <Link
+                                href={`/${place.slug}`}
+                                className="rounded-sm underline-offset-4 hover:underline"
+                            >
+                                {placeName}
+                            </Link>
                         </SheetTitle>
                         <SheetDescription className="text-start">
                             {siblings.length > 0

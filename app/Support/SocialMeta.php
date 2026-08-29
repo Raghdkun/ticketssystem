@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Event;
 use App\Models\Place;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -15,6 +16,32 @@ use Illuminate\Support\Str;
  */
 final class SocialMeta
 {
+    /**
+     * @return array{title: string, description: string|null, image: string|null, width: int|null, height: int|null, type: string}
+     */
+    /**
+     * A venue's own card, for when its page is the thing being shared.
+     *
+     * @return array{title: string, description: string|null, image: string|null, width: int|null, height: int|null, type: string}
+     */
+    public static function forPlace(Place $place, ?string $locale = null): array
+    {
+        $next = $place->events()->published()->where('starts_at', '>', now())->count();
+
+        return [
+            'title' => $place->name($locale),
+            'description' => $next > 0
+                ? (string) __('ui.place_page.upcoming_count', ['n' => $next], $locale)
+                : null,
+            'image' => $place->logo_path
+                ? url(Storage::disk('public')->url($place->logo_path))
+                : null,
+            'width' => null,
+            'height' => null,
+            'type' => 'website',
+        ];
+    }
+
     /**
      * @return array{title: string, description: string|null, image: string|null, width: int|null, height: int|null, type: string}
      */

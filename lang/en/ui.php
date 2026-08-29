@@ -638,4 +638,10 @@ return [
         'none' => 'No door staff yet.',
         'can_do' => 'They can scan tickets, check people in, search this venue’s tickets and print the door sheet — nothing else. They cannot create events, see takings, or invite anybody.',
     ],
+
+    'place_page' => [
+        'upcoming_count' => ':n coming up',
+        'nothing_scheduled' => 'Nothing scheduled right now.',
+        'past' => 'Previously here',
+    ],
 ];
