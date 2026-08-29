@@ -8,6 +8,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class SecurityHardeningTest extends TestCase
@@ -24,6 +25,34 @@ class SecurityHardeningTest extends TestCase
      * Anyone able to self-register would hold an account on a venue-management
      * platform. Owners are provisioned by a super admin instead.
      */
+    /**
+     * There is one door in, and it is the invitation.
+     *
+     * An administrator typing somebody else's password was a second way to
+     * create an account, and it bypassed the expiry, the single use and the
+     * fixed address that make an invitation safe.
+     */
+    public function test_an_account_cannot_be_created_without_an_invitation(): void
+    {
+        $this->assertFalse(
+            Route::has('admin.owners.store'),
+            'Direct owner provisioning is back; invitations are meant to be the only door.'
+        );
+
+        $admin = User::factory()->superAdmin()->create();
+
+        $this->actingAs($admin)
+            ->post('/admin/owners', [
+                'name' => 'Smuggled', 'email' => 'smuggled@example.com',
+                'password' => 'a-long-enough-passphrase',
+                'password_confirmation' => 'a-long-enough-passphrase',
+                'place_name_ar' => 'قاعة', 'place_name_en' => 'Hall',
+            ])
+            ->assertStatus(405);
+
+        $this->assertDatabaseMissing('users', ['email' => 'smuggled@example.com']);
+    }
+
     public function test_public_registration_is_closed(): void
     {
         $this->get('/register')->assertNotFound();
@@ -66,60 +95,6 @@ class SecurityHardeningTest extends TestCase
 
         $this->post('/forgot-password', ['email' => 'owner@example.com'])
             ->assertStatus(429);
-    }
-
-    public function test_a_super_admin_can_provision_an_owner_and_venue(): void
-    {
-        $admin = User::factory()->superAdmin()->create();
-
-        $this->actingAs($admin)->post(route('admin.owners.store'), [
-            'name' => 'Nadia Owner',
-            'email' => 'nadia@example.com',
-            'password' => 'Password!234',
-            'password_confirmation' => 'Password!234',
-            'place_name_en' => 'Cedar Hall',
-            'place_name_ar' => 'قاعة الأرز',
-            'whatsapp_number' => '0991234567',
-        ])->assertRedirect();
-
-        $user = User::where('email', 'nadia@example.com')->sole();
-
-        $this->assertFalse($user->is_super_admin);
-        $this->assertNotNull($user->email_verified_at);
-        // Account and venue are created together, never half-provisioned.
-        $this->assertSame(1, $user->places()->count());
-        $this->assertSame('cedar-hall', $user->places()->sole()->slug);
-    }
-
-    public function test_an_owner_cannot_provision_other_owners(): void
-    {
-        $this->actingAs(User::factory()->create())
-            ->post(route('admin.owners.store'), [
-                'name' => 'Escalation',
-                'email' => 'escalate@example.com',
-                'password' => 'Password!234',
-                'password_confirmation' => 'Password!234',
-                'place_name_en' => 'X',
-                'place_name_ar' => 'X',
-            ])->assertForbidden();
-
-        $this->assertDatabaseMissing('users', ['email' => 'escalate@example.com']);
-    }
-
-    public function test_provisioning_is_atomic_when_validation_fails(): void
-    {
-        $admin = User::factory()->superAdmin()->create();
-        $before = User::count();
-
-        $this->actingAs($admin)->post(route('admin.owners.store'), [
-            'name' => 'No Venue',
-            'email' => 'novenue@example.com',
-            'password' => 'Password!234',
-            'password_confirmation' => 'Password!234',
-            // place names omitted
-        ])->assertSessionHasErrors(['place_name_en', 'place_name_ar']);
-
-        $this->assertSame($before, User::count());
     }
 
     /**

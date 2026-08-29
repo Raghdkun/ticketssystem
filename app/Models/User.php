@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $email
  * @property bool $is_super_admin
  * @property bool $requires_approval
+ * @property int|null $door_staff_for
  * @property CarbonImmutable|null $banned_at
  * @property CarbonImmutable|null $email_verified_at
  * @property string $password
@@ -64,6 +66,46 @@ class User extends Authenticatable implements PasskeyUser
     public function isSuperAdmin(): bool
     {
         return $this->is_super_admin;
+    }
+
+    /** @return BelongsTo<Place, $this> */
+    public function doorStaffVenue(): BelongsTo
+    {
+        return $this->belongsTo(Place::class, 'door_staff_for');
+    }
+
+    /**
+     * Somebody who works a venue's door and nothing else.
+     *
+     * They can check people in and look up a ticket. They cannot create
+     * events, see what the venue took, or invite anybody.
+     */
+    public function isDoorStaff(): bool
+    {
+        return $this->door_staff_for !== null;
+    }
+
+    /**
+     * The venue this account works at, however it came by it.
+     *
+     * Owners own theirs; door staff are assigned one. Everything at the door
+     * -- scanning, verifying, searching -- resolves the place through here so
+     * it works the same for both.
+     */
+    public function workingPlace(): ?Place
+    {
+        return $this->places()->first() ?? $this->doorStaffVenue;
+    }
+
+    /**
+     * Whether this account may change what a venue offers.
+     *
+     * The dividing line for the whole owner area: events, locations, the
+     * venue itself, reports and invitations sit behind it; the door does not.
+     */
+    public function managesVenue(): bool
+    {
+        return ! $this->isDoorStaff();
     }
 
     /**

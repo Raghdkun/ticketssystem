@@ -34,10 +34,39 @@ function secure(): boolean {
 }
 
 /**
+ * What the browser says about a permission it has already decided.
+ *
+ * This is the authority. `document.featurePolicy` was measured reporting
+ * `false` for the camera on a page whose header said `camera=(self)` — it is
+ * a deprecated API and it conflates a user's refusal with a site policy, so
+ * asking it first made the app tell owners the site was blocking a camera
+ * they had simply declined. Which is exactly backwards.
+ */
+async function decided(feature: Capability): Promise<PermissionState | null> {
+    if (feature === 'notifications') {
+        return Notification.permission === 'default'
+            ? 'prompt'
+            : (Notification.permission as PermissionState);
+    }
+
+    try {
+        const status = await navigator.permissions.query({
+            name: feature as PermissionName,
+        });
+
+        return status.state;
+    } catch {
+        // Firefox has no 'camera' descriptor, and Safari's support is
+        // partial. No answer is not the same as a refusal.
+        return null;
+    }
+}
+
+/**
  * Whether our own Permissions-Policy header allows the feature here.
  *
- * A feature denied by that header cannot be granted by prompting, so it must
- * be reported as our bug rather than as a refusal.
+ * Only consulted when the browser has not already decided, because it cannot
+ * tell the two apart on its own.
  */
 function allowedByPolicy(feature: Capability): boolean {
     if (feature === 'notifications') {
@@ -56,7 +85,9 @@ function allowedByPolicy(feature: Capability): boolean {
     return policy ? policy.allowsFeature(feature) : true;
 }
 
-export function capabilityStatus(feature: Capability): CapabilityStatus {
+export async function capabilityStatus(
+    feature: Capability,
+): Promise<CapabilityStatus> {
     if (typeof window === 'undefined') {
         return 'unsupported';
     }
@@ -78,18 +109,21 @@ export function capabilityStatus(feature: Capability): CapabilityStatus {
         return 'unsupported';
     }
 
-    if (!allowedByPolicy(feature)) {
-        return 'blocked';
+    // The browser's own answer beats anything we can infer.
+    const state = await decided(feature);
+
+    if (state === 'denied') {
+        return 'denied';
     }
 
-    if (feature === 'notifications') {
-        if (Notification.permission === 'denied') {
-            return 'denied';
-        }
+    if (state === 'granted') {
+        return 'granted';
+    }
 
-        if (Notification.permission === 'granted') {
-            return 'granted';
-        }
+    // Only now is the header worth asking about: nothing has been decided, so
+    // a refusal here really is our own policy.
+    if (!allowedByPolicy(feature)) {
+        return 'blocked';
     }
 
     return 'ready';
@@ -105,10 +139,6 @@ export function statusFromError(
     feature: Capability,
     error: unknown,
 ): CapabilityStatus {
-    if (!allowedByPolicy(feature)) {
-        return 'blocked';
-    }
-
     if (!secure()) {
         return 'insecure';
     }

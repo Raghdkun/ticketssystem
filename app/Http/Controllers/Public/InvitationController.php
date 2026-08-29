@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,24 +32,33 @@ class InvitationController extends Controller
 
         return Inertia::render('public/invitation', [
             'token' => $token,
-            // Shown but not editable: the administrator invited this address,
-            // and a forwarded link must not become somebody else's account.
+            // Shown but not editable: the invitation named this address, and
+            // a forwarded link must not become somebody else's account.
             'email' => $invitation->email,
+            // Door staff join an existing venue, so they are asked for a name
+            // and a password and nothing else.
+            'forStaff' => $invitation->isForStaff(),
+            'venue' => $invitation->isForStaff()
+                ? $invitation->place?->name()
+                : null,
         ]);
     }
 
     public function accept(Request $request, string $token): RedirectResponse
     {
+        $staff = $this->open($token)->isForStaff();
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'password' => ['required', 'confirmed', Password::defaults()],
 
-            'place_name_ar' => ['required', 'string', 'max:120'],
-            'place_name_en' => ['required', 'string', 'max:120'],
+            // A venue only comes with an owner invitation.
+            'place_name_ar' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
+            'place_name_en' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
             'whatsapp_number' => ['nullable', 'string', 'max:32'],
 
-            'location_name_ar' => ['required', 'string', 'max:120'],
-            'location_name_en' => ['required', 'string', 'max:120'],
+            'location_name_ar' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
+            'location_name_en' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
             'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
             'address_ar' => ['nullable', 'string', 'max:255'],
@@ -75,8 +85,20 @@ class InvitationController extends Controller
             // Not mass-assignable, by design.
             $user->requires_approval = $invitation->requires_approval;
             $user->is_super_admin = false;
+            $user->door_staff_for = $invitation->isForStaff() ? $invitation->place_id : null;
             $user->email_verified_at = now();
             $user->save();
+
+            // Door staff join a venue that already exists; there is nothing
+            // for them to set up.
+            if ($invitation->isForStaff()) {
+                $invitation->forceFill([
+                    'accepted_at' => now(),
+                    'accepted_user_id' => $user->id,
+                ])->save();
+
+                return $user;
+            }
 
             $place = $user->places()->create([
                 'slug' => $this->uniqueSlug($data['place_name_en']),

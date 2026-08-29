@@ -27,9 +27,14 @@ class EventPolicy
      * gate that stops an end user (who holds the same QR URL as the owner) from
      * marking their own ticket as paid.
      */
+    /**
+     * Working the door is the one thing door staff may do, and only at the
+     * venue they were invited to.
+     */
     public function verifyTickets(User $user, Event $event): bool
     {
-        return $this->owns($user, $event);
+        return $this->owns($user, $event)
+            || $user->door_staff_for === $event->place_id;
     }
 
     private function owns(User $user, Event $event): bool

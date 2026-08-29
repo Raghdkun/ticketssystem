@@ -1,13 +1,14 @@
 import { Scanner } from '@yudiel/react-qr-scanner';
 import type { IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { Camera, CameraOff } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     capabilityMessage,
     capabilityStatus,
     statusFromError,
 } from '@/lib/capabilities';
+import type { CapabilityStatus } from '@/lib/capabilities';
 import { useTranslation } from '@/lib/translation';
 
 type Props = {
@@ -42,11 +43,26 @@ export function QrScanner({ onToken }: Props) {
     // Checked on mount, not on tap: if the page is not on HTTPS there is
     // nothing to try, and offering a button that cannot work is a worse
     // answer than saying so.
-    const [status] = useState(() =>
-        typeof window === 'undefined'
-            ? 'unsupported'
-            : capabilityStatus('camera'),
-    );
+    // Checked on mount, not on tap: if the page is not on HTTPS there is
+    // nothing to try, and offering a button that cannot work is a worse
+    // answer than saying so. Asynchronous because the browser's own verdict
+    // on the permission is the only trustworthy source.
+    const [status, setStatus] = useState<CapabilityStatus | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        void capabilityStatus('camera').then((result) => {
+            if (!cancelled) {
+                setStatus(result);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     const unavailable =
         status === 'insecure' ||
         status === 'blocked' ||
@@ -104,7 +120,7 @@ export function QrScanner({ onToken }: Props) {
                 {active ? t('owner.scan_stop') : t('owner.scan_start')}
             </Button>
 
-            {unavailable && !error && (
+            {unavailable && status !== null && !error && (
                 <p className="rounded-lg bg-amber-50 p-3 text-center text-xs text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
                     {t(capabilityMessage('camera', status))}
                 </p>

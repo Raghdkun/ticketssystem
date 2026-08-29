@@ -54,25 +54,31 @@ realtime status flip.
    scale, not money. The figures live on the owner dashboard, which an
    administrator reaches by impersonating, and that leaves a record of who
    looked.
-5. **Public registration is closed, and an invitation is the only door.** There
+5. **Door staff work a door and nothing else.** `users.door_staff_for` names
+   the one venue an account may scan, verify, search and print a door sheet
+   for. Everything that shapes a venue or shows what it took sits behind
+   `EnsureManagesVenue`; the door does not. A GET redirects them to the
+   scanner rather than 403ing, because somebody handed this account lands on
+   the dashboard by habit.
+6. **Public registration is closed, and an invitation is the only door.** There
    is no open sign-up. An admin mints a one-use, expiring invitation; only its
    SHA-256 hash is stored, so the link is knowable exactly once and a leaked
    database yields nothing. The account is created with the *invited* address,
    so a forwarded link cannot become a stranger's account, and the whole
    thing — user, venue, first location — happens in one transaction under a
    row lock, so a double submission cannot make two accounts.
-6. **Pending reservations hold seats**, with auto-expiry after `hold_hours` (default 24).
-7. **Seat safety is a row lock.** `AppointTicket` does `lockForUpdate()` on the *event* row. Removing
+7. **Pending reservations hold seats**, with auto-expiry after `hold_hours` (default 24).
+8. **Seat safety is a row lock.** `AppointTicket` does `lockForUpdate()` on the *event* row. Removing
    it makes `OverbookingTest` fail — verified by deleting it and watching all 12 contenders win 5 seats.
-8. **Arrivals are separate from bookings.** Someone who paid for 5 and brought 3 still paid for 5;
+9. **Arrivals are separate from bookings.** Someone who paid for 5 and brought 3 still paid for 5;
    revenue follows `seats_paid`, never `seats_arrived`.
-9. **No-show ≠ cancelled ≠ expired.** Three distinct facts: not used, called off, timed out.
-10. **Ticket pages are `noindex`** and excluded from the sitemap. Lighthouse scores that as an SEO
+10. **No-show ≠ cancelled ≠ expired.** Three distinct facts: not used, called off, timed out.
+11. **Ticket pages are `noindex`** and excluded from the sitemap. Lighthouse scores that as an SEO
    failure; it is correct — the URL is a bearer token beside a name and phone number.
-11. **SVG is never an accepted upload.** Script-carrying markup on our own origin.
-12. **Impersonation is full-access**, so the audit log is the only record of who acted. Start/stop are
+12. **SVG is never an accepted upload.** Script-carrying markup on our own origin.
+13. **Impersonation is full-access**, so the audit log is the only record of who acted. Start/stop are
    both logged, nesting is refused, super admins cannot be impersonated, banner is always visible.
-13. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
+14. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
     alongside it. Do not remove it — Arabic silently falls back to an OS font.
 
 ---
@@ -293,6 +299,12 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   Changing an icon without bumping `VERSION` in `public/sw.js` leaves every
   installed PWA on the old one forever. `/build/` is hashed and looks after
   itself; `/icons/` does not.
+- **`document.featurePolicy` is deprecated and answers the wrong question.**
+  It reported `camera: false` on a page whose header said `camera=(self)`,
+  because it conflates a user's refusal with a site policy — so the scanner
+  told owners the site was blocking a camera they had merely declined.
+  `navigator.permissions.query()` is the authority; the header check is only
+  worth consulting when nothing has been decided yet.
 - **A device feature can fail for three reasons that look identical.** Not
   HTTPS, denied by our own `Permissions-Policy`, or refused by the user — only
   the last is theirs to fix. `lib/capabilities.ts` tells them apart, and every

@@ -627,4 +627,15 @@ return [
         'format_square' => 'Square',
         'format_print' => 'Print (A4)',
     ],
+
+    'staff' => [
+        'title' => 'Door staff',
+        'subtitle' => 'People who help you check tickets on the night.',
+        'invite' => 'Invite door staff',
+        'invited' => 'Invitation created.',
+        'removed' => 'Removed from the door.',
+        'remove' => 'Remove',
+        'none' => 'No door staff yet.',
+        'can_do' => 'They can scan tickets, check people in, search this venue’s tickets and print the door sheet — nothing else. They cannot create events, see takings, or invite anybody.',
+    ],
 ];

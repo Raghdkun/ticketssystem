@@ -14,7 +14,6 @@ Route::middleware(['auth', 'verified', EnsureUserIsSuperAdmin::class])
     ->name('admin.')
     ->group(function () {
         Route::get('owners', [OwnerController::class, 'index'])->name('owners');
-        Route::post('owners', [OwnerController::class, 'store'])->name('owners.store');
         Route::post('owners/{user}/ban', [OwnerController::class, 'ban'])->name('owners.ban');
         Route::post('owners/{user}/unban', [OwnerController::class, 'unban'])->name('owners.unban');
         Route::post('owners/{user}/impersonate', [ImpersonationController::class, 'start'])->name('owners.impersonate');

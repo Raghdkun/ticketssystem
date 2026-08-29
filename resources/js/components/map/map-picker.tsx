@@ -88,8 +88,8 @@ export function MapPicker({ value, onChange }: Props) {
         }
     }
 
-    function locate() {
-        const status = capabilityStatus('geolocation');
+    async function locate() {
+        const status = await capabilityStatus('geolocation');
 
         if (status !== 'ready' && status !== 'granted') {
             setError(t(capabilityMessage('geolocation', status)));
@@ -156,7 +156,7 @@ export function MapPicker({ value, onChange }: Props) {
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={locate}
+                    onClick={() => void locate()}
                     className="cursor-pointer"
                 >
                     <Crosshair />

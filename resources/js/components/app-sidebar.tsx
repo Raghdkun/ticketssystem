@@ -9,6 +9,7 @@ import {
     Search,
     ShieldCheck,
     Store,
+    Users,
     UserCog,
     SlidersHorizontal,
 } from 'lucide-react';
@@ -28,7 +29,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { useIsSuperAdmin } from '@/lib/auth';
+import { useIsDoorStaff, useIsSuperAdmin } from '@/lib/auth';
 import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import {
@@ -41,6 +42,7 @@ import {
 import { scan, search } from '@/routes/owner';
 import locationsRoute from '@/routes/owner/locations';
 import placeRoute from '@/routes/owner/place';
+import staffRoute from '@/routes/owner/staff';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -68,6 +70,11 @@ const mainNavItems: NavItem[] = [
         title: 'owner.locations',
         href: locationsRoute.index(),
         icon: MapPin,
+    },
+    {
+        title: 'staff.title',
+        href: staffRoute.index(),
+        icon: Users,
     },
     {
         title: 'owner.search_all',
@@ -109,6 +116,9 @@ const footerNavItems: NavItem[] = [];
 export function AppSidebar() {
     const { direction } = useLocale();
     const { isMobile, setOpenMobile } = useSidebar();
+    // Door staff can only reach the door, so the rest of the list would just
+    // bounce them back here.
+    const doorOnly = useIsDoorStaff();
 
     // On a phone the sidebar is a sheet over the page, so tapping a
     // destination navigated behind it and left it sitting open on top of the
@@ -149,7 +159,18 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain
+                    items={
+                        doorOnly
+                            ? mainNavItems.filter((item) =>
+                                  [
+                                      'owner.verify_title',
+                                      'owner.search_all',
+                                  ].includes(item.title),
+                              )
+                            : mainNavItems
+                    }
+                />
 
                 {isSuperAdmin && (
                     <NavMain

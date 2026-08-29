@@ -48,13 +48,24 @@ class TicketSearchController extends Controller
     }
 
     /**
+     * The events this account may search, whoever they are.
+     *
+     * Scoped by the venue they work at rather than the venue they own, so a
+     * door hand sees their own venue's tickets -- and, just as importantly,
+     * only those.
+     *
      * @return Builder<Event>
      */
     private function ownedEventIds(Request $request): Builder
     {
-        return Event::query()
-            ->select('id')
-            ->whereHas('place', fn (Builder $query) => $query->where('user_id', $request->user()->id));
+        $place = $request->user()?->workingPlace();
+
+        if ($place === null) {
+            // No venue means no events, not every event.
+            return Event::query()->select('id')->whereRaw('1 = 0');
+        }
+
+        return Event::query()->select('id')->where('place_id', $place->id);
     }
 
     /**
