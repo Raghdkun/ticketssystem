@@ -79,6 +79,7 @@ return [
     ],
 
     'owner' => [
+        'place_location_moved' => 'Where events happen now lives on its own screen — a venue can have several locations, and each event picks one.',
         'locations_sub' => 'The places your events happen. Each event picks one.',
         'locations' => 'Locations',
         'qr_hint' => 'Scanning it opens this event’s booking page. Print it on a poster or flyer.',
