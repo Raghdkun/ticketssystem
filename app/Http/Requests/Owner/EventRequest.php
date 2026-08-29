@@ -4,6 +4,7 @@ namespace App\Http\Requests\Owner;
 
 use App\Enums\EventStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class EventRequest extends FormRequest
@@ -39,6 +40,16 @@ class EventRequest extends FormRequest
             'appointments_close_at' => ['required', 'date', 'before_or_equal:starts_at'],
 
             'status' => ['required', new Enum(EventStatus::class)],
+
+            // Scoped to the owner's own venue: without the exists constraint an
+            // owner could attach their event to somebody else's address.
+            'location_id' => [
+                'nullable',
+                Rule::exists('locations', 'id')->where(
+                    'place_id',
+                    $this->user()?->places()->value('id')
+                ),
+            ],
 
             // Optional on purpose: an owner should be able to get an event
             // drafted and dated before they have artwork for it. The events

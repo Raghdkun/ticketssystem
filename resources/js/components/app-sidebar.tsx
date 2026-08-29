@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import {
     CalendarDays,
     LayoutGrid,
+    MapPin,
     ScanLine,
     Search,
     ShieldCheck,
@@ -29,6 +30,7 @@ import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import { owners, settings as platformSettings } from '@/routes/admin';
 import { scan, search } from '@/routes/owner';
+import locationsRoute from '@/routes/owner/locations';
 import placeRoute from '@/routes/owner/place';
 import type { NavItem } from '@/types';
 
@@ -52,6 +54,11 @@ const mainNavItems: NavItem[] = [
         title: 'owner.place',
         href: placeRoute.edit(),
         icon: Store,
+    },
+    {
+        title: 'owner.locations',
+        href: locationsRoute.index(),
+        icon: MapPin,
     },
     {
         title: 'owner.search_all',

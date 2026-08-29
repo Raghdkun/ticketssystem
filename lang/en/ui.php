@@ -2,6 +2,10 @@
 
 return [
     'common' => [
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'next' => 'Next',
+        'previous' => 'Previous',
         'continue' => 'Continue',
         'close' => 'Close',
         'back_home' => 'Back to home',
@@ -74,6 +78,8 @@ return [
     ],
 
     'owner' => [
+        'locations_sub' => 'The places your events happen. Each event picks one.',
+        'locations' => 'Locations',
         'qr_hint' => 'Scanning it opens this event’s booking page. Print it on a poster or flyer.',
         'qr_download' => 'Download PNG',
         'qr_title' => 'Event QR code',
@@ -423,5 +429,21 @@ return [
         'geolocation_unsupported' => 'This device cannot report its location.',
         'notifications_denied' => 'Notifications were refused. Allow them for this site in your browser settings.',
         'notifications_unsupported' => 'This browser cannot show notifications.',
+    ],
+
+    'location' => [
+        'add' => 'Add a location',
+        'none' => 'No locations yet. Add the first one so events have somewhere to happen.',
+        'primary' => 'Default',
+        'make_primary' => 'Use this as the venue’s default location',
+        'saved' => 'Location saved.',
+        'deleted' => 'Location removed.',
+        'confirm_delete' => 'Remove this location? Events using it fall back to the default one.',
+        'add_image' => 'Add photo',
+        'remove_last_image' => 'Remove last',
+        'no_images' => 'No photos yet',
+        'too_many_images' => 'A location can hold at most :max photos.',
+        'pick' => 'Where is it happening?',
+        'use_default' => 'Venue default',
     ],
 ];

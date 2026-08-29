@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
 export type EventRule = { body_ar: string; body_en: string };
@@ -25,6 +26,7 @@ export type EventFormValues = {
     ends_at: string | null;
     appointments_close_at: string;
     status: string;
+    location_id?: number | null;
     cover?: string | null;
     rules: EventRule[];
     perks: EventPerk[];
@@ -35,6 +37,14 @@ type Props = {
     action: Record<string, unknown>;
     values?: Partial<EventFormValues>;
     submitLabel: string;
+    locations?: LocationOption[];
+};
+
+export type LocationOption = {
+    id: number;
+    name_ar: string;
+    name_en: string;
+    is_primary: boolean;
 };
 
 /**
@@ -63,8 +73,14 @@ function Field({
     );
 }
 
-export default function EventForm({ action, values, submitLabel }: Props) {
+export default function EventForm({
+    action,
+    values,
+    submitLabel,
+    locations = [],
+}: Props) {
     const t = useTranslation();
+    const { locale } = useLocale();
     const [rules, setRules] = useState<EventRule[]>(values?.rules ?? []);
     const [perks, setPerks] = useState<EventPerk[]>(values?.perks ?? []);
 
@@ -233,6 +249,38 @@ export default function EventForm({ action, values, submitLabel }: Props) {
                                 <option value="archived">
                                     {t('event.status.archived')}
                                 </option>
+                            </select>
+                        </Field>
+
+                        <Field
+                            id="location_id"
+                            label={t('location.pick')}
+                            error={errors.location_id}
+                        >
+                            <select
+                                id="location_id"
+                                name="location_id"
+                                defaultValue={values?.location_id ?? ''}
+                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                            >
+                                {/* Empty means "wherever the venue defaults
+                                    to", which is what an owner with a single
+                                    location wants and never has to think about. */}
+                                <option value="">
+                                    {t('location.use_default')}
+                                </option>
+                                {locations.map((location) => (
+                                    <option
+                                        key={location.id}
+                                        value={location.id}
+                                    >
+                                        {localised(
+                                            locale,
+                                            location.name_ar,
+                                            location.name_en,
+                                        )}
+                                    </option>
+                                ))}
                             </select>
                         </Field>
                     </section>

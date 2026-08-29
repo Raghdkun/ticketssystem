@@ -27,9 +27,8 @@ final class EventPresenter
             'name_en' => $place->name_en,
             'whatsapp_number' => $place->whatsapp_number,
             'logo' => $place->logo_path,
-            // Null when the owner has not pinned the venue, so the public page
-            // renders a plain name rather than a control opening an empty map.
-            'location' => $place->location(),
+            // Deliberately not here any more: an event happens at one of the
+            // venue's locations, so the location travels with the event.
         ];
     }
 
@@ -68,6 +67,10 @@ final class EventPresenter
     {
         return [
             ...self::core($event),
+            // The event's own location, falling back to the venue's primary
+            // one so an event drafted before locations existed still shows an
+            // address. Null when neither has been filled in.
+            'location' => $event->resolvedLocation()?->forPublic(),
             'seats_remaining' => $event->seatsRemaining(),
             'is_open' => $event->isOpenForAppointments(),
             'max_per_appointment' => $event->max_per_appointment,
@@ -95,6 +98,9 @@ final class EventPresenter
     {
         return [
             ...self::core($ticket->event),
+            // The ticket is what someone opens on the way to the door, so
+            // where to go travels with it too.
+            'location' => $ticket->event->resolvedLocation()?->forPublic(),
             // The ticket page lists what the holder is entitled to at the
             // door, so the perks travel with it.
             'perks' => $ticket->event->perks->map(fn (EventPerk $perk) => [

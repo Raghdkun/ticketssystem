@@ -5,13 +5,15 @@ export type EventCover = {
     placeholder?: string;
 } | null;
 
-export type PublicPlaceLocation = {
-    lat: number;
-    lng: number;
+export type PublicLocation = {
+    name: string;
+    lat: number | null;
+    lng: number | null;
     address_ar: string | null;
     address_en: string | null;
     landmark_ar: string | null;
     landmark_en: string | null;
+    images: string[];
 };
 
 export type PublicPlace = {
@@ -20,7 +22,6 @@ export type PublicPlace = {
     name_en: string;
     whatsapp_number: string | null;
     logo: string | null;
-    location: PublicPlaceLocation | null;
 };
 
 export type PublicEventRule = {
@@ -40,6 +41,7 @@ export type PromoVideo = {
 };
 
 export type PublicEvent = {
+    location: PublicLocation | null;
     slug: string;
     title_ar: string;
     title_en: string;

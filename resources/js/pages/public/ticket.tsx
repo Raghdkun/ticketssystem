@@ -129,7 +129,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         <p className="text-sm opacity-80">
                             <VenueLink
                                 name={placeName}
-                                location={place.location}
+                                location={event.location}
                             />
                         </p>
                         <h1 className="mt-1 text-2xl leading-tight font-bold">

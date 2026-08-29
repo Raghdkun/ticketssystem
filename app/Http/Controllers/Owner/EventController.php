@@ -6,6 +6,7 @@ use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
 use App\Models\Event;
+use App\Models\Location;
 use App\Models\Place;
 use App\Services\CoverProcessor;
 use Illuminate\Http\RedirectResponse;
@@ -73,9 +74,13 @@ class EventController extends Controller
 
     public function create(Request $request): Response
     {
-        abort_if($this->place($request) === null, 403, 'No venue is linked to this account.');
+        $place = $this->place($request);
 
-        return Inertia::render('owner/events/create');
+        abort_if($place === null, 403, 'No venue is linked to this account.');
+
+        return Inertia::render('owner/events/create', [
+            'locations' => $this->locationOptions($place),
+        ]);
     }
 
     public function store(EventRequest $request): RedirectResponse
@@ -102,6 +107,7 @@ class EventController extends Controller
         $this->authorize('update', $event);
 
         return Inertia::render('owner/events/edit', [
+            'locations' => $this->locationOptions($event->place),
             'event' => [
                 ...$event->only([
                     'id', 'slug', 'title_ar', 'title_en', 'description_ar', 'description_en',
@@ -150,6 +156,19 @@ class EventController extends Controller
 
         return to_route('owner.events.index')
             ->with('success', __('events.deleted'));
+    }
+
+    /**
+     * @return array<int, array{id: int, name_ar: string, name_en: string, is_primary: bool}>
+     */
+    private function locationOptions(Place $place): array
+    {
+        return $place->locations()->get()->map(fn (Location $location) => [
+            'id' => $location->id,
+            'name_ar' => $location->name_ar,
+            'name_en' => $location->name_en,
+            'is_primary' => $location->is_primary,
+        ])->all();
     }
 
     private function place(Request $request): ?Place

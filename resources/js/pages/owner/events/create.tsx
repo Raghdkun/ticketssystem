@@ -3,8 +3,13 @@ import EventController from '@/actions/App/Http/Controllers/Owner/EventControlle
 import Heading from '@/components/heading';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
+import type { LocationOption } from './event-form';
 
-export default function CreateEvent() {
+export default function CreateEvent({
+    locations,
+}: {
+    locations: LocationOption[];
+}) {
     const t = useTranslation();
 
     return (
@@ -19,6 +24,7 @@ export default function CreateEvent() {
                 />
 
                 <EventForm
+                    locations={locations}
                     action={EventController.store.form()}
                     submitLabel={t('form.create')}
                 />

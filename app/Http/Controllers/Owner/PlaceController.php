@@ -13,9 +13,9 @@ use Inertia\Response;
 /**
  * The venue an owner manages.
  *
- * Places are provisioned by a super admin, but their details -- and above all
- * where the venue physically is -- are the owner's to maintain. Nobody at the
- * platform knows which door the audience should walk through.
+ * Places are provisioned by a super admin, but their details are the owner's
+ * to maintain. Where events physically happen lives on locations, which a
+ * venue can have several of -- see LocationController.
  */
 class PlaceController extends Controller
 {
@@ -34,12 +34,6 @@ class PlaceController extends Controller
                 'name_ar' => $place->name_ar,
                 'name_en' => $place->name_en,
                 'whatsapp_number' => $place->whatsapp_number,
-                'latitude' => $place->latitude === null ? null : (float) $place->latitude,
-                'longitude' => $place->longitude === null ? null : (float) $place->longitude,
-                'address_ar' => $place->address_ar,
-                'address_en' => $place->address_en,
-                'landmark_ar' => $place->landmark_ar,
-                'landmark_en' => $place->landmark_en,
             ],
         ]);
     }

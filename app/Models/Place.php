@@ -19,19 +19,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $logo_path
  * @property string|null $whatsapp_number
  * @property bool $is_active
- * @property numeric-string|null $latitude
- * @property numeric-string|null $longitude
- * @property string|null $address_ar
- * @property string|null $address_en
- * @property string|null $landmark_ar
- * @property string|null $landmark_en
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable([
-    'user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active',
-    'latitude', 'longitude', 'address_ar', 'address_en', 'landmark_ar', 'landmark_en',
-])]
+#[Fillable(['user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active'])]
 class Place extends Model
 {
     /** @use HasFactory<PlaceFactory> */
@@ -64,40 +55,25 @@ class Place extends Model
         return $this->hasMany(Event::class);
     }
 
+    /** @return HasMany<Location, $this> */
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class)->orderBy('sort');
+    }
+
+    /**
+     * The location an event falls back to, and the one the venue shows.
+     *
+     * Falls back to the first location when no primary is flagged, so a place
+     * whose primary was deleted still resolves to something.
+     */
+    public function primaryLocation(): ?Location
+    {
+        return $this->locations()->orderByDesc('is_primary')->orderBy('sort')->first();
+    }
+
     public function name(?string $locale = null): string
     {
         return ($locale ?? app()->getLocale()) === 'ar' ? $this->name_ar : $this->name_en;
-    }
-
-    /**
-     * A venue is only mappable once it has both halves of a coordinate.
-     */
-    public function hasLocation(): bool
-    {
-        return $this->latitude !== null && $this->longitude !== null;
-    }
-
-    /**
-     * What the public needs to show a venue on a map.
-     *
-     * Returns null rather than a half-filled shape when there is no pin, so
-     * the caller decides once whether there is anything to render.
-     *
-     * @return array{lat: float, lng: float, address_ar: string|null, address_en: string|null, landmark_ar: string|null, landmark_en: string|null}|null
-     */
-    public function location(): ?array
-    {
-        if (! $this->hasLocation()) {
-            return null;
-        }
-
-        return [
-            'lat' => (float) $this->latitude,
-            'lng' => (float) $this->longitude,
-            'address_ar' => $this->address_ar,
-            'address_en' => $this->address_en,
-            'landmark_ar' => $this->landmark_ar,
-            'landmark_en' => $this->landmark_en,
-        ];
     }
 }

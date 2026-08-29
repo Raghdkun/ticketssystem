@@ -6,11 +6,14 @@ import { MediaManager } from '@/components/media-manager';
 import type { MediaItem } from '@/components/media-manager';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
-import type { EventFormValues } from './event-form';
+import type { EventFormValues, LocationOption } from './event-form';
 
-type Props = { event: EventFormValues & { id: number; media: MediaItem[] } };
+type Props = {
+    event: EventFormValues & { id: number; media: MediaItem[] };
+    locations: LocationOption[];
+};
 
-export default function EditEvent({ event }: Props) {
+export default function EditEvent({ event, locations }: Props) {
     const t = useTranslation();
 
     return (
@@ -25,6 +28,7 @@ export default function EditEvent({ event }: Props) {
                 />
 
                 <EventForm
+                    locations={locations}
                     action={EventController.update.form(event.id)}
                     values={event}
                     submitLabel={t('form.save')}

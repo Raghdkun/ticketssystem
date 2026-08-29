@@ -128,7 +128,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                                 <p className="text-sm font-medium text-white/80">
                                     <VenueLink
                                         name={placeName}
-                                        location={place.location}
+                                        location={event.location}
                                     />
                                 </p>
                                 <h1 className="mt-1 text-3xl leading-tight font-bold text-white sm:text-4xl lg:text-5xl">

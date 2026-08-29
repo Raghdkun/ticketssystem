@@ -5,6 +5,8 @@ use App\Http\Controllers\Owner\EventController;
 use App\Http\Controllers\Owner\EventMediaController;
 use App\Http\Controllers\Owner\EventQrController;
 use App\Http\Controllers\Owner\EventReportController;
+use App\Http\Controllers\Owner\LocationController;
+use App\Http\Controllers\Owner\LocationImageController;
 use App\Http\Controllers\Owner\PlaceController;
 use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
@@ -18,6 +20,14 @@ Route::middleware(['auth', 'verified'])
 
         Route::get('place', [PlaceController::class, 'edit'])->name('place.edit');
         Route::patch('place', [PlaceController::class, 'update'])->name('place.update');
+
+        Route::get('locations', [LocationController::class, 'index'])->name('locations.index');
+        Route::post('locations', [LocationController::class, 'store'])->name('locations.store');
+        Route::patch('locations/{location}', [LocationController::class, 'update'])->name('locations.update');
+        Route::delete('locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
+
+        Route::post('locations/{location}/images', [LocationImageController::class, 'store'])->name('locations.images.store');
+        Route::delete('locations/{location}/images/{image}', [LocationImageController::class, 'destroy'])->name('locations.images.destroy');
 
         Route::get('scan', [VerificationController::class, 'scanner'])->name('scan');
         Route::get('search', TicketSearchController::class)->name('search');

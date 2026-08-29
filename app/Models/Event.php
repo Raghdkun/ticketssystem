@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $place_id
+ * @property int|null $location_id
  * @property string $slug
  * @property string $title_ar
  * @property string $title_en
@@ -37,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Place $place
  */
 #[Fillable([
-    'slug', 'title_ar', 'title_en', 'description_ar', 'description_en',
+    'slug', 'location_id', 'title_ar', 'title_en', 'description_ar', 'description_en',
     'price', 'currency', 'total_quantity', 'max_per_appointment', 'hold_hours',
     'starts_at', 'ends_at', 'appointments_close_at', 'status',
 ])]
@@ -89,6 +90,23 @@ class Event extends Model
     public function promoVideo(): BelongsTo
     {
         return $this->belongsTo(EventMedia::class, 'promo_video_id');
+    }
+
+    /** @return BelongsTo<Location, $this> */
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * Where this event actually happens.
+     *
+     * An event without its own location falls back to the venue's primary one,
+     * so an event drafted before locations existed keeps showing an address.
+     */
+    public function resolvedLocation(): ?Location
+    {
+        return $this->location ?? $this->place->primaryLocation();
     }
 
     /** @return HasMany<Ticket, $this> */

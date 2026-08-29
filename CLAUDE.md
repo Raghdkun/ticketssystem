@@ -153,6 +153,25 @@ the saffron dot that is the person who got in.
   tile edge; a maskable icon is cropped to a circle, so those notches either
   vanish or read as two floating dots. It uses the reversed mark instead.
 
+## Locations
+
+A venue is not one address. `places` holds who and what; `locations` holds
+where, and an event picks one. Location moved off `places` entirely so there is
+a single source of truth.
+
+- **An event without a location falls back to the venue's primary one**, so an
+  event drafted before locations existed still shows an address.
+- **Exactly one primary per venue, always.** Creating the first location makes
+  it primary; deleting the primary promotes the next. A venue with locations
+  but no primary would leave every event resolving to nothing.
+- **Deleting a location nulls its events' `location_id`** rather than cascading.
+  Losing a room must not lose the event booked into it.
+- **`location_id` is validated against the owner's own venue.** Without the
+  scoped `exists` rule an owner could attach their event to someone else's
+  address.
+- **Photos are re-encoded on upload**, which strips EXIF — a phone photo of a
+  venue carries the photographer's GPS — and caps what every visitor downloads.
+
 ## Maps
 
 Leaflet 1.9 over OpenStreetMap raster tiles. No API key, no per-view cost, and
