@@ -104,11 +104,30 @@ class TranslationCatalogueTest extends TestCase
 
     public function test_every_language_file_parses(): void
     {
+        // Linted as a subprocess rather than required: a parse error in a
+        // required file is fatal and takes the whole suite down with it, so
+        // the one thing this test exists to catch would report as a crash
+        // instead of a failure naming the file and line.
         foreach (SetLocale::SUPPORTED as $locale) {
             foreach ($this->files($locale) as $file) {
-                $result = require $file;
+                $output = [];
+                $status = 0;
+                exec('php -l '.escapeshellarg($file).' 2>&1', $output, $status);
 
-                $this->assertIsArray($result, "{$file} did not return an array.");
+                $this->assertSame(
+                    0,
+                    $status,
+                    implode("\n", $output)
+                );
+            }
+        }
+    }
+
+    public function test_every_language_file_returns_an_array(): void
+    {
+        foreach (SetLocale::SUPPORTED as $locale) {
+            foreach ($this->files($locale) as $file) {
+                $this->assertIsArray(require $file, "{$file} did not return an array.");
             }
         }
     }

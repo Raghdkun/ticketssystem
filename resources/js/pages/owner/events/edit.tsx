@@ -1,9 +1,11 @@
 import { Head } from '@inertiajs/react';
+import { Sparkles } from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import { EventQrCard } from '@/components/event-qr-card';
 import Heading from '@/components/heading';
 import { MediaManager } from '@/components/media-manager';
 import type { MediaItem } from '@/components/media-manager';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
 import type { EventFormValues, LocationOption } from './event-form';
@@ -35,6 +37,13 @@ export default function EditEvent({ event, locations }: Props) {
                 />
 
                 <EventQrCard eventId={event.id} />
+
+                <Button asChild variant="outline" className="w-full">
+                    <a href={`/owner/events/${event.id}/poster`}>
+                        <Sparkles />
+                        {t('poster.title')}
+                    </a>
+                </Button>
 
                 <MediaManager eventId={event.id} media={event.media} />
             </div>

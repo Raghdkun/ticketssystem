@@ -177,6 +177,29 @@ the saffron dot that is the person who got in.
   tile edge; a maskable icon is cropped to a circle, so those notches either
   vanish or read as two floating dots. It uses the reversed mark instead.
 
+## The poster workshop
+
+An owner describes the event, gets a prompt for whatever image tool they use,
+brings the artwork back, and the real details go on here.
+
+- **The prompt asks for artwork with no lettering at all.** Image models cannot
+  draw a scannable QR code, and render text poorly — Arabic worst, where they
+  produce disconnected letterforms that read as nonsense to anyone literate.
+  The event's details still go in the prompt, as *context* for the imagery, with
+  an explicit instruction not to write any of it.
+- **The lower third is reserved by the prompt** and scrimmed by the compositor
+  anyway, because a model does not always obey and the code has to read against
+  whatever turns up.
+- **Compositing happens in the browser, on a canvas.** Not a preference: this
+  machine's ImageMagick lists a PANGO delegate that does not work, RSVG is
+  absent, and `caption:`/`label:` both fail — every server-side text path would
+  render Arabic broken. A canvas shapes it natively, needs nothing installed,
+  and shows the owner the poster before they commit. The artwork never leaves
+  their machine.
+- **Verified by decoding.** The finished canvas is read back with
+  `BarcodeDetector` and must yield the event URL — looking right is not the
+  same as scanning.
+
 ## Locations
 
 A venue is not one address. `places` holds who and what; `locations` holds
@@ -250,6 +273,12 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   resolves a literal — it just renders as typed, in both locales.
   `TranslationCatalogueTest` now asserts every `title:` is a resolvable
   dot-path, and separately that every literal `t('a.b')` call site resolves.
+- **Writing PHP string literals from a script needs the quotes escaped.** An
+  apostrophe in a single-quoted English string has now broken `lang/en/ui.php`
+  three times ("What's on", "venue's", "Children's"). `TranslationCatalogueTest`
+  lints each file in a **subprocess** for exactly this: a parse error in a
+  `require`d file is fatal and takes the suite down, so the one thing that test
+  exists to catch would report as a crash rather than a named file and line.
 - **`php -l file && echo ok` is not a check if you do not look for the `ok`.**
   An apostrophe in a single-quoted English string broke `lang/en/ui.php` again;
   the lint ran, failed silently into `/dev/null`, and the missing "ok" went
