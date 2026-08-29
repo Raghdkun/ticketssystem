@@ -296,13 +296,25 @@ h3 {
     }
 
     /*
-     * Icon-only controls need width as well as height. The sr-only label these
-     * carry for screen readers means a structural :has() test misses them, so
-     * they are matched by their slot instead.
+     * Icon-only controls need width as well as height.
+     *
+     * Matched structurally on the element rather than on data-slot: a Radix
+     * `asChild` trigger overwrites the button's slot with its own
+     * (dropdown-menu-trigger, dialog-trigger, and so on), so a slot-based
+     * rule silently missed every icon button that opens a menu or a sheet --
+     * which is most of them.
+     *
+     * `.sr-only` and `.hidden` are excluded from the "has a visible label"
+     * test: the first is a screen-reader name, the second is a label the
+     * layout drops on narrow screens, which is exactly when the icon is
+     * alone and the width matters.
      */
     [data-slot='sidebar-trigger'],
-    [data-slot='button']:has(> svg:only-of-type):not(
-            :has(> :not(svg):not(.sr-only))
+    button:has(> svg:only-of-type):not(
+            :has(> :not(svg):not(.sr-only):not(.hidden))
+        ),
+    a[data-slot='button']:has(> svg:only-of-type):not(
+            :has(> :not(svg):not(.sr-only):not(.hidden))
         ) {
         min-width: 44px;
     }

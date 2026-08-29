@@ -231,6 +231,7 @@ function ImageUploader({ location }: { location: Location }) {
                 ref={input}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                aria-label={t('location.add_image')}
                 className="sr-only"
                 onChange={(event) => {
                     const file = event.target.files?.[0];

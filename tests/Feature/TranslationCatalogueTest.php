@@ -158,13 +158,24 @@ class TranslationCatalogueTest extends TestCase
 
             $source = (string) file_get_contents($file->getPathname());
 
-            // Two or more capitalised-then-lowercase words sitting as a text
-            // node between tags: prose, not a class name or an identifier.
-            //
-            // The tail is unbounded. It used to stop at sixty characters,
-            // which quietly exempted every sentence longer than that -- and
-            // the sentences that most need translating are the long ones.
-            preg_match_all('/>\s*([A-Z][a-z]+ [a-z]{2,}[^<>{}]*)</', $source, $matches);
+            /*
+             * Two or more plain-English words sitting as a text node between
+             * tags: prose, not a class name or an identifier.
+             *
+             * The tail is unbounded. It used to stop at sixty characters,
+             * which quietly exempted every sentence longer than that -- and
+             * the sentences that most need translating are the long ones.
+             *
+             * The first word is no longer required to be capitalised either.
+             * A lowercase literal is still untranslated English: "log in" sat
+             * inside a link on the Arabic password-reset page for exactly as
+             * long as that rule was in place.
+             *
+             * The lookbehind keeps `=>` and `->` out of it: an arrow function
+             * inside a JSX expression ends in `>` too, and without this the
+             * body of every inline callback reads as prose.
+             */
+            preg_match_all('/(?<![=-])>\s*([A-Za-z][a-z]+ [a-z]{2,}[^<>{}]*)</', $source, $matches);
 
             foreach ($matches[1] as $text) {
                 $found[] = trim($text).' — '.$file->getFilename();
@@ -258,5 +269,32 @@ class TranslationCatalogueTest extends TestCase
                 "ui.{$key} is identical in both locales — likely untranslated."
             );
         }
+    }
+
+    /**
+     * The Arabic catalogue must not carry Arabic-Indic numerals.
+     *
+     * Not a style preference. Every figure the app computes is rendered Latin
+     * (locked decision 15), so a hardcoded Arabic-Indic digit puts two numeral
+     * scripts on one screen -- and one of these was worse than cosmetic: the
+     * price hint read "type ٠ to make it free" beside an `input[type=number]`,
+     * which silently discards that character. An owner following the
+     * instruction literally got an empty field.
+     */
+    public function test_the_arabic_catalogue_uses_latin_digits(): void
+    {
+        $offenders = [];
+
+        foreach (glob(lang_path('ar/*.php')) ?: [] as $file) {
+            $contents = (string) file_get_contents($file);
+
+            foreach (explode("\n", $contents) as $number => $line) {
+                if (preg_match('/[\x{0660}-\x{0669}]/u', $line) === 1) {
+                    $offenders[] = basename($file).':'.($number + 1).' '.trim($line);
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders);
     }
 }

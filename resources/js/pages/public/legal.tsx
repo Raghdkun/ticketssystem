@@ -1,8 +1,7 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { BackLink } from '@/components/back-link';
 import { FlashToaster } from '@/components/flash-toaster';
 import { PublicFooter } from '@/components/public-footer';
-import { useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
 type Section = { heading: string; body: string };
@@ -13,7 +12,6 @@ type Props = {
 
 export default function Legal({ document: doc }: Props) {
     const { legal } = usePage<Props>().props;
-    const { direction } = useLocale();
     const t = useTranslation();
 
     const sections = legal?.[doc] ?? [];
@@ -33,15 +31,11 @@ export default function Legal({ document: doc }: Props) {
                 id="main-content"
                 className="mx-auto w-full max-w-2xl flex-1 p-6"
             >
-                <Link
-                    href="/"
-                    className="mb-8 inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    <ArrowLeft
-                        className={direction === 'rtl' ? 'rotate-180' : ''}
-                    />
-                    {t('common.back')}
-                </Link>
+                {/* The shared control, not a hand-rolled copy: this one had
+                    lost the coarse-pointer height floor, and rotated the arrow
+                    in CSS -- which flips the glyph's stroke caps along with
+                    its direction. BackLink picks the right arrow instead. */}
+                <BackLink href="/" className="mb-8" />
 
                 <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
 

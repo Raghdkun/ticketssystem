@@ -29,28 +29,31 @@ export function PublicFooter() {
                     </span>
                 </div>
 
-                <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                {/* A nav row, not prose, so the coarse-pointer floor applies
+                    to each link. Scoped to coarse pointers: on a desktop these
+                    are text links and 44px of height would just be padding. */}
+                <nav className="flex flex-wrap items-center gap-x-5 text-sm text-muted-foreground">
                     <Link
                         href="/my-tickets"
-                        className="cursor-pointer transition-colors hover:text-foreground"
+                        className="inline-flex cursor-pointer items-center transition-colors hover:text-foreground coarse:min-h-11"
                     >
                         {t('ticket.my_tickets')}
                     </Link>
                     <Link
                         href="/privacy"
-                        className="cursor-pointer transition-colors hover:text-foreground"
+                        className="inline-flex cursor-pointer items-center transition-colors hover:text-foreground coarse:min-h-11"
                     >
                         {t('legal.privacy')}
                     </Link>
                     <Link
                         href="/terms"
-                        className="cursor-pointer transition-colors hover:text-foreground"
+                        className="inline-flex cursor-pointer items-center transition-colors hover:text-foreground coarse:min-h-11"
                     >
                         {t('legal.terms')}
                     </Link>
                     <Link
                         href="/login"
-                        className="cursor-pointer transition-colors hover:text-foreground"
+                        className="inline-flex cursor-pointer items-center transition-colors hover:text-foreground coarse:min-h-11"
                     >
                         {t('legal.for_venues')}
                     </Link>

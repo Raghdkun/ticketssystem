@@ -98,7 +98,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                 ? 'page'
                                                 : undefined
                                         }
-                                        className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                                        className={`inline-flex min-h-11 items-center rounded-full px-4 text-xs font-medium transition-colors ${
                                             filter === option.key
                                                 ? 'bg-primary text-primary-foreground'
                                                 : 'text-muted-foreground hover:text-foreground'

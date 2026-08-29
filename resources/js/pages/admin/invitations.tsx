@@ -105,7 +105,13 @@ export default function AdminInvitations({
                             </div>
 
                             <label className="flex min-h-11 items-center gap-3 text-sm">
-                                <Switch name="requires_approval" value="1" />
+                                {/* A wrapping label does not name a Radix
+                                    switch the way it names a native input. */}
+                                <Switch
+                                    name="requires_approval"
+                                    value="1"
+                                    aria-label={t('roles.needs_approval')}
+                                />
                                 {t('roles.needs_approval')}
                             </label>
                             <input

@@ -23,19 +23,25 @@ export default function AuthSimpleLayout({
                 style={{ backgroundColor: 'var(--brand-jade-700)' }}
             />
 
-            <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10">
+            {/* app.blade.php emits the skip link on every page, so every
+                layout has to provide its target. Without it the link was a
+                dead jump on the whole auth flow. */}
+            <main
+                id="main-content"
+                className="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10"
+            >
                 <div className="w-full max-w-sm">
                     <div className="flex flex-col gap-8">
                         <div className="flex items-center justify-between gap-4">
                             <Link
                                 href={home()}
-                                className="flex items-center gap-2 rounded-md font-medium"
+                                className="flex items-center gap-2 rounded-md font-medium coarse:min-h-11 coarse:min-w-11"
                             >
                                 <AppLogoIcon className="mark-animated size-9 text-primary" />
                                 <span className="sr-only">{title}</span>
                             </Link>
 
-                            <LanguageToggle className="min-h-9 border bg-transparent py-1 text-foreground hover:bg-muted" />
+                            <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
                         </div>
 
                         <div className="space-y-2">
@@ -54,21 +60,21 @@ export default function AuthSimpleLayout({
                             <span aria-hidden>·</span>
                             <Link
                                 href="/privacy"
-                                className="rounded-sm underline-offset-4 hover:text-foreground hover:underline"
+                                className="inline-flex items-center rounded-sm underline-offset-4 hover:text-foreground hover:underline coarse:min-h-11"
                             >
                                 {t('legal.privacy')}
                             </Link>
                             <span aria-hidden>·</span>
                             <Link
                                 href="/terms"
-                                className="rounded-sm underline-offset-4 hover:text-foreground hover:underline"
+                                className="inline-flex items-center rounded-sm underline-offset-4 hover:text-foreground hover:underline coarse:min-h-11"
                             >
                                 {t('legal.terms')}
                             </Link>
                         </p>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

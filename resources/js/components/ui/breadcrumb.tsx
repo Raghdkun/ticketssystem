@@ -44,7 +44,13 @@ function BreadcrumbLink({
   return (
     <Comp
       data-slot="breadcrumb-link"
-      className={cn("hover:text-foreground transition-colors", className)}
+      className={cn(
+        // A breadcrumb is a real way back, and at text height it is a 20px
+        // target on a phone. Scoped to coarse pointers so the trail stays
+        // compact on a desktop.
+        "inline-flex items-center transition-colors coarse:min-h-11 hover:text-foreground",
+        className
+      )}
       {...props}
     />
   )

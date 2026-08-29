@@ -167,8 +167,13 @@ realtime status flip.
 | 9 | Artboard match: owner dashboard, events, admin owners, auth — composition block-by-block at 1280 / 1100 / 375 |
 | 10 | Venue location (Leaflet/OSM pin + address + landmark), app-wide back navigation, i18n and a11y sweep |
 | 11 | Rotating notification copy, hold reminders, waiting list, holder self-release, repeatable events, home listing filters, collapsible event form, first-run checklist, one numeral rule |
+| 12 | Whole-app accessibility and i18n sweep: an `h1` on every screen, tap-target floors that actually apply, Arabic-Indic digits out of the catalogue, the last untranslated strings |
 
-**361 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / best practices / SEO / agentic.
+**366 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+agentic browsing. Best practices scores 96 **against the dev server only** —
+the sole deduction is a cookie warning on a `localhost:5173` request for
+Leaflet's stylesheet, which does not exist once Vite has built. Audit a
+production build before treating that number as a regression.
 
 ---
 
@@ -400,6 +405,30 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   `$this->get('/?q=شعرية')` corrupts a byte before the request ever reaches
   the app, which looks exactly like a broken search. Browsers percent-encode;
   tests must too.
+- **A Radix `asChild` trigger overwrites `data-slot="button"`** with its own
+  slot (`dropdown-menu-trigger`, `dialog-trigger`, and so on). The
+  coarse-pointer rule that widens icon-only controls was keyed on the button
+  slot, so it silently missed every icon button that opens a menu or a sheet —
+  which is most of them. Match structurally on the element, not on the slot.
+- **A `className` override can defeat a component's own tap-target floor.**
+  `LanguageToggle` carries `min-h-11`; two call sites passed `min-h-9` and
+  dropped it to 36px on the venue page and every auth page. A utility that
+  *lowers* a floor is almost always a mistake.
+- **Arabic-Indic digits were hardcoded in `lang/ar/ui.php`.** One of them told
+  the owner to type `٠` to make an event free, next to an
+  `input[type=number]` that silently discards that character — so following
+  the instruction literally produced an empty field.
+  `TranslationCatalogueTest` now lints the Arabic catalogue for them.
+- **The hardcoded-English sweep had three blind spots**, and each hid a real
+  string: it exempted `components/ui/` (where every dialog's screen-reader
+  label lived), capped matches at sixty characters (so only the long
+  sentences escaped), and required the first word to be capitalised (so
+  `>log in<` and `>or you can<` read as markup). The `=>` of an arrow function
+  also ends in `>`, so the pattern needs a lookbehind or every inline callback
+  body reads as prose.
+- **`<Heading>` renders an `h2`**, so the whole authenticated side had no `h1`
+  at all. It is emitted once by `app-sidebar-layout` from the last breadcrumb,
+  which is already a translation key — do not add per-page ones.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 

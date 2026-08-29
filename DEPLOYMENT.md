@@ -419,6 +419,10 @@ Then, by hand:
    date — "13 من 89 مقعد · 8 أيلول". Latin digits, Arabic month name. Two
    numeral scripts on one line means a call site is bypassing
    `resources/js/lib/format.ts`.
+10. Tab to the very first control on any page → a **Skip to content** link
+    appears and lands on the page's own content. Every layout has to provide
+    the `#main-content` target the link points at; a layout that forgets it
+    makes the link a dead jump, which is silent.
 
 ---
 

@@ -467,6 +467,7 @@ return [
         'or_confirm_password' => 'Or confirm with password',
         'confirm_passkey' => 'Confirm with passkey',
         'or_return_to' => 'Or, return to',
+        'or_you_can' => 'or you can',
         'email_reset_link' => 'Email password reset link',
         'log_in' => 'Log in',
         'log_in_title' => 'Log in to your account',

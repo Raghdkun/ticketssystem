@@ -331,7 +331,7 @@ function VenueChip({
             preserveScroll
             aria-current={active ? 'true' : undefined}
             className={cn(
-                'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition',
+                'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm transition',
                 active
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'hover:bg-muted',

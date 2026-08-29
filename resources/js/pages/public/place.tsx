@@ -100,7 +100,7 @@ export default function PlacePage({ place, locations, upcoming, past }: Props) {
 
             <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 p-4">
                 <BackLink href="/" label="common.back_home" />
-                <LanguageToggle className="min-h-9 border bg-transparent py-1 text-foreground hover:bg-muted" />
+                <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
             </div>
 
             <main
