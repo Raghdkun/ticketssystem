@@ -112,6 +112,9 @@ final class PosterPrompt
             ]),
             self::subject($event, $line, $locale),
             self::setting($event, $line, $locale),
+            // Always present, and specific: "Syrian" pulls a model towards
+            // Damascus and Palmyra, which is the wrong governorate entirely.
+            $line('region'),
             $line('palette', ['colors' => implode(', ', $palette)]),
             $elements === []
                 ? ''

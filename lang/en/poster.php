@@ -18,6 +18,10 @@ return [
 
     'setting' => 'It happens at :name, :where. Draw on the character of that place — its architecture, materials and light.',
 
+    // Named specifically because "Syria" pulls a model straight to Damascus,
+    // Palmyra and Aleppo — none of which is where this platform operates.
+    'region' => 'Ground it in As-Suwayda and Jabal al-Arab in southern Syria — not Damascus, not Aleppo, not Palmyra. That means black volcanic basalt, which the city is built from and named for; the dry-stone masonry, low arches and carved lintels of Hauran villages; the Roman ruins at Qanawat, Shahba and Si\'a; terraced vineyards, apple orchards and wheat on dark volcanic soil; and the open lava country of the Lajat. Warm, dry, high-altitude light.',
+
     'palette' => 'Use this exact palette and nothing outside it: :colors. Commit to it; let two of these dominate and the rest accent.',
 
     'elements' => 'Build the composition from these devices: :elements.',
@@ -63,7 +67,7 @@ return [
         'elegant' => 'elegant and restrained',
         'bold' => 'bold and high-contrast',
         'minimal' => 'minimal, with generous negative space',
-        'heritage' => 'rooted in Levantine and Syrian visual heritage',
+        'heritage' => 'rooted in the visual heritage of As-Suwayda and the Hauran — basalt, dry-stone building and local ornament',
         'nocturne' => 'nocturnal and atmospheric, lit from a single source',
         'warm' => 'warm and inviting, golden-hour light',
         'festive' => 'festive and celebratory',
