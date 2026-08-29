@@ -10,6 +10,7 @@ import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translation';
 import { edit } from '@/routes/security';
 
 type Props = {
@@ -18,12 +19,13 @@ type Props = {
     ManageTwoFactorProps;
 
 export default function Security(props: Props) {
+    const t = useTranslation();
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
         <>
-            <Head title="Security settings" />
+            <Head title={t('settings.security')} />
 
             <h1 className="sr-only">Security settings</h1>
 

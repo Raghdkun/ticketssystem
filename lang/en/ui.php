@@ -501,6 +501,7 @@ return [
     ],
 
     'poster' => [
+        'artwork_label' => 'Your artwork file',
         'title' => 'Poster workshop',
         'subtitle' => 'Build a prompt for your AI tool, then drop the artwork back here and we add the real details.',
         'step_one' => 'Describe the poster',

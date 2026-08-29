@@ -102,6 +102,40 @@ class TranslationCatalogueTest extends TestCase
         $this->assertSame([], array_values(array_unique($bad)));
     }
 
+    /**
+     * No page announces itself in one fixed language.
+     *
+     * `<Head title="...">` takes a plain string, so an English literal there
+     * shows up in the browser tab and in a shared link's title regardless of
+     * locale -- which is exactly what three settings pages were doing.
+     */
+    public function test_no_page_title_is_a_hardcoded_string(): void
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('js/pages'))
+        );
+
+        $bad = [];
+
+        foreach ($files as $file) {
+            if (! $file->isFile() || $file->getExtension() !== 'tsx') {
+                continue;
+            }
+
+            preg_match_all(
+                '/<Head\s+title="([^"]+)"/',
+                (string) file_get_contents($file->getPathname()),
+                $matches
+            );
+
+            foreach ($matches[1] as $literal) {
+                $bad[] = "\"{$literal}\" in ".$file->getFilename();
+            }
+        }
+
+        $this->assertSame([], $bad);
+    }
+
     public function test_every_language_file_parses(): void
     {
         // Linted as a subprocess rather than required: a parse error in a

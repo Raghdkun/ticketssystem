@@ -283,7 +283,11 @@ export default function PosterWorkshop({
                             {t('poster.step_two_hint')}
                         </p>
 
+                        <Label htmlFor="artwork">
+                            {t('poster.artwork_label')}
+                        </Label>
                         <input
+                            id="artwork"
                             type="file"
                             accept="image/*"
                             className="block w-full cursor-pointer rounded-lg border p-2 text-sm file:me-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-2 file:text-primary-foreground"

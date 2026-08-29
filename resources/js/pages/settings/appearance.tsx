@@ -1,12 +1,15 @@
 import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
+import { useTranslation } from '@/lib/translation';
 import { edit as editAppearance } from '@/routes/appearance';
 
 export default function Appearance() {
+    const t = useTranslation();
+
     return (
         <>
-            <Head title="Appearance settings" />
+            <Head title={t('settings.appearance')} />
 
             <h1 className="sr-only">Appearance settings</h1>
 
