@@ -3,6 +3,7 @@ import {
     CalendarDays,
     ClipboardCheck,
     LayoutGrid,
+    Mail,
     MapPin,
     ScanLine,
     Search,
@@ -32,6 +33,7 @@ import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import {
     events as adminEvents,
+    invitations as adminInvitations,
     owners,
     roles as adminRoles,
     settings as platformSettings,
@@ -79,6 +81,11 @@ const adminNavItems: NavItem[] = [
         title: 'admin.title',
         href: owners(),
         icon: ShieldCheck,
+    },
+    {
+        title: 'invite.admin_title',
+        href: adminInvitations(),
+        icon: Mail,
     },
     {
         title: 'roles.title',

@@ -83,15 +83,28 @@ class HandleInertiaRequests extends Middleware
      */
     private function flash(Request $request): array
     {
+        $flash = ['toast' => null];
+
         foreach (['success', 'error', 'warning', 'info'] as $type) {
             $message = $request->session()->get($type);
 
             if (is_string($message) && $message !== '') {
-                return ['toast' => ['type' => $type, 'message' => $message]];
+                $flash['toast'] = ['type' => $type, 'message' => $message];
+
+                break;
             }
         }
 
-        return ['toast' => null];
+        // A freshly minted invitation link, shown exactly once. It is passed
+        // through explicitly rather than by forwarding the whole session:
+        // only what is named here can ever reach the page.
+        $link = $request->session()->get('invitation_link');
+
+        if (is_string($link) && $link !== '') {
+            $flash['invitation_link'] = $link;
+        }
+
+        return $flash;
     }
 
     /**

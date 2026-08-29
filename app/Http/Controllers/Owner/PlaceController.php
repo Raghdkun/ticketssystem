@@ -48,9 +48,7 @@ class PlaceController extends Controller
 
         $place->update($request->validated());
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.owner.place_saved')],
-        ]);
+        return back()->with('success', __('ui.owner.place_saved'));
     }
 
     private function place(Request $request): ?Place

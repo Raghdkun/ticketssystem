@@ -54,9 +54,13 @@ realtime status flip.
    scale, not money. The figures live on the owner dashboard, which an
    administrator reaches by impersonating, and that leaves a record of who
    looked.
-5. **Public registration is closed.** Super admins provision owners (account + venue in one
-   transaction) from `/admin/owners`. Re-enabling `Features::registration()` would let anyone create
-   an account on a venue-management platform.
+5. **Public registration is closed, and an invitation is the only door.** There
+   is no open sign-up. An admin mints a one-use, expiring invitation; only its
+   SHA-256 hash is stored, so the link is knowable exactly once and a leaked
+   database yields nothing. The account is created with the *invited* address,
+   so a forwarded link cannot become a stranger's account, and the whole
+   thing — user, venue, first location — happens in one transaction under a
+   row lock, so a double submission cannot make two accounts.
 6. **Pending reservations hold seats**, with auto-expiry after `hold_hours` (default 24).
 7. **Seat safety is a row lock.** `AppointTicket` does `lockForUpdate()` on the *event* row. Removing
    it makes `OverbookingTest` fail — verified by deleting it and watching all 12 contenders win 5 seats.
@@ -101,6 +105,9 @@ realtime status flip.
   therefore uses `rise`, not `fadeRise`.
 - **Every control is ≥44px on coarse pointers** (`@media (pointer: coarse)` in `app.css`).
 - **Flash messages are `{ type, message }`** under `flash.toast`. A bare string renders nothing.
+  The shared prop is **rebuilt** by `HandleInertiaRequests::flash()` from the `success`, `error`,
+  `warning` and `info` session keys — so `->with('flash', [...])` is silently discarded, and
+  anything else a controller wants to pass through has to be named there explicitly.
 - **Error pages are styled inline**, not through Vite. They must render when the asset manifest is
   missing or a deploy is half-finished — which is exactly when they are needed.
 - **`data-[side=*]` animation classes stay physical.** They follow Radix's computed placement, not

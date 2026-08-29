@@ -65,12 +65,7 @@ class EventReviewController extends Controller
             'title' => $event->title_en,
         ]);
 
-        return back()->with('flash', [
-            'toast' => [
-                'type' => 'success',
-                'message' => __($approved ? 'ui.review.approved' : 'ui.review.rejected'),
-            ],
-        ]);
+        return back()->with('success', __($approved ? 'ui.review.approved' : 'ui.review.rejected'));
     }
 
     public function destroy(Event $event): RedirectResponse
@@ -85,8 +80,6 @@ class EventReviewController extends Controller
 
         $event->delete();
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.review.deleted')],
-        ]);
+        return back()->with('success', __('ui.review.deleted'));
     }
 }

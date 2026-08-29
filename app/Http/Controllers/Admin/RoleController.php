@@ -68,9 +68,7 @@ class RoleController extends Controller
         // "who changed that" about, long after the fact.
         AuditLog::record('role_changed', $user, ['from' => $before, 'to' => $data]);
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.roles.saved')],
-        ]);
+        return back()->with('success', __('ui.roles.saved'));
     }
 
     /**

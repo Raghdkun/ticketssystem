@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
+use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\PushSubscriptionController;
 use App\Http\Controllers\Public\SitemapController;
@@ -17,6 +18,18 @@ Route::get('my-tickets', TicketLookupController::class)
 
 Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
+
+/*
+ * Redeeming an invitation. Unauthenticated by necessity -- the person has no
+ * account yet -- so it is rate limited: the token is unguessable, and this
+ * makes trying anyway pointless rather than merely slow.
+ */
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('invite/{token}', [InvitationController::class, 'show'])
+        ->name('invitations.show');
+    Route::post('invite/{token}', [InvitationController::class, 'accept'])
+        ->name('invitations.accept');
+});
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');

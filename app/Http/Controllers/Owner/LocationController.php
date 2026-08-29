@@ -49,9 +49,7 @@ class LocationController extends Controller
 
         $this->settlePrimary($location);
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.location.saved')],
-        ]);
+        return back()->with('success', __('ui.location.saved'));
     }
 
     public function update(LocationRequest $request, Location $location): RedirectResponse
@@ -61,9 +59,7 @@ class LocationController extends Controller
         $location->update($request->validated());
         $this->settlePrimary($location);
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.location.saved')],
-        ]);
+        return back()->with('success', __('ui.location.saved'));
     }
 
     public function destroy(Location $location): RedirectResponse
@@ -83,9 +79,7 @@ class LocationController extends Controller
             $place->locations()->orderBy('sort')->first()?->update(['is_primary' => true]);
         }
 
-        return back()->with('flash', [
-            'toast' => ['type' => 'success', 'message' => __('ui.location.deleted')],
-        ]);
+        return back()->with('success', __('ui.location.deleted'));
     }
 
     /**
