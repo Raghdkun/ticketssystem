@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Event;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\JpegEncoder;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 
@@ -51,6 +52,18 @@ final class CoverProcessor
             Storage::disk(self::DISK)->put($path, (string) $encoded);
             $variants[$name] = $path;
         }
+
+        // A JPEG at the size link unfurlers expect. Deliberately not WebP:
+        // WhatsApp is how these links actually travel here, and its preview
+        // fetcher is unreliable with WebP -- a share that falls back to the
+        // app icon defeats the point of having a cover at all.
+        $og = $manager->decodeBinary($contents)
+            ->cover(1200, 630)
+            ->encode(new JpegEncoder(quality: 82));
+
+        $ogPath = "{$directory}/og.jpg";
+        Storage::disk(self::DISK)->put($ogPath, (string) $og);
+        $variants['og'] = $ogPath;
 
         // Tiny inline placeholder so the cover never pops in on a slow connection.
         $variants['placeholder'] = (string) $manager->decodeBinary($contents)

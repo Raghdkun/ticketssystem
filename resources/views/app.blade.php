@@ -42,10 +42,22 @@
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
         @php($platform = app(\App\Services\Settings::class))
+        {{-- Link unfurlers never run JavaScript, so these are rendered here
+             rather than from the page component's <Head>. --}}
+        @php($og = $page['props']['og'] ?? [])
         <meta property="og:site_name" content="{{ $platform->appName() }}">
-        <meta property="og:type" content="website">
+        <meta property="og:type" content="{{ $og['type'] ?? 'website' }}">
         <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:image" content="{{ url('/icons/icon-512.png') }}">
+        <meta property="og:title" content="{{ $og['title'] ?? $platform->appName() }}">
+        @if (! empty($og['description']))
+            <meta property="og:description" content="{{ $og['description'] }}">
+            <meta name="description" content="{{ $og['description'] }}">
+        @endif
+        <meta property="og:image" content="{{ $og['image'] ?? url('/icons/icon-512.png') }}">
+        @if (! empty($og['image']) && ! empty($og['width']))
+            <meta property="og:image:width" content="{{ $og['width'] }}">
+            <meta property="og:image:height" content="{{ $og['height'] }}">
+        @endif
         <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_SY' : 'en_GB' }}">
         <meta name="twitter:card" content="summary_large_image">
 

@@ -74,6 +74,9 @@ return [
     ],
 
     'owner' => [
+        'qr_hint' => 'Scanning it opens this event’s booking page. Print it on a poster or flyer.',
+        'qr_download' => 'Download PNG',
+        'qr_title' => 'Event QR code',
         'whatsapp' => 'WhatsApp number',
         'name_en' => 'Name (English)',
         'name_ar' => 'Name (Arabic)',
@@ -293,8 +296,11 @@ return [
     ],
 
     'push' => [
-        'title' => 'Get notified',
-        'body' => 'We will let you know the moment your ticket is verified.',
+        'retry' => 'Try again',
+        'not_now' => 'Not now',
+        'what_happens' => 'Your browser will ask next — one tap, and only for this event.',
+        'title' => 'Know the moment you are checked in',
+        'body' => 'We will tell you as soon as the venue marks your ticket paid.',
         'enable' => 'Enable notifications',
         'enabled' => 'Notifications are on',
         'failed' => 'Could not enable — try again',

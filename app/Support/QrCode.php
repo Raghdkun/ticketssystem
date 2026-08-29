@@ -5,6 +5,7 @@ namespace App\Support;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\QrCode as EndroidQrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
 
 /**
@@ -31,5 +32,26 @@ final class QrCode
         );
 
         return 'data:image/svg+xml;base64,'.base64_encode($result->getString());
+    }
+
+    /**
+     * Raw PNG bytes, for a QR an owner downloads and puts on a poster.
+     *
+     * High error correction rather than medium: a printed code gets folded,
+     * taped over and photographed off a wall, and unlike the door scanner
+     * there is nobody there to hold it straight and try again.
+     */
+    public static function png(string $data, int $size = 1024): string
+    {
+        return (new PngWriter)->write(
+            new EndroidQrCode(
+                data: $data,
+                errorCorrectionLevel: ErrorCorrectionLevel::High,
+                size: $size,
+                margin: (int) round($size * 0.04),
+                foregroundColor: new Color(10, 10, 10),
+                backgroundColor: new Color(255, 255, 255),
+            )
+        )->getString();
     }
 }

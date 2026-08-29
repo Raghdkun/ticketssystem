@@ -46,6 +46,15 @@ start from a stock Laravel file.
 | `QUEUE_CONNECTION` | `database` (or `redis`) | Must not be `sync`: a slow FCM call would block the door staff's request |
 | `CACHE_STORE` | `database` or `redis` | Platform settings and rate limits live here |
 
+**Password policy** is eight characters and a check against known breaches —
+no mixed case, digit or symbol requirements. Composition rules push people to
+one memorised pattern with a digit on the end and are miserable on a phone
+keyboard, which is where a venue owner will be. This follows NIST 800-63B,
+which recommends screening against breach corpora instead. The breach check
+calls Have I Been Pwned over k-anonymity (only a hash prefix leaves the
+server); if that host is unreachable the check passes rather than locking
+anybody out.
+
 Reverb needs both halves. The `VITE_` copies are compiled into the JS bundle,
 so **they must be literal values** — Vite does not expand `${REVERB_APP_KEY}`:
 
@@ -315,6 +324,17 @@ php artisan up
 
 Restarting the workers is not optional: they hold the **old** code in memory
 until they are cycled, so a deploy without it leaves stale logic broadcasting.
+
+**If this release added the link-preview variant**, backfill it once after
+migrating, or every event already in the database keeps sharing as a WebP —
+the one format WhatsApp is unreliable with:
+
+```bash
+php artisan covers:backfill-og
+```
+
+It rebuilds from the largest variant on disk (the original upload is not kept)
+and skips events that already have one. Safe to run more than once.
 
 **If this release changed anything under `public/icons/`**, bump `VERSION` in
 `public/sw.js` in the same commit. Files under `/build/` are content-hashed, so

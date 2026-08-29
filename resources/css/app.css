@@ -7,6 +7,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Touch. The app is used one-handed at a venue door, so controls that need to
+ * grow on a finger can say so inline rather than in a media query far from the
+ * component they belong to.
+ */
+@custom-variant coarse (@media (pointer: coarse));
+
 @theme {
     /*
      * Latin display / text, then Arabic display / text. IBM Plex Sans Arabic

@@ -1,6 +1,7 @@
 import { Bell, BellOff } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { pushSupport, subscribeToTicket } from '@/lib/push';
 import { useTranslation } from '@/lib/translation';
 
@@ -19,6 +20,15 @@ export function PushOptIn({ token }: { token: string }) {
     const [state, setState] = useState<'idle' | 'working' | 'on' | 'failed'>(
         support === 'granted' ? 'on' : 'idle',
     );
+
+    // Dismissal is per view rather than remembered: the card only appears on
+    // a pending ticket, and once the ticket is paid it stops appearing on its
+    // own. Persisting a refusal would silently outlive the reason for it.
+    const [dismissed, setDismissed] = useState(false);
+
+    if (dismissed) {
+        return null;
+    }
 
     // Nothing to offer: not configured, unsupported, or already refused.
     if (
@@ -57,26 +67,65 @@ export function PushOptIn({ token }: { token: string }) {
     }
 
     return (
-        <div className="space-y-2 rounded-xl border p-4 text-center">
-            <p className="text-sm font-medium">{t('push.title')}</p>
-            <p className="text-xs text-muted-foreground">{t('push.body')}</p>
+        <section className="brand-surface space-y-3 rounded-2xl border p-4">
+            <div className="flex items-start gap-3">
+                <span
+                    aria-hidden
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+                >
+                    <Bell className="size-5" />
+                </span>
 
-            <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="w-full cursor-pointer"
-                disabled={state === 'working'}
-                onClick={async () => {
-                    setState('working');
-                    setState(
-                        (await subscribeToTicket(token)) ? 'on' : 'failed',
-                    );
-                }}
-            >
-                {state === 'failed' ? <BellOff /> : <Bell />}
-                {state === 'failed' ? t('push.failed') : t('push.enable')}
-            </Button>
-        </div>
+                <div className="min-w-0">
+                    <p className="text-sm font-semibold">{t('push.title')}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                        {t('push.body')}
+                    </p>
+                </div>
+            </div>
+
+            {/* Said before the browser dialog appears, not after: people
+                dismiss prompts they were not expecting, and a refusal here
+                can only be undone in browser settings. */}
+            <p className="rounded-lg bg-muted/60 p-2.5 text-xs text-muted-foreground">
+                {t('push.what_happens')}
+            </p>
+
+            {state === 'failed' && (
+                <p className="text-xs text-destructive">{t('push.failed')}</p>
+            )}
+
+            <div className="flex flex-col gap-2 sm:flex-row-reverse">
+                <Button
+                    type="button"
+                    className="w-full cursor-pointer sm:flex-1"
+                    disabled={state === 'working'}
+                    onClick={async () => {
+                        setState('working');
+                        setState(
+                            (await subscribeToTicket(token)) ? 'on' : 'failed',
+                        );
+                    }}
+                >
+                    {state === 'working' ? (
+                        <Spinner />
+                    ) : state === 'failed' ? (
+                        <BellOff />
+                    ) : (
+                        <Bell />
+                    )}
+                    {state === 'failed' ? t('push.retry') : t('push.enable')}
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full cursor-pointer sm:flex-1"
+                    onClick={() => setDismissed(true)}
+                >
+                    {t('push.not_now')}
+                </Button>
+            </div>
+        </section>
     );
 }

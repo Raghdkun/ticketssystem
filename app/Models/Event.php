@@ -120,6 +120,13 @@ class Event extends Model
      * whose hold has lapsed is not counted, so seats free up correctly even if
      * the expiry command has not run yet.
      */
+    public function description(?string $locale = null): ?string
+    {
+        return ($locale ?? app()->getLocale()) === 'ar'
+            ? $this->description_ar
+            : $this->description_en;
+    }
+
     public function seatsTaken(): int
     {
         return (int) $this->tickets()->holdingSeats()->sum('quantity');

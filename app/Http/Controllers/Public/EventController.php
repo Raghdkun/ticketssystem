@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Place;
 use App\Support\EventPresenter;
+use App\Support\SocialMeta;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,6 +23,7 @@ class EventController extends Controller
         return Inertia::render('public/event', [
             'event' => EventPresenter::forPublicPage($event),
             'place' => EventPresenter::place($place),
+            'og' => SocialMeta::forEvent($event, $place),
             'siblings' => EventPresenter::siblingEvents($place, $event),
         ]);
     }

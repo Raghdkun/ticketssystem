@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\EventStatus;
 use App\Models\Event;
 use App\Models\Place;
 use App\Models\User;
@@ -161,6 +162,48 @@ class PublicSurfaceTest extends TestCase
                 $this->assertStringContainsString("{$other}=()", $policy);
             }
         }
+    }
+
+    public function test_a_shared_event_link_previews_with_its_own_cover(): void
+    {
+        $place = Place::factory()->create();
+        $event = Event::factory()->for($place)->create([
+            'status' => EventStatus::Published,
+            'title_en' => 'Oud Evening',
+            'description_en' => 'An evening of classical oud.',
+            'cover_variants' => [
+                'og' => 'events/9/og.jpg',
+                'landscape' => 'events/9/landscape.webp',
+            ],
+        ]);
+
+        // Rendered from the server, not from the page component: WhatsApp and
+        // Facebook fetch with a plain HTTP client and never run JavaScript.
+        $html = $this->get("/{$place->slug}/{$event->slug}?lang=en")
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('property="og:title" content="Oud Evening', (string) $html);
+        $this->assertStringContainsString('An evening of classical oud.', (string) $html);
+        $this->assertStringContainsString('events/9/og.jpg', (string) $html);
+        $this->assertStringContainsString('content="1200"', (string) $html);
+    }
+
+    public function test_a_cover_predating_the_preview_variant_declares_its_real_size(): void
+    {
+        $place = Place::factory()->create();
+        $event = Event::factory()->for($place)->create([
+            'status' => EventStatus::Published,
+            'cover_variants' => ['landscape' => 'events/8/landscape.webp'],
+        ]);
+
+        // Advertising 1200x630 for the 1600x900 fallback makes unfurlers crop
+        // or reject the image.
+        $html = (string) $this->get("/{$place->slug}/{$event->slug}")->assertOk()->getContent();
+
+        $this->assertStringContainsString('events/8/landscape.webp', $html);
+        $this->assertStringContainsString('content="1600"', $html);
+        $this->assertStringNotContainsString('content="1200"', $html);
     }
 
     public function test_the_favicon_is_the_brand_mark_not_laravel(): void

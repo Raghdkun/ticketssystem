@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
+import { EventQrCard } from '@/components/event-qr-card';
 import Heading from '@/components/heading';
 import { MediaManager } from '@/components/media-manager';
 import type { MediaItem } from '@/components/media-manager';
@@ -28,6 +29,8 @@ export default function EditEvent({ event }: Props) {
                     values={event}
                     submitLabel={t('form.save')}
                 />
+
+                <EventQrCard eventId={event.id} />
 
                 <MediaManager eventId={event.id} media={event.media} />
             </div>

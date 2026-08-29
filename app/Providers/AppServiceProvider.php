@@ -42,13 +42,14 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
+        // Composition rules (mixed case, symbols, a 12 character floor) push
+        // people towards one memorised pattern with a digit on the end, and
+        // they are miserable to type on a phone keyboard -- which is where a
+        // venue owner will be. NIST 800-63B advises dropping them in favour
+        // of screening against known breaches, which is what is kept here:
+        // eight characters, and not a password that has already leaked.
         Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+            ? Password::min(8)->uncompromised()
             : null,
         );
     }

@@ -4,7 +4,6 @@ namespace App\Http\Requests\Owner;
 
 use App\Enums\EventStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class EventRequest extends FormRequest
@@ -41,10 +40,10 @@ class EventRequest extends FormRequest
 
             'status' => ['required', new Enum(EventStatus::class)],
 
-            'cover' => [
-                Rule::requiredIf(fn () => $this->routeIs('owner.events.store')),
-                'nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:8192',
-            ],
+            // Optional on purpose: an owner should be able to get an event
+            // drafted and dated before they have artwork for it. The events
+            // list and the public page both render a coverless event.
+            'cover' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:8192'],
 
             'rules' => ['array', 'max:20'],
             'rules.*.body_ar' => ['required', 'string', 'max:255'],
