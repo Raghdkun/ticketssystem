@@ -83,9 +83,21 @@ independently**, and half-configuring it is the confusing state:
 Messaging → Web Push certificates → key pair**. It is public and ships in the
 JS bundle, like every other `VITE_` value.
 
-`FCM_CREDENTIALS` is an absolute path to the **service-account JSON**. That
-file is a credential: keep it outside the repository and outside `public/`,
-own it by the deploy user, and `chmod 600` it.
+`FCM_CREDENTIALS` is an absolute path to the **service-account JSON**, from
+Firebase Console → Project settings → **Service accounts** → *Generate new
+private key*. That file is a credential — anyone holding it can send as your
+project — so keep it outside the repository and outside `public/`, own it by
+the deploy user, and `chmod 600` it.
+
+```bash
+install -m 600 -o www-data -g www-data ~/swaida-tickets-*.json \
+  /var/www/tickets/storage/app/firebase/service-account.json
+```
+
+The app signs a JWT with that key and exchanges it for a one-hour OAuth token,
+cached for 55 minutes. **`FCM_ACCESS_TOKEN` is only for a one-off manual test**
+— an access token pasted into `.env` is stale before the next event, so leave
+it blank in production.
 
 `public/firebase-messaging-sw.js` is served raw from the origin root and
 cannot read Vite env vars, so its Firebase config is inlined in the file. If
