@@ -195,4 +195,34 @@ class HomeListingTest extends TestCase
         $this->get('/?q=nothing-like-this')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('events', 0)->where('total', 0));
     }
+
+    /**
+     * A bare home page with real events behind it reads as a dead platform.
+     * When nothing is on, the last few events are shown as a record.
+     */
+    public function test_when_nothing_is_on_the_recent_events_are_shown_as_a_record(): void
+    {
+        $place = Place::factory()->create(['is_active' => true]);
+        Event::factory()->ended()->for($place)->create(['status' => EventStatus::Published, 'title_en' => 'Last Week']);
+        Event::factory()->ended()->for($place)->create(['status' => EventStatus::Draft, 'title_en' => 'Never Published']);
+
+        $this->get('/')->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('events', 0)
+                ->has('recent', 1)
+                ->where('recent.0.title_en', 'Last Week')
+                ->where('recent.0.ended', true)
+                ->where('recent.0.is_open', false)
+        );
+    }
+
+    public function test_the_record_is_not_shown_while_something_is_on_or_a_filter_is_active(): void
+    {
+        $place = Place::factory()->create(['is_active' => true]);
+        Event::factory()->ended()->for($place)->create(['status' => EventStatus::Published]);
+        $this->eventAt($place, ['title_en' => 'Tonight']);
+
+        $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page->has('events', 1)->has('recent', 0));
+        $this->get('/?q=nothing-here')->assertInertia(fn (AssertableInertia $page) => $page->has('events', 0)->has('recent', 0));
+    }
 }

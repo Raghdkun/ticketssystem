@@ -3,6 +3,7 @@ import { CalendarDays, MapPin } from 'lucide-react';
 import { dateTag, formatMoney } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
+import { cn } from '@/lib/utils';
 
 export type ListedEvent = {
     slug: string;
@@ -16,6 +17,8 @@ export type ListedEvent = {
     seats_remaining: number;
     /** Booking window still open. An event stays listed until it ends. */
     is_open: boolean;
+    /** Already happened; shown only as a record, never as an offer. */
+    ended?: boolean;
     place_slug: string;
     place_name_ar: string;
     place_name_en: string;
@@ -36,11 +39,15 @@ export function EventCard({
     const t = useTranslation();
     const soldOut = event.seats_remaining <= 0;
     const closed = !event.is_open;
+    const ended = event.ended === true;
 
     return (
         <Link
             href={`/${event.place_slug}/${event.slug}`}
-            className="group block h-full overflow-hidden rounded-xl border transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className={cn(
+                'group block h-full overflow-hidden rounded-xl border transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                ended && 'opacity-70',
+            )}
         >
             <div className="relative aspect-video bg-muted">
                 {event.cover && (
@@ -98,11 +105,15 @@ export function EventCard({
                                 : 'size-1.5 rounded-full bg-primary'
                         }
                     />
-                    {closed
-                        ? t('home.booking_closed')
-                        : soldOut
-                          ? t('home.sold_out')
-                          : t('home.seats_left', { n: event.seats_remaining })}
+                    {ended
+                        ? t('home.ended')
+                        : closed
+                          ? t('home.booking_closed')
+                          : soldOut
+                            ? t('home.sold_out')
+                            : t('home.seats_left', {
+                                  n: event.seats_remaining,
+                              })}
                 </p>
             </div>
         </Link>

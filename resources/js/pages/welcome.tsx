@@ -29,6 +29,8 @@ type Props = {
     filters: { venue: string; q: string };
     total: number;
     limit: number;
+    /** Sent only when nothing is on: the last few events, marked as over. */
+    recent: ListedEvent[];
 };
 
 export default function Welcome({
@@ -37,6 +39,7 @@ export default function Welcome({
     filters,
     total,
     limit,
+    recent,
 }: Props) {
     const { locale } = useLocale();
     const { platform } = usePage<{
@@ -256,22 +259,49 @@ export default function Welcome({
                     )}
 
                     {events.length === 0 ? (
-                        <EmptyState
-                            icon={CalendarDays}
-                            title={
-                                filtered ? t('home.no_matches') : t('home.none')
-                            }
-                            action={
-                                filtered ? (
-                                    <Button asChild variant="outline">
-                                        <Link href="/">
-                                            <X />
-                                            {t('home.clear_filters')}
-                                        </Link>
-                                    </Button>
-                                ) : undefined
-                            }
-                        />
+                        <>
+                            <EmptyState
+                                icon={CalendarDays}
+                                title={
+                                    filtered
+                                        ? t('home.no_matches')
+                                        : recent.length > 0
+                                          ? t('home.recent_hint')
+                                          : t('home.none')
+                                }
+                                action={
+                                    filtered ? (
+                                        <Button asChild variant="outline">
+                                            <Link href="/">
+                                                <X />
+                                                {t('home.clear_filters')}
+                                            </Link>
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+
+                            {/* A bare page with real events behind it reads as
+                                a dead platform. What happened recently is
+                                shown as a record, dimmed and marked as over,
+                                never as something to book. */}
+                            {recent.length > 0 && (
+                                <section className="space-y-4">
+                                    <h3 className="border-b pb-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                                        {t('home.recent')}
+                                    </h3>
+                                    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        {recent.map((event) => (
+                                            <li
+                                                key={`${event.place_slug}/${event.slug}`}
+                                            >
+                                                <EventCard event={event} />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            )}
+                        </>
                     ) : (
                         <div className="space-y-8">
                             {months.map((month) => (

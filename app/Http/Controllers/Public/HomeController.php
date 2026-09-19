@@ -74,7 +74,47 @@ class HomeController extends Controller
             'filters' => ['venue' => $venue, 'q' => $search],
             'total' => $total,
             'limit' => self::LIMIT,
+            // Only when there is nothing on and nothing was asked for: a
+            // visitor landing on a bare page with real events behind it reads
+            // the platform as dead. Recent events, marked as over, say
+            // otherwise without pretending anything is bookable.
+            'recent' => $total === 0 && $venue === '' && $search === ''
+                ? $this->recentlyHeld()
+                : [],
         ]);
+    }
+
+    /**
+     * The last few events that have already happened, newest first.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function recentlyHeld(): array
+    {
+        return Event::query()
+            ->ended()
+            ->whereHas('place', fn (Builder $query) => $query->where('is_active', true))
+            ->with('place:id,slug,name_ar,name_en')
+            ->orderByDesc('starts_at')
+            ->limit(6)
+            ->get()
+            ->map(fn (Event $event) => [
+                'slug' => $event->slug,
+                'title_ar' => $event->title_ar,
+                'title_en' => $event->title_en,
+                'starts_at' => $event->starts_at->toIso8601String(),
+                'cover' => $event->cover_variants['thumb'] ?? null,
+                'is_free' => $event->isFree(),
+                'price' => (float) $event->price,
+                'currency' => $event->currency,
+                'seats_remaining' => 0,
+                'is_open' => false,
+                'ended' => true,
+                'place_slug' => $event->place->slug,
+                'place_name_ar' => $event->place->name_ar,
+                'place_name_en' => $event->place->name_en,
+            ])
+            ->all();
     }
 
     /**

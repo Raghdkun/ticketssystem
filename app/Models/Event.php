@@ -156,6 +156,22 @@ class Event extends Model
      */
     public const LINGER_HOURS = 6;
 
+    /**
+     * Published events that are over: the complement of `listable`.
+     *
+     * @param  Builder<Event>  $query
+     */
+    public function scopeEnded(Builder $query): void
+    {
+        $query->published()->where(function (Builder $query) {
+            $query->where('ends_at', '<=', now())
+                ->orWhere(function (Builder $query) {
+                    $query->whereNull('ends_at')
+                        ->where('starts_at', '<=', now()->subHours(self::LINGER_HOURS));
+                });
+        });
+    }
+
     public function isFree(): bool
     {
         return (float) $this->price === 0.0;
