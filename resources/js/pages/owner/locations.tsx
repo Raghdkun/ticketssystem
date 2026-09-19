@@ -102,7 +102,7 @@ export default function OwnerLocations({ hasPlace, locations }: Props) {
                     <ul className="grid gap-4 lg:grid-cols-2">
                         {locations.map((location) => (
                             <li key={location.id}>
-                                <article className="brand-surface flex h-full flex-col gap-3 rounded-xl border p-4">
+                                <article className="flex h-full flex-col gap-3 rounded-xl border bg-card p-4">
                                     {location.images.length > 0 ? (
                                         <ImageSlider
                                             images={location.images.map(
@@ -133,7 +133,7 @@ export default function OwnerLocations({ hasPlace, locations }: Props) {
                                                         title={t(
                                                             'location.primary',
                                                         )}
-                                                        className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary"
+                                                        className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary-text"
                                                     >
                                                         <Star
                                                             className="size-3"
@@ -395,7 +395,7 @@ function LocationForm({
                             name="is_primary"
                             value="1"
                             defaultChecked={values.is_primary}
-                            className="size-5 accent-[var(--brand-jade-700)]"
+                            className="size-5 accent-primary"
                         />
                         {t('location.make_primary')}
                     </label>

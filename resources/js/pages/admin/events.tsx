@@ -25,10 +25,10 @@ type Props = { events: AdminEvent[]; pending: number };
 function StatusChip({ status, label }: { status: string; label: string }) {
     const tone =
         status === 'published'
-            ? 'var(--brand-jade-500)'
+            ? 'var(--status-published-fg)'
             : status === 'pending_review'
-              ? 'var(--brand-saffron-500)'
-              : 'var(--brand-basalt-400)';
+              ? 'var(--status-pending-fg)'
+              : 'var(--status-draft-fg)';
 
     return (
         <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium">

@@ -7,29 +7,30 @@ import type { TicketStatus } from '@/types/public';
  *
  * A dot plus text, never colour alone — the door is lit badly and some of the
  * people reading this are colourblind, so hue is reinforcement rather than the
- * signal. Paid takes the brand jade: the good outcome is the brand.
+ * signal. The five tones are the design system's status tokens, so a pill
+ * here and a pill in a report are the same pill.
  */
 const tones: Record<TicketStatus, { pill: string; dot: string }> = {
     paid: {
-        pill: 'bg-[#ddece5] text-[#06392c] dark:bg-[#16342b] dark:text-[#ddece5]',
-        dot: 'bg-[#0a5c49] dark:bg-[#4fcba5]',
+        pill: 'bg-status-paid-bg text-status-paid-fg',
+        dot: 'bg-status-paid-fg',
     },
     pending: {
-        pill: 'bg-[#fbebce] text-[#8a5a0c] dark:bg-[#3a2c11] dark:text-[#f3c766]',
-        dot: 'bg-[#c88414] dark:bg-[#e8a72b]',
+        pill: 'bg-status-pending-bg text-status-pending-fg',
+        dot: 'bg-status-pending-fg',
     },
     cancelled: {
-        pill: 'bg-[#f6ded8] text-[#8a2c17] dark:bg-[#3a1d15] dark:text-[#e0a294]',
-        dot: 'bg-[#a3341f] dark:bg-[#e0674c]',
+        pill: 'bg-status-danger-bg text-status-danger-fg',
+        dot: 'bg-status-danger-fg',
     },
     expired: {
-        pill: 'bg-[#ede5d8] text-[#6e675a] dark:bg-[#262218] dark:text-[#a8a091]',
-        dot: 'bg-[#8a8272]',
+        pill: 'bg-status-draft-bg text-status-draft-fg',
+        dot: 'bg-status-draft-fg',
     },
     no_show: {
-        pill: 'bg-[#f2ece2] text-[#3b362d] dark:bg-[#262218] dark:text-[#d6c9b3]',
+        pill: 'bg-status-draft-bg text-status-draft-fg',
         // Hollow, so "nobody came" reads as absence rather than another colour.
-        dot: 'border-2 border-[#6e675a] bg-transparent dark:border-[#a8a091]',
+        dot: 'border-2 border-status-draft-fg bg-transparent',
     },
 };
 
@@ -46,7 +47,7 @@ export function StatusBadge({
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap',
+                'inline-flex min-h-[26px] items-center gap-1.5 rounded-full px-2.5 text-xs font-extrabold whitespace-nowrap',
                 tone.pill,
                 className,
             )}

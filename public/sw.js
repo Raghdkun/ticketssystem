@@ -17,8 +17,9 @@
  * which is exactly what would have happened to the rebrand.
  *
  * v2 — The Pass replaces the old indigo mark.
+ * v3 — ناس replaces The Pass; badge-96 and og-default added.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const ASSET_CACHE = `assets-${VERSION}`;
 
 self.addEventListener('install', () => {

@@ -94,7 +94,7 @@ function Stat({
     tone?: string;
 }) {
     return (
-        <StaggerItem className="brand-surface rounded-xl border p-4 transition-colors hover:border-primary/40">
+        <StaggerItem className="rounded-xl border bg-card p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone ?? ''}`}>
                 <Counter value={value} />
@@ -214,7 +214,7 @@ export default function Dashboard({
                     />
 
                     <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary-text">
                             <span className="relative flex size-1.5">
                                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75 motion-reduce:animate-none" />
                                 <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
@@ -235,7 +235,7 @@ export default function Dashboard({
                     live; it removes itself from then on. */}
                 {setup && <SetupChecklist steps={setup} />}
 
-                <section className="brand-surface flex flex-wrap items-end justify-between gap-6 rounded-2xl border p-5 sm:p-6">
+                <section className="flex flex-wrap items-end justify-between gap-6 rounded-2xl border bg-card p-5 sm:p-6">
                     <div className="min-w-0">
                         <p className="text-sm text-muted-foreground">
                             {t('dash.collected_month')}
@@ -251,7 +251,7 @@ export default function Dashboard({
                                 <span
                                     className={`inline-flex items-center gap-0.5 text-sm font-medium tabular-nums ${
                                         stats.trend >= 0
-                                            ? 'text-primary'
+                                            ? 'text-primary-text'
                                             : 'text-destructive'
                                     }`}
                                 >
@@ -453,7 +453,7 @@ export default function Dashboard({
                                                                 style={{
                                                                     width: `${pct}%`,
                                                                     backgroundColor:
-                                                                        'var(--brand-jade-700)',
+                                                                        'var(--primary)',
                                                                 }}
                                                             />
                                                         </div>

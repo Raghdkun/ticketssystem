@@ -4,6 +4,12 @@
  * Run with `npm run icons`. The SVGs in resources/brand are the source of
  * truth; nothing here should be edited by hand, and nothing in public/ should
  * be edited instead of here.
+ *
+ * Two marks, two jobs. The wordmark (ناس, outlined Lifta Black) is the brand;
+ * the orange disc exists for the places a wordmark cannot go — a 16px tab, a
+ * home screen, a notification badge. Anything under `public/icons/` is cached
+ * by the service worker without revalidation, so a change here needs the
+ * VERSION bump in public/sw.js in the same commit.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -13,49 +19,40 @@ import { Resvg } from '@resvg/resvg-js';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(resolve(root, p), 'utf8');
 
-const icon = read('resources/brand/icon.svg');
-const iconMaskable = read('resources/brand/icon-maskable.svg');
+const ORANGE = '#F66002';
+const INK = '#0D0E0F';
+const CREAM = '#F6F1EA';
+
+const disc = read('resources/brand/nas-disc.svg');
+const wordmarkSvg = read('resources/brand/nas-wordmark.svg');
+
+// The wordmark's path and its coordinate space, lifted from the source file so
+// the geometry is never duplicated by hand.
+const WORDMARK = {
+    d: wordmarkSvg.match(/ d="([^"]+)"/)[1],
+    translate: wordmarkSvg.match(/translate\(([^)]+)\)/)[1],
+    width: 288.928,
+    height: 182.8,
+};
 
 /**
- * Rounded tile, for icons composited onto an arbitrary background.
+ * The wordmark, drawn into a box of the given size at a given fill.
  *
- * Both tile rects are rounded, not just the base one: the sheen sits on top,
- * so leaving it square paints a bright wedge outside the corner radius.
+ * `fit` is the fraction of the box the wordmark spans horizontally; the
+ * vertical position follows from keeping the wordmark's own aspect ratio.
  */
-function rounded(svg, radius) {
-    return svg.replaceAll(
-        '<rect width="48" height="48"',
-        `<rect width="48" height="48" rx="${radius}"`,
-    );
-}
+function wordmark({ box, fill, fit, background }) {
+    const width = box.w * fit;
+    const scale = width / WORDMARK.width;
+    const height = WORDMARK.height * scale;
+    const x = (box.w - width) / 2;
+    const y = (box.h - height) / 2;
 
-const PASS =
-    'M12 10h14.5a3.5 3.5 0 0 0 7 0H36a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-2.5a3.5 3.5 0 0 0-7 0H12a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z';
+    const bg = background
+        ? `<rect width="${box.w}" height="${box.h}" fill="${background}"/>`
+        : '';
 
-/**
- * The mark, simplified for the size it will actually be seen at.
- *
- * The artboard is explicit about this: dots drop below 48px. Rendering the
- * full drawing into a 16px favicon turns the perforation into mush, so each
- * raster gets the version designed for it.
- */
-function markAt(size) {
-    const seat = size <= 16 ? 6 : 4.6;
-    const parts = [`<path d="${PASS}" fill="#0A5C49"/>`];
-
-    if (size >= 48) {
-        parts.push(
-            '<path d="M30 16v17" stroke="#FAF7F2" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 5.4"/>',
-        );
-    }
-
-    parts.push(`<circle cx="18.5" cy="24" r="${seat}" fill="#FAF7F2"/>`);
-
-    if (size > 16) {
-        parts.push('<circle cx="36" cy="24" r="3.2" fill="#E8A72B"/>');
-    }
-
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">${parts.join('')}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box.w} ${box.h}">${bg}<g transform="translate(${x} ${y}) scale(${scale}) translate(${WORDMARK.translate})"><path d="${WORDMARK.d}" fill="${fill}"/></g></svg>`;
 }
 
 function png(svg, size) {
@@ -73,10 +70,7 @@ function png(svg, size) {
  * dependency whose only job would be concatenating six buffers.
  */
 function ico(sizes) {
-    const images = sizes.map((size) => ({
-        size,
-        data: png(markAt(size), size),
-    }));
+    const images = sizes.map((size) => ({ size, data: png(disc, size) }));
 
     const header = Buffer.alloc(6);
     header.writeUInt16LE(0, 0); // reserved
@@ -111,20 +105,50 @@ const out = (p, data) => {
 
 console.log('Building icons from resources/brand/…');
 
-// The favicon is the bare mark, never the tile: a tab renders it small and
-// against an unknown background, where a coloured square says nothing. The
-// SVG carries the 32px reading — browsers scale it up cleanly, and detail
-// that only works large does not scale down.
-out('public/favicon.svg', markAt(32));
+// The favicon is the disc: a tab renders it at 16px against an unknown
+// background, where an orange circle reads and three Arabic letters do not.
+out('public/favicon.svg', disc);
+out('public/favicon.ico', ico([16, 32, 48]));
 
-out('public/icons/icon-192.png', png(rounded(icon, 10), 192));
-out('public/icons/icon-512.png', png(rounded(icon, 10), 512));
-out('public/icons/icon-maskable-512.png', png(iconMaskable, 512));
+// `purpose: any` icons keep the disc's own transparent corners.
+out('public/icons/icon-192.png', png(disc, 192));
+out('public/icons/icon-512.png', png(disc, 512));
+
+// A maskable icon is cropped to whatever shape the launcher likes, so it is
+// the wordmark on a full-bleed orange field, held inside the 80% safe zone.
+const tile = wordmark({
+    box: { w: 512, h: 512 },
+    fill: INK,
+    fit: 0.72,
+    background: ORANGE,
+});
+out('public/icons/icon-maskable-512.png', png(tile, 512));
 
 // iOS applies its own mask and does not honour transparency, so this one is
-// square and fully opaque.
-out('public/apple-touch-icon.png', png(icon, 180));
+// the same opaque tile.
+out('public/apple-touch-icon.png', png(tile, 180));
 
-out('public/favicon.ico', ico([16, 32, 48]));
+// Android draws a notification badge from the alpha channel alone and paints
+// it in the system colour, so the badge is the wordmark in solid white on
+// nothing. The colour icon would flatten to an unreadable blob.
+out(
+    'public/icons/badge-96.png',
+    png(
+        wordmark({ box: { w: 96, h: 96 }, fill: '#FFFFFF', fit: 0.78 }),
+        96,
+    ),
+);
+
+// The share card for any page with no cover of its own.
+const og = wordmark({
+    box: { w: 1200, h: 630 },
+    fill: INK,
+    fit: 0.34,
+    background: CREAM,
+}).replace(
+    '</svg>',
+    `<rect x="560" y="470" width="80" height="6" rx="3" fill="${ORANGE}"/></svg>`,
+);
+out('public/og-default.png', png(og, 1200));
 
 console.log('Done.');

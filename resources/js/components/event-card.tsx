@@ -37,12 +37,9 @@ export function EventCard({
     return (
         <Link
             href={`/${event.place_slug}/${event.slug}`}
-            className="group block h-full overflow-hidden rounded-xl border transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="group block h-full overflow-hidden rounded-xl border transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
-            <div
-                className="relative aspect-video"
-                style={{ backgroundColor: 'var(--brand-jade-700)' }}
-            >
+            <div className="relative aspect-video bg-muted">
                 {event.cover && (
                     <img
                         src={`/storage/${event.cover}`}

@@ -3,11 +3,11 @@ import { useEffect, useRef } from 'react';
 
 export type LatLng = { lat: number; lng: number };
 
-/** As-Suwayda city centre: where a picker with no pin yet should open. */
+/** Default viewport: where a picker with no pin yet should open. */
 export const SUWAYDA: LatLng = { lat: 32.7094, lng: 36.5694 };
 
 /**
- * A jade pin drawn as a `divIcon`.
+ * An orange pin drawn as a `divIcon`.
  *
  * Leaflet's default marker resolves its PNGs relative to the stylesheet, which
  * a bundler rewrites and breaks. Inline SVG sidesteps that entirely and lets
@@ -16,8 +16,8 @@ export const SUWAYDA: LatLng = { lat: 32.7094, lng: 36.5694 };
 const PIN = `
 <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M15 41c0 0 13-15.5 13-26A13 13 0 1 0 2 15c0 10.5 13 26 13 26Z"
-        fill="#0a5c49" stroke="#faf7f2" stroke-width="2.5" stroke-linejoin="round"/>
-  <circle cx="15" cy="15" r="4.5" fill="#faf7f2"/>
+        fill="#F66002" stroke="#F6F1EA" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="15" cy="15" r="4.5" fill="#F6F1EA"/>
 </svg>`;
 
 type Props = {

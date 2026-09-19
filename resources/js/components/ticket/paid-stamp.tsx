@@ -46,7 +46,7 @@ export function PaidStamp({ show, animate, label }: Props) {
                     }
                     aria-hidden="true"
                 >
-                    <div className="flex items-center gap-2 rounded-lg border-4 border-emerald-600 bg-white/85 px-4 py-1.5 text-emerald-700 shadow-lg backdrop-blur-[1px] dark:border-emerald-400 dark:bg-neutral-900/85 dark:text-emerald-300">
+                    <div className="flex items-center gap-2 rounded-md border-4 border-status-paid-fg bg-card/85 px-4 py-1.5 text-status-paid-fg shadow-raised backdrop-blur-[1px]">
                         <CheckCircle2 className="size-6" strokeWidth={3} />
                         <span className="text-2xl font-black tracking-wider uppercase">
                             {label}

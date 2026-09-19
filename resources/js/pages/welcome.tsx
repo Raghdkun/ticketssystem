@@ -1,13 +1,14 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { CalendarDays, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Wordmark } from '@/components/brand/wordmark';
 import { EmptyState } from '@/components/empty-state';
 import { EventCard } from '@/components/event-card';
 import type { ListedEvent } from '@/components/event-card';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PublicFooter } from '@/components/public-footer';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { dateTag, formatNumber } from '@/lib/format';
@@ -138,20 +139,10 @@ export default function Welcome({
 
             <header className="border-b">
                 <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 p-5">
-                    <div className="flex items-center gap-2">
-                        <AppLogoIcon
-                            detail="compact"
-                            className="size-7 text-primary"
-                        />
-                        <span className="font-bold">{platform.name}</span>
-                    </div>
+                    <Wordmark className="h-8 text-foreground" />
 
                     <div className="flex items-center gap-2">
-                        <Button
-                            asChild
-                            size="sm"
-                            className="bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
-                        >
+                        <Button asChild size="sm" className="">
                             {/* The label is hidden on narrow screens, so the
                                 link carries its own accessible name. */}
                             <Link
@@ -164,6 +155,7 @@ export default function Welcome({
                                 </span>
                             </Link>
                         </Button>
+                        <ThemeToggle className="bg-black/10 text-foreground dark:bg-white/10" />
                         <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
                     </div>
                 </div>
@@ -173,19 +165,19 @@ export default function Welcome({
                 id="main-content"
                 className="mx-auto w-full max-w-5xl space-y-10 p-5"
             >
-                <section className="brand-surface-strong grain relative overflow-hidden rounded-3xl border p-8 sm:p-12">
-                    <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight sm:text-5xl">
-                        {platform.name}
-                    </h1>
-                    <p className="mt-3 max-w-xl text-base text-muted-foreground sm:text-lg">
+                {/* The wordmark in the header already says who we are, so the
+                    hero says what we do. One orange rule, no gradient, no
+                    texture: the restraint is the brand. */}
+                <section className="rounded-lg border bg-card p-8 sm:p-12">
+                    <h1 className="max-w-2xl text-3xl leading-tight font-extrabold sm:text-5xl">
                         {platform.tagline ?? t('home.tagline')}
-                    </p>
+                    </h1>
+                    <div
+                        className="mt-5 h-1 w-16 rounded-full bg-primary"
+                        aria-hidden="true"
+                    />
 
-                    <Button
-                        asChild
-                        size="lg"
-                        className="mt-6 cursor-pointer bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
-                    >
+                    <Button asChild size="lg" className="mt-6 cursor-pointer">
                         <a href="#whats-on">{t('home.whats_on')}</a>
                     </Button>
                 </section>

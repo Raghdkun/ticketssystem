@@ -10,7 +10,8 @@ export type UseAppearanceReturn = {
 };
 
 const listeners = new Set<() => void>();
-let currentAppearance: Appearance = 'light';
+// System is the default: nobody has told us otherwise, so the device decides.
+let currentAppearance: Appearance = 'system';
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') {
@@ -31,10 +32,10 @@ const setCookie = (name: string, value: string, days = 365): void => {
 
 const getStoredAppearance = (): Appearance => {
     if (typeof window === 'undefined') {
-        return 'light';
+        return 'system';
     }
 
-    return (localStorage.getItem('appearance') as Appearance) || 'light';
+    return (localStorage.getItem('appearance') as Appearance) || 'system';
 };
 
 const isDarkMode = (appearance: Appearance): boolean => {
@@ -68,7 +69,12 @@ const mediaQuery = (): MediaQueryList | null => {
     return window.matchMedia('(prefers-color-scheme: dark)');
 };
 
-const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
+// Re-applies the theme and tells subscribers, so a toggle showing the
+// resolved mode follows the device when the appearance is "system".
+const handleSystemThemeChange = (): void => {
+    applyTheme(currentAppearance);
+    notify();
+};
 
 export function initializeTheme(): void {
     if (typeof window === 'undefined') {

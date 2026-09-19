@@ -21,10 +21,14 @@ export type PosterLayout = {
 };
 
 /** Basalt and paper, the two ends of the brand's own range. */
-const DARK = '#12110E';
-const LIGHT = '#FAF7F2';
-const MUTED_ON_DARK = '#E5DCCC';
-const MUTED_ON_LIGHT = '#4A453C';
+const DARK = '#0D0E0F';
+const LIGHT = '#F6F1EA';
+const MUTED_ON_DARK = '#D0CCC4';
+const MUTED_ON_LIGHT = '#6F6A64';
+// Orange as text: the fill orange fails contrast on cream, so the light band
+// gets the darker step the UI uses for links and figures.
+const ACCENT_ON_DARK = '#F66002';
+const ACCENT_ON_LIGHT = '#B84600';
 
 /**
  * Average brightness of the band the furniture lands on.
@@ -101,10 +105,19 @@ export async function drawPoster(
         return;
     }
 
+    // Canvas text is measured with whatever face is resident at that
+    // instant. Cairo is loaded on demand per script, so wait for both
+    // before the first measureText or the title lays out in the fallback.
+    await Promise.all(
+        ['700 40px "Cairo"', '400 16px "Cairo"', '700 40px "Cairo"'].map(
+            (font) => document.fonts.load(font, 'ناس Nas 0123456789'),
+        ),
+    );
+
     const light = bandLuminance(ctx, width, height) > 140;
     const ink = light ? DARK : LIGHT;
     const muted = light ? MUTED_ON_LIGHT : MUTED_ON_DARK;
-    const veil = light ? '250,247,242' : '18,17,14';
+    const veil = light ? '246,241,234' : '13,14,15';
 
     // The prompt asks for a calm lower third, but a model does not always
     // oblige, and the code has to read against whatever turns up.
@@ -149,7 +162,7 @@ export async function drawPoster(
     const available = width - plate - margin * 3;
 
     const titleSize = width * 0.055;
-    ctx.font = `700 ${titleSize}px "IBM Plex Sans Arabic", "Bricolage Grotesque", system-ui, sans-serif`;
+    ctx.font = `700 ${titleSize}px "Cairo", "Noto Sans Arabic", system-ui, sans-serif`;
     ctx.fillStyle = ink;
 
     const lines = wrap(ctx, layout.title, available).slice(0, 3);
@@ -164,7 +177,7 @@ export async function drawPoster(
         y += titleSize * 1.2;
     }
 
-    ctx.font = `400 ${metaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
+    ctx.font = `400 ${metaSize}px "Cairo", "Noto Sans Arabic", system-ui, sans-serif`;
     ctx.fillStyle = muted;
     ctx.fillText(layout.meta, textX, y + metaSize * 0.2);
     y += metaSize * 1.5;
@@ -172,13 +185,13 @@ export async function drawPoster(
     // Price, then what to do about it. Somebody reading a poster on a wall
     // needs both, and neither is on the artwork.
     if (layout.price) {
-        ctx.font = `700 ${metaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
-        ctx.fillStyle = '#E8A72B';
+        ctx.font = `700 ${metaSize}px "Cairo", "Noto Sans Arabic", system-ui, sans-serif`;
+        ctx.fillStyle = light ? ACCENT_ON_LIGHT : ACCENT_ON_DARK;
         ctx.fillText(layout.price, textX, y);
         y += metaSize * 1.4;
     }
 
-    ctx.font = `500 ${ctaSize}px "IBM Plex Sans Arabic", "Public Sans", system-ui, sans-serif`;
+    ctx.font = `500 ${ctaSize}px "Cairo", "Noto Sans Arabic", system-ui, sans-serif`;
     ctx.fillStyle = muted;
     ctx.fillText(layout.cta, textX, y);
 }

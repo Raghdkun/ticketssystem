@@ -10,6 +10,7 @@ import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PromoVideo } from '@/components/promo-video';
 import { PublicFooter } from '@/components/public-footer';
 import { ShareButton } from '@/components/share-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -88,13 +89,14 @@ export default function EventPage({ event, place, siblings }: Props) {
                         compact
                         className="size-9 border-white/25 bg-black/25 text-white backdrop-blur hover:bg-black/40 hover:text-white"
                     />
+                    <ThemeToggle />
                     <LanguageToggle />
                 </div>
 
                 <div
                     className="relative aspect-[4/5] max-h-[62dvh] w-full overflow-hidden sm:aspect-[16/9] lg:aspect-[3/1]"
                     style={{
-                        background: `linear-gradient(140deg, var(--brand-jade-700), var(--brand-jade-900))`,
+                        background: 'var(--brand-ink)',
                     }}
                 >
                     {event.promo_video ? (
@@ -114,7 +116,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                             <div className="min-w-0">
                                 <div className="mb-3 flex flex-wrap items-center gap-2">
                                     {!soldOut && (
-                                        <span className="inline-flex items-center rounded-full bg-brand-cta px-2.5 py-1 text-xs font-semibold text-brand-cta-foreground">
+                                        <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-xs font-extrabold text-primary-foreground">
                                             {t('event.seats_only', {
                                                 n: event.seats_remaining,
                                             })}
@@ -277,7 +279,7 @@ export default function EventPage({ event, place, siblings }: Props) {
             <div className="sticky bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden">
                 <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3">
                     <div className="min-w-0">
-                        <p className="truncate font-display text-xl font-semibold text-primary tabular-nums">
+                        <p className="truncate text-xl font-extrabold text-primary-text tabular-nums">
                             {event.is_free
                                 ? t('event.free')
                                 : `${event.price.toLocaleString('en-GB')} ${event.currency}`}
@@ -299,7 +301,7 @@ export default function EventPage({ event, place, siblings }: Props) {
                             <Button
                                 size="lg"
                                 disabled={!event.is_open}
-                                className="shrink-0 cursor-pointer bg-brand-cta text-brand-cta-foreground hover:bg-brand-cta/90"
+                                className="shrink-0 cursor-pointer"
                             >
                                 {soldOut
                                     ? t('event.notify_me')

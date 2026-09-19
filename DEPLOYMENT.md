@@ -1,4 +1,4 @@
-# Deployment — Swaida Tickets Hub
+# Deployment — ناس / Nas
 
 Target: **Hostinger VPS, nginx + PHP-FPM + PostgreSQL**.
 
@@ -42,6 +42,7 @@ start from a stock Laravel file.
 
 | Variable | Value | Why |
 |---|---|---|
+| `APP_NAME` | `Nas` | Only the deployment's label — the name people see is admin-editable in the database. **Changing it rotates the cache prefix and the session cookie name**: everyone is signed out once, so run `php artisan cache:clear` in the same deploy |
 | `APP_ENV` | `production` | |
 | `APP_DEBUG` | `false` | Stack traces leak file paths and query contents |
 | `APP_URL` | `https://your-domain` | QR codes encode absolute verification URLs. **Wrong value = every printed QR points at the wrong host** |
@@ -433,11 +434,21 @@ Everything under `public/icons/`, plus `favicon.svg`, `favicon.ico` and
 `npm run icons`, and the output is committed. A deploy does not run it — the
 rasters ship in the repository.
 
-Regenerate only when the brand changes, and commit the result:
+It also writes `icons/badge-96.png` (the monochrome push badge — Android
+draws it from the alpha channel alone) and `og-default.png` (the 1200×630
+share card for pages with no cover). Regenerate only when the brand changes,
+and commit the result — **and bump `VERSION` in `public/sw.js` in the same
+commit**, or installed home screens keep the old icons:
 
 ```bash
 npm run icons
 ```
+
+Fonts are not part of this step and never were: Cairo, Noto Sans Arabic and
+IBM Plex Mono are committed under `resources/fonts/` with their OFL licences
+and hashed into `/build` by `npm run build`. The build host needs no outbound
+access to any font service, and `font-src 'self'` is sufficient if you add a
+Content-Security-Policy.
 
 `@resvg/resvg-js` is a devDependency, so it is present for `npm ci` on the
 build host and absent from `composer install --no-dev` runtime concerns. If a

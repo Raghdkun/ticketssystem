@@ -14,44 +14,133 @@
  */
 @custom-variant coarse (@media (pointer: coarse));
 
+/*
+ * Fonts.
+ *
+ * The files live in resources/fonts and are committed; Vite hashes them into
+ * /build. Nothing is fetched from a CDN at build or at runtime. Cairo is one
+ * variable file per script, so a Latin-only page never downloads the Arabic
+ * glyphs. Noto Sans Arabic is listed as a fallback and is only requested if
+ * Cairo fails to load. The unicode ranges are copied verbatim from the
+ * Fontsource packages the files came from.
+ */
+@font-face {
+    font-family: 'Cairo';
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+    src: url('../fonts/cairo-arabic-wght-normal.woff2') format('woff2');
+    unicode-range:
+        U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+        U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+        U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4,
+        U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24,
+        U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42,
+        U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54,
+        U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64,
+        U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E,
+        U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9,
+        U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+
+@font-face {
+    font-family: 'Cairo';
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+    src: url('../fonts/cairo-latin-wght-normal.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Cairo';
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+    src: url('../fonts/cairo-latin-ext-wght-normal.woff2') format('woff2');
+    unicode-range:
+        U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+        U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Noto Sans Arabic';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/noto-sans-arabic-arabic-wght-normal.woff2')
+        format('woff2');
+    unicode-range:
+        U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+        U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+        U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4,
+        U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24,
+        U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42,
+        U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54,
+        U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64,
+        U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E,
+        U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9,
+        U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
     /*
-     * Latin display / text, then Arabic display / text. IBM Plex Sans Arabic
-     * stays the Arabic text face — a locked decision — while Rubik takes the
-     * Arabic headings, where it holds up better at large sizes.
+     * One family for both scripts, body and headings. Cairo carries Arabic and
+     * Latin from the same design, so a line that mixes them — a price beside
+     * its currency, a name beside a date — never switches face mid-sentence.
+     * Plex Mono is kept for booking references, which are read out character
+     * by character.
      */
     --font-sans:
-        'Public Sans', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui,
-        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-
-    --font-display:
-        'Bricolage Grotesque', 'Rubik', 'Public Sans', ui-sans-serif, system-ui,
-        sans-serif;
-
-    --font-arabic:
-        'IBM Plex Sans Arabic', 'Public Sans', ui-sans-serif, system-ui,
-        sans-serif;
-
-    --font-arabic-display:
-        'Rubik', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+        'Cairo', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji';
 
     --font-mono:
         'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
     /*
-     * Booking CTA accent. Orange carries high-intent actions so they never
-     * compete with the blue used for navigation and structure. Paired with
-     * near-black text in both modes: 7.06:1 (AAA). White on this orange is
-     * only 2.80:1, so the foreground is deliberately dark, not light.
+     * Three radii and no more: 10px on anything you press or type into, 14px
+     * on anything that holds content, full round only on status pills. The
+     * larger utilities are pinned to the card radius so a `rounded-3xl` left
+     * over from the old design cannot reintroduce a fourth step.
      */
-    --color-brand-cta: #e8a72b;
-    --color-brand-cta-foreground: #12110e;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 14px;
+    --radius-2xl: 14px;
+    --radius-3xl: 14px;
 
-    --radius-sm: 0.625rem;
-    --radius-md: 1rem;
-    --radius-lg: 1.75rem;
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    /* The one permitted shadow. Everything else is a 1px border. */
+    --shadow-raised: var(--elevation-raised);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -64,6 +153,12 @@
 
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
+    /*
+     * Orange as text. The fill orange is 2.83:1 on cream, so it can never be
+     * a word or a figure on a light surface; this darker step is the same hue
+     * at 4.77:1. In dark mode the two are the same colour.
+     */
+    --color-primary-text: var(--primary-text);
 
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
@@ -79,7 +174,20 @@
 
     --color-border: var(--border);
     --color-input: var(--input);
+    --color-input-background: var(--input-background);
     --color-ring: var(--ring);
+
+    /* Statuses read as a dot plus text, never colour alone. */
+    --color-status-draft-bg: var(--status-draft-bg);
+    --color-status-draft-fg: var(--status-draft-fg);
+    --color-status-published-bg: var(--status-published-bg);
+    --color-status-published-fg: var(--status-published-fg);
+    --color-status-pending-bg: var(--status-pending-bg);
+    --color-status-pending-fg: var(--status-pending-fg);
+    --color-status-paid-bg: var(--status-paid-bg);
+    --color-status-paid-fg: var(--status-paid-fg);
+    --color-status-danger-bg: var(--status-danger-bg);
+    --color-status-danger-fg: var(--status-danger-fg);
 
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
@@ -99,122 +207,147 @@
 
 :root {
     /*
-     * Basalt & Saffron.
+     * ناس.
      *
-     * Jade carries structure, navigation and the paid state — the good
-     * outcome is the brand. Saffron is reserved for high intent and appears
-     * on at most one control per screen; the moment it is used for anything
-     * routine it stops meaning "act here".
+     * Cream paper, ink text, orange for the one thing on a screen that asks
+     * to be pressed. Teal is a rare accent and never text. The ramp stays on
+     * :root rather than in @theme: Tailwind prunes unused @theme values, and
+     * the inline `var()` lookups in a few components would resolve to nothing.
      */
-    --brand-jade-900: #062e24;
-    --brand-jade-700: #0a5c49;
-    --brand-jade-500: #12876a;
-    --brand-jade-300: #4fcba5;
-    --brand-jade-100: #ddece5;
+    --brand-orange: #f66002;
+    --brand-orange-text: #b84600;
+    --brand-orange-hover: #dd5600;
+    --brand-ink: #0d0e0f;
+    --brand-cream: #f6f1ea;
+    --brand-cream-100: #fbf7f1;
+    --brand-cream-500: #eee7dd;
+    --brand-teal: #02ae9f;
+    --brand-border: #d0ccc4;
+    --brand-muted: #6f6a64;
 
-    --brand-saffron-900: #8a5a0c;
-    --brand-saffron-700: #c88414;
-    --brand-saffron-500: #e8a72b;
-    --brand-saffron-300: #f3c766;
-    --brand-saffron-100: #fbebce;
+    --background: #f6f1ea;
+    --foreground: #0d0e0f;
+    --card: #ffffff;
+    --card-foreground: #0d0e0f;
+    --popover: #ffffff;
+    --popover-foreground: #0d0e0f;
 
-    --brand-basalt-900: #12110e;
-    --brand-basalt-700: #191712;
-    --brand-basalt-400: #6e675a;
-    --brand-paper-300: #e5dccc;
-    --brand-paper-100: #faf7f2;
+    /*
+     * Ink on orange, not white. White on this orange is 3.19:1, which fails
+     * AA for the text on a button; ink is 6.07:1. The handoff shows white and
+     * the designer has been told why this differs.
+     */
+    --primary: #f66002;
+    --primary-foreground: #0d0e0f;
+    --primary-text: #b84600;
+    --secondary: #eee7dd;
+    --secondary-foreground: #0d0e0f;
+    --muted: #eee7dd;
+    --muted-foreground: #6f6a64;
+    --accent: #eee7dd;
+    --accent-foreground: #0d0e0f;
 
-    /* Warm paper base rather than white: this is read on a phone in a dark
-       venue, where a pure-white field is a torch. */
-    --background: #e8e2d6;
-    --foreground: #191712;
-    --card: #faf7f2;
-    --card-foreground: #191712;
-    --popover: #faf7f2;
-    --popover-foreground: #191712;
+    --destructive: #aa3028;
+    --destructive-foreground: #ffffff;
 
-    --primary: #0a5c49;
-    --primary-foreground: #faf7f2;
-    --secondary: #f2ece2;
-    --secondary-foreground: #332f27;
-    --muted: #ede5d8;
-    --muted-foreground: #6e675a;
-    --accent: #ddece5;
-    --accent-foreground: #06392c;
+    --border: #d0ccc4;
+    --input: #d0ccc4;
+    --input-background: #fbf7f1;
+    --ring: #f66002;
 
-    --destructive: #a3341f;
-    --destructive-foreground: #faf7f2;
+    --status-draft-bg: #ece7df;
+    --status-draft-fg: #58524b;
+    --status-published-bg: #e2f0e9;
+    --status-published-fg: #116647;
+    --status-pending-bg: #fff0de;
+    --status-pending-fg: #a45b00;
+    --status-paid-bg: #e3f2ec;
+    --status-paid-fg: #0f694a;
+    --status-danger-bg: #fae7e4;
+    --status-danger-fg: #aa3028;
 
-    --border: #d6c9b3;
-    --input: #d6c9b3;
-    --ring: #0a5c49;
+    --elevation-raised: 0 8px 24px rgba(13, 14, 15, 0.055);
 
-    --chart-1: #0a5c49;
-    --chart-2: #12876a;
-    --chart-3: #4fcba5;
-    --chart-4: #e8a72b;
-    --chart-5: #c88414;
+    --chart-1: #f66002;
+    --chart-2: #02ae9f;
+    --chart-3: #0d0e0f;
+    --chart-4: #a45b00;
+    --chart-5: #0f694a;
 
-    /* Was one flat 10px. Three steps: controls, cards, surfaces. */
-    --radius: 0.625rem;
-
-    --sidebar: #f5f0e6;
-    --sidebar-foreground: #332f27;
-    --sidebar-primary: #0a5c49;
-    --sidebar-primary-foreground: #faf7f2;
-    --sidebar-accent: #ede5d8;
-    --sidebar-accent-foreground: #191712;
-    --sidebar-border: #d6c9b3;
-    --sidebar-ring: #0a5c49;
+    --sidebar: #f6f1ea;
+    --sidebar-foreground: #0d0e0f;
+    --sidebar-primary: #f66002;
+    --sidebar-primary-foreground: #0d0e0f;
+    --sidebar-accent: #eee7dd;
+    --sidebar-accent-foreground: #0d0e0f;
+    --sidebar-border: #d0ccc4;
+    --sidebar-ring: #f66002;
 }
 
 .dark {
-    --color-brand-cta: #e8a72b;
-    --color-brand-cta-foreground: #12110e;
-
     /*
-     * The design is paper-first. Dark keeps the same jade and saffron so the
-     * product stays recognisable, and swaps the basalt/paper roles rather
-     * than inventing a second palette.
+     * Derived, not designed: the handoff specifies cream only. Ink becomes
+     * the page, cream becomes the text, orange stays exactly where it was —
+     * on ink it reads at 6.07:1, so it can be text here too. Every pair below
+     * was measured; the status pills sit between 7.3:1 and 8.4:1.
      */
-    --background: #12110e;
-    --foreground: #f2ece2;
-    --card: #191712;
-    --card-foreground: #f2ece2;
-    --popover: #191712;
-    --popover-foreground: #f2ece2;
+    --brand-orange-text: #f66002;
+    --brand-orange-hover: #ff7a2a;
+    --brand-border: #2a2b2d;
+    --brand-muted: #a39d95;
 
-    /* Jade-700 on basalt is too dark to read, so dark mode steps up a tone. */
-    --primary: #4fcba5;
-    --primary-foreground: #062e24;
-    --secondary: #262218;
-    --secondary-foreground: #f2ece2;
-    --muted: #262218;
-    --muted-foreground: #a8a091;
-    --accent: #16342b;
-    --accent-foreground: #ddece5;
+    --background: #0d0e0f;
+    --foreground: #f6f1ea;
+    --card: #161718;
+    --card-foreground: #f6f1ea;
+    --popover: #1c1d1f;
+    --popover-foreground: #f6f1ea;
 
-    --destructive: #e0674c;
-    --destructive-foreground: #12110e;
+    --primary: #f66002;
+    --primary-foreground: #0d0e0f;
+    --primary-text: #f66002;
+    --secondary: #1c1d1f;
+    --secondary-foreground: #f6f1ea;
+    --muted: #1c1d1f;
+    --muted-foreground: #a39d95;
+    --accent: #232426;
+    --accent-foreground: #f6f1ea;
 
-    --border: #332f27;
-    --input: #332f27;
-    --ring: #4fcba5;
+    --destructive: #e5766a;
+    --destructive-foreground: #0d0e0f;
 
-    --chart-1: #4fcba5;
-    --chart-2: #12876a;
-    --chart-3: #ddece5;
-    --chart-4: #e8a72b;
-    --chart-5: #f3c766;
+    --border: #2a2b2d;
+    --input: #2a2b2d;
+    --input-background: #161718;
+    --ring: #f66002;
 
-    --sidebar: #191712;
-    --sidebar-foreground: #f2ece2;
-    --sidebar-primary: #4fcba5;
-    --sidebar-primary-foreground: #062e24;
-    --sidebar-accent: #262218;
-    --sidebar-accent-foreground: #f2ece2;
-    --sidebar-border: #332f27;
-    --sidebar-ring: #4fcba5;
+    --status-draft-bg: #232426;
+    --status-draft-fg: #b8b2aa;
+    --status-published-bg: #10302a;
+    --status-published-fg: #7ed3a6;
+    --status-pending-bg: #3a2a10;
+    --status-pending-fg: #f2b764;
+    --status-paid-bg: #0f3328;
+    --status-paid-fg: #86dbb1;
+    --status-danger-bg: #3b1b18;
+    --status-danger-fg: #f19c92;
+
+    --elevation-raised: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    --chart-1: #f66002;
+    --chart-2: #02ae9f;
+    --chart-3: #f6f1ea;
+    --chart-4: #f2b764;
+    --chart-5: #86dbb1;
+
+    --sidebar: #0d0e0f;
+    --sidebar-foreground: #f6f1ea;
+    --sidebar-primary: #f66002;
+    --sidebar-primary-foreground: #0d0e0f;
+    --sidebar-accent: #1c1d1f;
+    --sidebar-accent-foreground: #f6f1ea;
+    --sidebar-border: #2a2b2d;
+    --sidebar-ring: #f66002;
 }
 
 @layer base {
@@ -228,8 +361,9 @@
 }
 
 /*
- * Arabic script needs more vertical room than Latin at the same size, and the
- * tight tracking used for Latin headings makes it harder to read.
+ * Arabic script needs more vertical room than Latin at the same size. One
+ * family serves both scripts now, so the only thing that changes with
+ * direction is the leading; there is no tracking to undo.
  */
 :root:lang(ar),
 [dir='rtl'] {
@@ -239,25 +373,16 @@
 h1,
 h2,
 h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.025em;
-}
-
-[dir='rtl'] h1,
-[dir='rtl'] h2,
-[dir='rtl'] h3 {
-    font-family: var(--font-arabic-display);
+    letter-spacing: 0;
 }
 
 [dir='rtl'] body {
-    font-family: var(--font-arabic);
     line-height: var(--arabic-leading);
 }
 
 [dir='rtl'] h1,
 [dir='rtl'] h2,
 [dir='rtl'] h3 {
-    letter-spacing: 0;
     line-height: 1.45;
 }
 
@@ -348,6 +473,10 @@ h3 {
         color: #000000 !important;
     }
 
+    * {
+        box-shadow: none !important;
+    }
+
     tr,
     img {
         break-inside: avoid;
@@ -363,30 +492,6 @@ h3 {
 }
 
 /*
- * Dashboard surfaces.
- *
- * The public pages take their colour from each event's own palette, which left
- * the dashboard looking like a different product. This gives its cards a faint
- * brand tint so both halves read as one app, without competing with the status
- * colours that carry actual meaning.
- */
-.brand-surface {
-    background-image: linear-gradient(
-        140deg,
-        color-mix(in oklab, var(--color-primary) 7%, transparent),
-        transparent 55%
-    );
-}
-
-.brand-surface-strong {
-    background-image: linear-gradient(
-        140deg,
-        color-mix(in oklab, var(--color-primary) 16%, transparent),
-        color-mix(in oklab, var(--color-brand-cta) 8%, transparent) 70%
-    );
-}
-
-/*
  * Skip link. Off-screen until focused, then anchored to the inline start so it
  * lands on the correct side in Arabic.
  */
@@ -396,12 +501,12 @@ h3 {
     inset-inline-start: 0.5rem;
     z-index: 100;
     transform: translateY(-200%);
-    border-radius: 0.5rem;
+    border-radius: 10px;
     background: var(--color-primary);
     color: var(--color-primary-foreground);
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 800;
     transition: transform 0.2s ease;
 }
 
@@ -458,32 +563,7 @@ p {
 }
 
 /*
- * Shadows carry the surface hue rather than plain black, so elevation reads as
- * light falling on a tinted surface instead of a grey smudge.
- */
-.shadow-brand {
-    box-shadow:
-        0 1px 2px -1px
-            color-mix(in oklab, var(--color-primary) 22%, transparent),
-        0 8px 24px -6px
-            color-mix(in oklab, var(--color-primary) 18%, transparent);
-}
-
-/*
- * A faint grain over the darkest surfaces. Flat digital black is what makes an
- * interface feel sterile; this is barely perceptible but breaks it up.
- */
-.grain::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/*
- * Focus. A 2px ring in jade, offset so it reads on both paper and basalt.
+ * Focus. A 2px ring in orange, offset so it reads on both cream and ink.
  */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid var(--color-ring);
@@ -597,66 +677,28 @@ button,
 }
 
 /*
- * The mark, arriving. Three beats matching how it is drawn: the pass, the
- * tear, then the person who got in. Runs once on mount, so it plays on the
- * auth and landing screens and nowhere else.
- *
- * Every part animates from a visible state — the mark is never invisible
- * waiting for a frame that a throttled tab will not deliver.
- *
- * The body scale is applied to an inner group, never the <svg> root: the root
- * carries the RTL mirror as an inline transform, and animating `transform`
- * there overrides it, so the mark visibly flipped when the animation ended.
+ * The wordmark, arriving. One beat: it rises into place on the auth and
+ * landing screens and nowhere else. It starts visible — never at opacity 0
+ * waiting for a frame a throttled tab will not deliver — and it is never
+ * mirrored, because it is Arabic text.
  */
-@keyframes mark-body {
+@keyframes brand-rise {
     from {
-        transform: scale(0.94);
+        opacity: 0.4;
+        transform: translateY(6px);
     }
     to {
+        opacity: 1;
         transform: none;
     }
 }
 
-@keyframes mark-tear {
-    from {
-        stroke-dashoffset: 6;
-    }
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-@keyframes mark-admit {
-    0% {
-        transform: scale(0.4);
-    }
-    60% {
-        transform: scale(1.12);
-    }
-    100% {
-        transform: none;
-    }
-}
-
-.mark-animated [data-mark='body'] {
-    animation: mark-body 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-    transform-box: fill-box;
-    transform-origin: center;
-}
-
-.mark-animated [data-mark='tear'] {
-    animation: mark-tear 0.5s 0.12s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-.mark-animated [data-mark='admit'] {
-    animation: mark-admit 0.42s 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
-    transform-origin: 36px 24px;
+.brand-rise {
+    animation: brand-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .mark-animated [data-mark='body'],
-    .mark-animated [data-mark='tear'],
-    .mark-animated [data-mark='admit'] {
+    .brand-rise {
         animation: none;
     }
 }

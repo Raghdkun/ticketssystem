@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Wordmark } from '@/components/brand/wordmark';
 import { LanguageToggle } from '@/components/language-toggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { useTranslation } from '@/lib/translation';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
@@ -15,13 +16,8 @@ export default function AuthSimpleLayout({
 
     return (
         <div className="flex min-h-svh flex-col bg-background">
-            {/* A brand band anchors the page before any content loads. It
-                carries jade, not basalt: basalt on the dark theme's basalt
-                background is invisible. */}
-            <div
-                className="h-1.5 w-full shrink-0"
-                style={{ backgroundColor: 'var(--brand-jade-700)' }}
-            />
+            {/* A brand band anchors the page before any content loads. */}
+            <div className="h-1.5 w-full shrink-0 bg-primary" />
 
             {/* app.blade.php emits the skip link on every page, so every
                 layout has to provide its target. Without it the link was a
@@ -37,11 +33,18 @@ export default function AuthSimpleLayout({
                                 href={home()}
                                 className="flex items-center gap-2 rounded-md font-medium coarse:min-h-11 coarse:min-w-11"
                             >
-                                <AppLogoIcon className="mark-animated size-9 text-primary" />
+                                <Wordmark
+                                    animate
+                                    decorative
+                                    className="h-10 text-foreground"
+                                />
                                 <span className="sr-only">{title}</span>
                             </Link>
 
-                            <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                            <div className="flex items-center gap-2">
+                                <ThemeToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                                <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                            </div>
                         </div>
 
                         <div className="space-y-2">

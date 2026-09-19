@@ -1,8 +1,6 @@
-import { Link, usePage } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Link } from '@inertiajs/react';
+import { Wordmark } from '@/components/brand/wordmark';
 import { useTranslation } from '@/lib/translation';
-
-type Props = { platform: { name: string } };
 
 /**
  * Public footer.
@@ -12,22 +10,13 @@ type Props = { platform: { name: string } };
  * legal links a public site is expected to carry.
  */
 export function PublicFooter() {
-    const { platform } = usePage<Props>().props;
     const t = useTranslation();
     const year = new Date().getFullYear();
 
     return (
         <footer className="mt-16 border-t">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-2.5">
-                    <AppLogoIcon
-                        detail="compact"
-                        className="size-6 text-primary"
-                    />
-                    <span className="text-sm font-semibold">
-                        {platform?.name}
-                    </span>
-                </div>
+                <Wordmark className="h-6 text-foreground" />
 
                 {/* A nav row, not prose, so the coarse-pointer floor applies
                     to each link. Scoped to coarse pointers: on a desktop these

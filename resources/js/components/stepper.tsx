@@ -50,7 +50,7 @@ export function Stepper({
             <output
                 aria-live="polite"
                 aria-label={label}
-                className="min-w-14 text-center font-display text-3xl font-semibold tabular-nums"
+                className="min-w-14 text-center text-3xl font-extrabold tabular-nums"
             >
                 {value}
             </output>

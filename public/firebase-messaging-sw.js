@@ -30,14 +30,14 @@ const messaging = firebase.messaging();
  * system notification as well would be duplicate noise.
  */
 messaging.onBackgroundMessage((payload) => {
-    const title = payload.notification?.title ?? 'Swaida Tickets Hub';
+    const title = payload.notification?.title ?? 'ناس';
     const body = payload.notification?.body ?? '';
     const link = payload.fcmOptions?.link ?? payload.data?.link ?? '/';
 
     self.registration.showNotification(title, {
         body,
         icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        badge: '/icons/badge-96.png',
         // Collapse repeats for the same ticket rather than stacking them.
         tag: payload.data?.ticket ?? 'ticket-status',
         renotify: true,

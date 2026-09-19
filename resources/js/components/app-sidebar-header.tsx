@@ -1,4 +1,6 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { LanguageToggle } from '@/components/language-toggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
@@ -12,6 +14,12 @@ export function AppSidebarHeader({
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ms-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
+            </div>
+
+            {/* The same pair every public page carries, at the same end. */}
+            <div className="ms-auto flex items-center gap-2">
+                <ThemeToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
             </div>
         </header>
     );

@@ -3,6 +3,7 @@ import { CalendarDays, Check, Clock, Gift, Users } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
 import { BackLink } from '@/components/back-link';
+import { Disc } from '@/components/brand/disc';
 import { FlashToaster } from '@/components/flash-toaster';
 import { InstallPrompt } from '@/components/install-prompt';
 import { LanguageToggle } from '@/components/language-toggle';
@@ -10,6 +11,7 @@ import { PlaceEdgeTab } from '@/components/place-edge-tab';
 import { PublicFooter } from '@/components/public-footer';
 import { PushOptIn } from '@/components/push-opt-in';
 import { ShareButton } from '@/components/share-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { HoldCountdown } from '@/components/ticket/hold-countdown';
 import { PaidStamp } from '@/components/ticket/paid-stamp';
 import { ReleaseSeats } from '@/components/ticket/release-seats';
@@ -75,7 +77,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
         status === 'cancelled' || status === 'expired' || status === 'no_show';
 
     return (
-        <div className="min-h-dvh bg-neutral-100 py-6 dark:bg-neutral-950">
+        <div className="min-h-dvh bg-background py-6">
             <Head title={title}>
                 <meta name="description" content={`${title} — ${placeName}`} />
                 <meta name="robots" content="noindex" />
@@ -93,6 +95,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                     label="common.back_to_event"
                 />
                 <div className="flex items-center gap-1">
+                    <ThemeToggle className="bg-black/10 text-foreground dark:bg-white/10" />
                     <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
 
                     {/* Only a live hold has seats to give back, and the
@@ -119,7 +122,7 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         duration: reduceMotion ? 0 : 0.45,
                         ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="shadow-brand grain relative overflow-hidden rounded-3xl bg-white dark:bg-neutral-900"
+                    className="relative overflow-hidden rounded-lg border bg-(--brand-cream-100) shadow-raised dark:bg-card"
                 >
                     <PaidStamp
                         show={status === 'paid'}
@@ -127,27 +130,28 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         label={t('ticket.stamp')}
                     />
 
-                    <header
-                        className="relative p-6"
-                        style={{
-                            background:
-                                'linear-gradient(140deg, var(--brand-jade-700), var(--brand-jade-900))',
-                            color: 'var(--brand-paper-100)',
-                        }}
-                    >
+                    {/* The one accent on the card: a rule in the brand orange.
+                        The header itself is ink on cream, like the rest. */}
+                    <div className="h-1 bg-primary" aria-hidden="true" />
+
+                    <header className="relative p-6 pe-20 text-foreground">
+                        {/* The disc as a seal, in the corner the eye reaches
+                            last in either direction. */}
+                        <Disc className="absolute end-5 top-6 size-10" />
+
                         {/* The ticket is what someone opens on the way to the
                             door, so the venue has to be reachable from here. */}
-                        <p className="text-sm opacity-80">
+                        <p className="text-sm text-muted-foreground">
                             <VenueLink
                                 name={placeName}
                                 location={event.location}
                             />
                         </p>
-                        <h1 className="mt-1 text-2xl leading-tight font-bold">
+                        <h1 className="mt-1 text-2xl leading-tight font-extrabold">
                             {title}
                         </h1>
 
-                        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm opacity-90">
+                        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
                             <span className="inline-flex items-center gap-1.5">
                                 <CalendarDays className="size-4" />
                                 {new Date(event.starts_at).toLocaleDateString(
@@ -173,9 +177,9 @@ export default function TicketPage({ ticket, event, place, siblings }: Props) {
                         className="relative flex items-center"
                         aria-hidden="true"
                     >
-                        <div className="size-6 -translate-x-1/2 rounded-full bg-neutral-100 dark:bg-neutral-950" />
-                        <div className="flex-1 border-t-2 border-dashed border-neutral-200 dark:border-neutral-700" />
-                        <div className="size-6 translate-x-1/2 rounded-full bg-neutral-100 dark:bg-neutral-950" />
+                        <div className="size-6 -translate-x-1/2 rounded-full bg-background" />
+                        <div className="flex-1 border-t-2 border-dashed border-border" />
+                        <div className="size-6 translate-x-1/2 rounded-full bg-background" />
                     </div>
 
                     <div className="space-y-6 p-6">

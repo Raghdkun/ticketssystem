@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/empty-state';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PublicFooter } from '@/components/public-footer';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,7 +49,10 @@ export default function MyTicketsPage({ phone, searched, results }: Props) {
                     <h1 className="text-2xl font-bold">
                         {t('ticket.my_tickets')}
                     </h1>
-                    <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+                        <LanguageToggle className="bg-black/10 text-foreground dark:bg-white/10" />
+                    </div>
                 </div>
 
                 {saved.length > 0 && (

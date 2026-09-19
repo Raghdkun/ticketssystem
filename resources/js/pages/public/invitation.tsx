@@ -1,12 +1,13 @@
 import { Form, Head } from '@inertiajs/react';
 import { Check, Store } from 'lucide-react';
 import { useState } from 'react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Wordmark } from '@/components/brand/wordmark';
 import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
 import type { LatLng } from '@/components/map/map-canvas';
 import { MapPicker } from '@/components/map/map-picker';
 import PasswordInput from '@/components/password-input';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,18 +31,18 @@ export default function AcceptInvitation({ token, email }: Props) {
         <div className="min-h-svh bg-background">
             <Head title={t('invite.title')} />
 
-            <div
-                className="h-1.5 w-full"
-                style={{ backgroundColor: 'var(--brand-jade-700)' }}
-            />
+            <div className="h-1.5 w-full bg-primary" />
 
             <main
                 id="main-content"
                 className="mx-auto w-full max-w-2xl space-y-8 p-6"
             >
                 <div className="flex items-center justify-between gap-4">
-                    <AppLogoIcon className="size-9 fill-current text-primary" />
-                    <LanguageToggle className="min-h-9 border bg-transparent py-1 text-foreground hover:bg-muted" />
+                    <Wordmark className="h-9 text-foreground" />
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                        <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                    </div>
                 </div>
 
                 <div className="space-y-2">

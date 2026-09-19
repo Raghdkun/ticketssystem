@@ -59,7 +59,7 @@ function Metric({
     tone?: string;
 }) {
     return (
-        <StaggerItem className="brand-surface rounded-xl border p-4 transition-colors hover:border-primary/40">
+        <StaggerItem className="rounded-xl border bg-card p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone ?? ''}`}>
                 <Counter value={value} />

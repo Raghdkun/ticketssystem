@@ -14,7 +14,7 @@ export function EventQrCard({ eventId }: { eventId: number }) {
     const href = `/owner/events/${eventId}/qr.png`;
 
     return (
-        <section className="brand-surface flex flex-wrap items-center gap-4 rounded-xl border p-4 sm:p-6">
+        <section className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 sm:p-6">
             <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
                 <QrCode className="size-8 text-muted-foreground" aria-hidden />
             </div>

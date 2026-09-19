@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ImageSlider } from '@/components/image-slider';
 import { LanguageToggle } from '@/components/language-toggle';
 import { PublicFooter } from '@/components/public-footer';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { VenueLink } from '@/components/venue-sheet';
 import type { VenueLocation } from '@/components/venue-sheet';
 import { dateTag } from '@/lib/format';
@@ -47,7 +48,7 @@ export default function PlacePage({ place, locations, upcoming, past }: Props) {
         <li key={event.slug}>
             <Link
                 href={`/${place.slug}/${event.slug}`}
-                className={`brand-surface group flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-200 hover:border-primary/40 hover:shadow-md ${dim ? 'opacity-70' : ''}`}
+                className={`group flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-primary/40 ${dim ? 'opacity-70' : ''}`}
             >
                 <div className="relative grid aspect-video place-items-center bg-muted">
                     {event.cover ? (
@@ -100,7 +101,10 @@ export default function PlacePage({ place, locations, upcoming, past }: Props) {
 
             <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 p-4">
                 <BackLink href="/" label="common.back_home" />
-                <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                <div className="flex items-center gap-2">
+                    <ThemeToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                    <LanguageToggle className="border bg-transparent text-foreground hover:bg-muted" />
+                </div>
             </div>
 
             <main
@@ -140,7 +144,7 @@ export default function PlacePage({ place, locations, upcoming, past }: Props) {
                             {locations.map((location) => (
                                 <li
                                     key={location.name}
-                                    className="brand-surface flex flex-col gap-3 rounded-xl border p-4"
+                                    className="flex flex-col gap-3 rounded-xl border bg-card p-4"
                                 >
                                     {location.images.length > 0 && (
                                         <ImageSlider

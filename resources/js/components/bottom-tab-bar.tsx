@@ -53,7 +53,7 @@ export function BottomTabBar() {
                                 className={cn(
                                     'flex min-h-14 cursor-pointer flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-medium transition-colors',
                                     active
-                                        ? 'text-primary'
+                                        ? 'font-extrabold text-primary-text'
                                         : 'text-muted-foreground hover:text-foreground',
                                 )}
                             >

@@ -55,14 +55,14 @@ export function BookingForm({
             className={
                 bare
                     ? 'space-y-6'
-                    : 'lg:shadow-brand space-y-6 rounded-xl border p-5'
+                    : 'space-y-6 rounded-xl border p-5 lg:shadow-raised'
             }
         >
             <div>
                 {/* In the sheet the heading is the sheet's own. */}
                 {!bare && (
                     <>
-                        <h2 className="font-display text-lg font-semibold">
+                        <h2 className="text-lg font-extrabold">
                             {soldOut
                                 ? t('event.waitlist_title')
                                 : t('event.reserve_title')}
@@ -77,7 +77,7 @@ export function BookingForm({
 
                 <p
                     className={cn(
-                        'font-display text-3xl font-semibold tracking-tight text-primary tabular-nums',
+                        'text-3xl font-extrabold text-primary-text tabular-nums',
                         !bare && 'mt-4',
                     )}
                 >
@@ -227,7 +227,7 @@ export function BookingForm({
                                         {event.price.toLocaleString('en-GB')}
                                     </span>
 
-                                    <span className="font-display text-xl font-semibold text-primary tabular-nums">
+                                    <span className="text-xl font-extrabold text-primary-text tabular-nums">
                                         {total.toLocaleString('en-GB')}
 
                                         <span className="ms-1 text-sm font-medium">

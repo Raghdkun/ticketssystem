@@ -42,7 +42,7 @@ createInertiaApp({
     progress: {
         // Jade, not the starter kit's grey. This is the only feedback a slow
         // visit gives, so it should look like the product.
-        color: '#12876A',
+        color: '#F66002',
         delay: 120,
     },
 });

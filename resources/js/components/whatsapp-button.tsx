@@ -25,7 +25,7 @@ export function WhatsAppButton({ number, message, label, className }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-                'flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-medium text-white shadow-lg transition hover:brightness-95',
+                'flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-medium text-white transition hover:brightness-95',
                 className,
             )}
         >

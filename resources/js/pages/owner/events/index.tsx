@@ -41,14 +41,14 @@ const FILTERS = [
  */
 function StatusChip({ status, label }: { status: string; label: string }) {
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
             <span
                 className="size-1.5 rounded-full"
                 style={{
                     backgroundColor:
                         status === 'published'
-                            ? 'var(--brand-jade-500)'
-                            : 'var(--brand-basalt-400)',
+                            ? 'var(--status-published-fg)'
+                            : 'var(--status-draft-fg)',
                 }}
             />
             {label}
@@ -159,7 +159,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                         actions are links too, and anchors cannot
                                         nest. A stretched overlay keeps the whole
                                         card clickable without nesting. */}
-                                    <article className="brand-surface group relative flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-200 hover:border-primary/40 hover:shadow-md">
+                                    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-primary/40">
                                         <div className="relative grid aspect-video place-items-center bg-muted">
                                             {event.cover ? (
                                                 <img
@@ -228,7 +228,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                                 style={{
                                                                     width: `${pct}%`,
                                                                     backgroundColor:
-                                                                        'var(--brand-jade-700)',
+                                                                        'var(--primary)',
                                                                 }}
                                                             />
                                                         </div>
@@ -260,7 +260,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                     href={EventController.edit(
                                                         event.id,
                                                     )}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary underline-offset-4 hover:underline"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-text underline-offset-4 hover:underline"
                                                 >
                                                     {t('owner.finish_publish')}
                                                 </Link>

@@ -16,7 +16,8 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'light');
+        // No cookie means nobody has chosen: follow the device.
+        View::share('appearance', $request->cookie('appearance') ?? 'system');
 
         return $next($request);
     }

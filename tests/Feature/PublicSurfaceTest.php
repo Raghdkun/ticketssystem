@@ -233,11 +233,12 @@ class PublicSurfaceTest extends TestCase
     {
         $svg = (string) file_get_contents(public_path('favicon.svg'));
 
-        // The Pass, in brand colours: jade body, saffron admitted dot. Pinning
-        // the palette rather than one hex would have caught nothing when the
-        // brand changed -- this asserts both halves of the current mark.
-        $this->assertStringContainsString('#0A5C49', $svg);
-        $this->assertStringContainsString('#E8A72B', $svg);
+        // The ناس disc: an orange circle carrying the wordmark. The favicon
+        // is the disc rather than the wordmark because three Arabic letters do
+        // not read at 16px and an orange circle does.
+        $this->assertStringContainsString('#F66002', $svg);
+        $this->assertStringContainsString('<circle', $svg);
+        $this->assertStringNotContainsString('#0A5C49', $svg);
 
         // Laravel's mark uses a 166-unit viewBox.
         $this->assertStringNotContainsString('viewBox="0 0 166 166"', $svg);
@@ -253,6 +254,8 @@ class PublicSurfaceTest extends TestCase
             'icons/icon-512.png' => 512,
             'icons/icon-maskable-512.png' => 512,
             'apple-touch-icon.png' => 180,
+            // Android paints a notification badge from alpha alone.
+            'icons/badge-96.png' => 96,
         ];
 
         foreach ($expected as $path => $size) {
@@ -263,5 +266,9 @@ class PublicSurfaceTest extends TestCase
             $this->assertSame($size, $width, "{$path} width");
             $this->assertSame($size, $height, "{$path} height");
         }
+
+        // The share card for pages with no cover of their own.
+        [$width, $height] = getimagesize(public_path('og-default.png'));
+        $this->assertSame([1200, 630], [$width, $height]);
     }
 }

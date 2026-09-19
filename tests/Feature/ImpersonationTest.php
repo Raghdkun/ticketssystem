@@ -118,13 +118,13 @@ class ImpersonationTest extends TestCase
     {
         $this->actingAs($this->admin)
             ->post(route('admin.settings.update'), [
-                'app_name_en' => 'Swaida Tickets Hub',
-                'app_name_ar' => 'مركز تذاكر السويداء',
+                'app_name_en' => 'Qanawat Nights',
+                'app_name_ar' => 'ليالي قنوات',
             ])
             ->assertRedirect();
 
-        $this->assertSame('Swaida Tickets Hub', app(Settings::class)->appName('en'));
-        $this->assertSame('مركز تذاكر السويداء', app(Settings::class)->appName('ar'));
+        $this->assertSame('Qanawat Nights', app(Settings::class)->appName('en'));
+        $this->assertSame('ليالي قنوات', app(Settings::class)->appName('ar'));
     }
 
     public function test_an_owner_cannot_change_platform_settings(): void
@@ -153,9 +153,9 @@ class ImpersonationTest extends TestCase
             ->assertSessionHasErrors('logo');
     }
 
-    public function test_the_default_brand_is_swaida_tickets_hub(): void
+    public function test_the_default_brand_is_nas(): void
     {
-        $this->assertSame('Swaida Tickets Hub', Settings::DEFAULTS['app_name_en']);
-        $this->assertSame('مركز تذاكر السويداء', Settings::DEFAULTS['app_name_ar']);
+        $this->assertSame('Nas', Settings::DEFAULTS['app_name_en']);
+        $this->assertSame('ناس', Settings::DEFAULTS['app_name_ar']);
     }
 }

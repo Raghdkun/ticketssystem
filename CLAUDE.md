@@ -1,4 +1,4 @@
-# CLAUDE.md — Swaida Tickets Hub / مركز تذاكر السويداء
+# CLAUDE.md — ناس / Nas
 
 **Read this first, every session.** It is the project's memory: what this is, what is decided, what
 is built, and what is next. Update it at the end of every working turn — it is the only thing that
@@ -8,7 +8,8 @@ survives a new session.
 
 ## What this is
 
-An **offline-payment** event ticketing platform for As-Suwayda, Syria. Visitors reserve a seat
+An **offline-payment** event ticketing platform, born in As-Suwayda and no longer
+bound to it. Visitors reserve a seat
 online and **pay in person at the venue**; the owner verifies them at the door. There is no payment
 gateway and there is not meant to be one.
 
@@ -78,8 +79,13 @@ realtime status flip.
 12. **SVG is never an accepted upload.** Script-carrying markup on our own origin.
 13. **Impersonation is full-access**, so the audit log is the only record of who acted. Start/stop are
    both logged, nesting is refused, super admins cannot be impersonated, banner is always visible.
-14. **Arabic needs its own face.** Instrument Sans has no Arabic glyphs; IBM Plex Sans Arabic ships
-    alongside it. Do not remove it — Arabic silently falls back to an OS font.
+14. **One face, committed.** Cairo (variable, OFL) carries every word of UI in
+    both scripts, body and headings; IBM Plex Mono carries booking references.
+    The woff2 files live in `resources/fonts/` under version control with
+    their OFL licences, are declared with `@font-face` in `app.css`, and are
+    hashed into `/build` by Vite. Nothing is fetched from a font host at build
+    or at runtime, ever. Cairo has Latin glyphs, so there is no second Latin
+    face and a mixed line never switches font mid-sentence.
 15. **Latin digits everywhere, Arabic month names kept.** Arabic has two
     numeral scripts and the app was using both — dates came out Arabic-Indic
     through `ar-SY` while prices, seat counts, phone numbers and reference
@@ -168,8 +174,9 @@ realtime status flip.
 | 10 | Venue location (Leaflet/OSM pin + address + landmark), app-wide back navigation, i18n and a11y sweep |
 | 11 | Rotating notification copy, hold reminders, waiting list, holder self-release, repeatable events, home listing filters, collapsible event form, first-run checklist, one numeral rule |
 | 12 | Whole-app accessibility and i18n sweep: an `h1` on every screen, tap-target floors that actually apply, Arabic-Indic digits out of the catalogue, the last untranslated strings |
+| 13 | Rebrand to ناس / Nas: wordmark + disc, cream/ink/orange tokens with a derived dark theme, Cairo committed and self-hosted, region-neutral copy, opt-in heritage mood in the poster prompt |
 
-**366 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**384 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a
@@ -177,48 +184,74 @@ production build before treating that number as a regression.
 
 ---
 
-## Design system — Basalt & Saffron
+## Design system — ناس
 
-Imported from the Claude Design project. Jade carries structure, navigation and
-the paid state; saffron is reserved for high intent and appears on at most one
-control per screen. Basalt on warm paper, light by default.
+From the designer's handoff (`nas_dev_handoff`). Cream paper `#F6F1EA`, ink
+text `#0D0E0F`, and orange `#F66002` for the one thing on a screen that asks
+to be pressed. Teal `#02AE9F` is a rare accent and never text. Borders
+`#D0CCC4`, muted text `#6F6A64`. Three radii — 10px on anything pressed or
+typed into, 14px on anything holding content, full round only on status
+pills — one permitted shadow (`shadow-raised`), and **no gradients**. Cards
+are white on cream with a 1px border. Buttons are weight 800.
 
-- **Per-event palette extraction is retired.** One fixed identity carries the
-  whole product, so a ticket from any venue is recognisably the same platform.
-  `PaletteExtractor`, `ThemeMode` and the `.event-theme` scope are gone.
+- **Ink on orange, not white.** The handoff's primary button is white on
+  orange, which measures 3.19:1 and fails AA for text; ink on orange is
+  6.07:1. `--primary-foreground` is ink in both themes and the designer has
+  been told why. Do not "fix" it back.
+- **Two oranges.** `#F66002` is a fill: buttons, active states, the accent
+  rule, icons, the focus ring. As *text* on cream it is 2.83:1 and fails even
+  the 3:1 floor, so links and key figures use `--brand-orange-text`
+  (`#B84600`, 4.77:1 on cream) via the `text-primary-text` utility. In dark
+  mode orange on ink is 6.07:1 and the two tokens are the same colour.
+- **Dark mode is derived, not designed.** The handoff specifies light only.
+  Ink `#0D0E0F` page, `#161718` cards, cream text, muted `#A39D95`, orange
+  unchanged. Every pair was measured; the five status pills sit between
+  7.3:1 and 8.4:1. If the designer supplies a dark spec, replace the `.dark`
+  block in `app.css` and nothing else.
+- **Status colours are tokens** (`--status-{draft,published,pending,paid,danger}-{bg,fg}`),
+  taken from the handoff's `nas-theme.css` for light and derived for dark.
+  `StatusBadge`, `StatusBanner` and the report tiles all read them; a pill on
+  a ticket and a pill in a report are the same pill.
 - **Status is a dot plus text, never colour alone.** The door is badly lit and
   some readers are colourblind.
 - **The brand ramp lives on `:root`, not `@theme`.** Tailwind prunes unused
   `@theme` values, so `var()` lookups from inline styles would resolve to
-  nothing.
+  nothing. Token names are colour-neutral (`--brand-orange`, `--brand-ink`),
+  not brand-word-bound, and `BrandTest` fails on any surviving `--brand-jade`.
+- **The only gradient left is a photo scrim** (`public/event.tsx`, dark over
+  the cover so white text reads). It is allow-listed by name in `BrandTest`.
 - **Migrations must not reference app enums.** Deleting `ThemeMode` broke every
   test at the migration step; column defaults are literals now.
-- Primary controls are 52px on coarse pointers, focus is a 2px jade ring.
+- Primary controls are 52px on coarse pointers, focus is a 2px orange ring.
 
-## The mark — "The Pass"
+## The mark — the wordmark
 
-Imported from the Claude Design project (`logo-final-the-pass.dc.html`). A
-solid die-cut ticket with no letterform in it, so nothing needs translating:
-any script sits beside the mark. Three moves only — the notch, the tear, and
-the saffron dot that is the person who got in.
+The logo is the word **ناس** set in Lifta Black and outlined to paths by the
+designer. The font is neither shipped nor licensed here and is not needed:
+the paths render everywhere. **Never type ناس in a font and call it the
+logo.** The orange disc — the same paths on an orange circle — is secondary,
+for the places a wordmark cannot go.
 
-- **`resources/brand/*.svg` are the source of truth.** `npm run icons`
-  rasterises them into `public/`. Never edit anything in `public/icons/` by
-  hand; a test asserts the rasters exist at the right sizes.
-- **Detail drops with size.** 48px keeps the perforation, 32px drops it, 16px
-  drops the saffron dot too and widens the seat. The artboard's rule, and the
-  reason `AppLogoIcon` takes a `detail` prop.
-- **The mark mirrors in Arabic** so the stub trails the reading direction.
-  That mirror is an inline `transform` on the `<svg>` root, which is why the
-  entrance animation scales an inner `<g>` — animating the root's transform
-  overrode the mirror and the mark flipped when the animation ended.
-- **Punch-outs follow `--mark-cut`, defaulting to `--background`.** A punch
-  reveals what is behind it, so on the dark theme the holes must go dark or
-  they stop reading as holes. Override it where the mark is reversed onto a
-  solid tile.
-- **The maskable icon is its own drawing.** The square icon's notches bite the
-  tile edge; a maskable icon is cropped to a circle, so those notches either
-  vanish or read as two floating dots. It uses the reversed mark instead.
+- **`resources/brand/nas-wordmark.svg` and `nas-disc.svg` are the source of
+  truth.** The wordmark was normalised once from the handoff's ElementTree
+  export (namespace-prefixed tags, hardcoded fill, offset viewBox) into plain
+  SVG with `fill="currentColor"`; the path data is byte-identical to the
+  handoff. `components/brand/wordmark-path.ts`, `disc-path.ts` and the inline
+  copy in `errors/layout.blade.php` are generated from it, and `BrandTest`
+  asserts all four carry the same `d`.
+- **The wordmark never mirrors.** It is Arabic text. The old mark flipped in
+  RTL via an inline transform on the `<svg>` root; `Wordmark` has no direction
+  logic at all, and its entrance is a single `brand-rise` beat.
+- **Where each mark goes.** Wordmark: sidebar header, public header, auth
+  pages, footer, error pages, the ticket's seal corner as a disc. Disc only:
+  favicon, PWA icons, apple-touch, the collapsed sidebar rail, the push badge.
+- **`npm run icons`** rasterises the disc into `favicon.svg`/`.ico`,
+  `icons/icon-{192,512}.png`, and composes the maskable icon and
+  `apple-touch-icon.png` (wordmark on full-bleed orange in the safe zone), the
+  monochrome `icons/badge-96.png` (Android draws badges from alpha alone) and
+  the share card `og-default.png` (1200×630). Never edit `public/icons/` by
+  hand. Anything under `/icons/` is cached forever by the service worker, so
+  **bump `VERSION` in `public/sw.js` in the same commit** — it is `v3` now.
 
 ## The poster workshop
 
@@ -248,6 +281,33 @@ brings the artwork back, and the real details go on here.
 - **The reserved band comes back light as often as dark.** The compositor
   samples its luminance and flips the scrim, the text and the code plate
   accordingly; assuming a dark band puts dark text on a cream screenprint.
+
+## Appearance
+
+Light, dark, or the device's choice, with **system as the default**: nobody who
+has not picked a side is handed one. `HandleAppearance` shares `system` when
+there is no cookie, `use-appearance.tsx` stores `system` when there is no
+localStorage entry, and the inline script in `app.blade.php` resolves it from
+`prefers-color-scheme` before first paint.
+
+- **`ThemeToggle` sits beside `LanguageToggle` everywhere** — every public
+  page, the auth layout, and the dashboard header. `AppearanceTest` asserts
+  the pair travel together. The trigger shows the *resolved* mode; the menu
+  offers all three, because a visitor with no account has no settings page to
+  get back to "system" from.
+- **The switch is animated by `react-theme-switch-animation`** (View
+  Transitions API, circular reveal from the button; instant under reduced
+  motion or where the API is missing). It runs in **controlled mode** —
+  `isDarkMode` + `onDarkModeChange` — so our store stays the source of truth:
+  it writes the cookie the server render reads and it knows about "system",
+  which the package does not. A `pending` ref carries the menu choice through
+  the package's toggle-only API so picking "system" is persisted as "system".
+- The package also writes `localStorage.theme`. It is inert — nothing reads
+  it — but do not mistake it for ours, which is `localStorage.appearance`.
+- Installing a new dependency while `npm run dev` is up makes Vite
+  re-optimise and briefly serve two module graphs; React logs "Invalid hook
+  call" once and the page recovers on the next full load. Not a bug in the
+  code that was just added.
 
 ## Notifications
 
@@ -429,6 +489,31 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
 - **`<Heading>` renders an `h2`**, so the whole authenticated side had no `h1`
   at all. It is emitted once by `app-sidebar-layout` from the last breadcrumb,
   which is already a translation key — do not add per-page ones.
+- **The handoff's wordmark SVGs are ElementTree exports.** `<ns0:svg
+  xmlns:ns0=…>` renders as an `<img>` but cannot be inlined into JSX, and the
+  fill is hardcoded so it cannot be recoloured. Normalise once, commit the
+  result, and let a test pin the path data — do not reach into the handoff
+  folder at build time.
+- **`VITE_APP_NAME` must be a literal.** Vite does not expand `${APP_NAME}`.
+- **Changing `APP_NAME` signs everyone out once.** The cache prefix and the
+  session cookie name are slugged from it (`config/cache.php`,
+  `config/session.php`). Run `php artisan cache:clear` in the same deploy.
+- **A `@theme` variable cannot alias itself.** `--shadow-raised:
+  var(--shadow-raised)` is circular; the raw value lives on `:root` as
+  `--elevation-raised` and `@theme` maps `--shadow-raised` to that.
+- **`button.tsx` never emitted `data-size`**, so the coarse-pointer rule that
+  raises `lg` buttons to 52px matched nothing for as long as it existed. It
+  emits it now.
+- **The pre-paint background in `app.blade.php` had stale starter values**
+  (`oklch(1 0 0)` / `oklch(0.145 0 0)`): pure white on first paint, on a
+  phone, in a dark venue. It carries the real `--background` tokens now, and
+  they must be changed by hand whenever those move.
+- **`LanguageToggle` built its href from `window.location`**, which the server
+  render does not have, so SSR emitted `/?lang=en` on every page and React
+  logged a hydration mismatch on every load. It reads `usePage().url` now.
+- **`Vite::asset()` resolves files referenced from CSS `url()`.** That is how
+  the font preloads find their hashed paths; `@vite` only preloads its own
+  chunks and CSS.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 
@@ -452,3 +537,10 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   key is public; the service-account JSON is not and belongs on the server.
 - **Real-device testing.** The camera scanner and PWA install flow have only ever run in a desktop
   browser. This is the largest remaining risk.
+- **Dark mode sign-off.** The dark palette is derived from the light handoff
+  (see Design system). It is measured, not designed; the designer has not
+  seen it.
+- **Button text colour.** Ink on orange, against the handoff's white on
+  orange, for contrast. The designer has been told the numbers.
+- **`Settings::DEFAULTS['icon_path']`** is declared, never written, never
+  read. Dead key; remove or wire up.

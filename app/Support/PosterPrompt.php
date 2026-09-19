@@ -69,7 +69,7 @@ final class PosterPrompt
      * @var array<string, array<int, string>>
      */
     public const PALETTES = [
-        'brand' => ['#0A5C49', '#E8A72B', '#FAF7F2', '#12110E'],
+        'brand' => ['#F66002', '#0D0E0F', '#F6F1EA', '#02AE9F'],
         'basalt' => ['#12110E', '#6E675A', '#E5DCCC', '#C88414'],
         'saffron' => ['#E8A72B', '#8A5A0C', '#FBEBCE', '#191712'],
         'jade' => ['#062E24', '#12876A', '#4FCBA5', '#DDECE5'],
@@ -112,9 +112,10 @@ final class PosterPrompt
             ]),
             self::subject($event, $line, $locale),
             self::setting($event, $line, $locale),
-            // Always present, and specific: "Syrian" pulls a model towards
-            // Damascus and Palmyra, which is the wrong governorate entirely.
-            $line('region'),
+            // Opt-in. Place context otherwise comes from the event's own
+            // location, above; this line grounds the artwork in Jabal al-Arab
+            // specifically, and only when the owner asked for that mood.
+            $choices['mood'] === 'heritage' ? $line('region') : '',
             $line('palette', ['colors' => implode(', ', $palette)]),
             $elements === []
                 ? ''

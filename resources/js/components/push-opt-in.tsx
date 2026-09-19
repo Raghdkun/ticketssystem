@@ -67,7 +67,7 @@ export function PushOptIn({ token }: { token: string }) {
     }
 
     return (
-        <section className="brand-surface space-y-3 rounded-2xl border p-4">
+        <section className="space-y-3 rounded-2xl border bg-card p-4">
             <div className="flex items-start gap-3">
                 <span
                     aria-hidden

@@ -3,15 +3,14 @@ import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import type { TicketStatus } from '@/types/public';
 
+// The same five status tokens the pills use, so the banner on a ticket and
+// the badge on a report agree about what "paid" looks like.
 const styles: Record<TicketStatus, string> = {
-    pending:
-        'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200',
-    paid: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200',
-    cancelled: 'bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-200',
-    expired:
-        'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
-    no_show:
-        'bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-200',
+    pending: 'bg-status-pending-bg text-status-pending-fg',
+    paid: 'bg-status-paid-bg text-status-paid-fg',
+    cancelled: 'bg-status-danger-bg text-status-danger-fg',
+    expired: 'bg-status-draft-bg text-status-draft-fg',
+    no_show: 'bg-status-draft-bg text-status-draft-fg',
 };
 
 const icons: Record<TicketStatus, typeof Clock> = {
@@ -45,7 +44,7 @@ export function StatusBanner({
             }}
             transition={{ duration: reduceMotion ? 0 : 0.45 }}
             className={cn(
-                'flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold',
+                'flex items-center justify-center gap-2 rounded-md py-3 text-sm font-extrabold',
                 styles[status],
             )}
         >

@@ -78,8 +78,7 @@ export function PlaceEdgeTab({ place, siblings }: Props) {
                                     <span
                                         className="size-12 shrink-0 overflow-hidden rounded-lg"
                                         style={{
-                                            backgroundColor:
-                                                'var(--brand-jade-700)',
+                                            backgroundColor: 'var(--muted)',
                                         }}
                                     >
                                         {event.cover && (

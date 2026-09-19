@@ -29,7 +29,7 @@ export function SetupChecklist({ steps }: { steps: SetupSteps }) {
     const done = STEPS.filter((step) => steps[step.key]).length;
 
     return (
-        <section className="brand-surface rounded-2xl border p-5 sm:p-6">
+        <section className="rounded-2xl border bg-card p-5 sm:p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-semibold">{t('dash.setup_title')}</h2>
                 <p className="text-sm text-muted-foreground tabular-nums">

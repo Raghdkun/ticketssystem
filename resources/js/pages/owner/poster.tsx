@@ -67,7 +67,7 @@ function Choice({
                         className={cn(
                             'min-h-11 cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors',
                             value === option
-                                ? 'border-primary bg-primary/10 font-medium text-primary'
+                                ? 'border-primary bg-primary/10 font-extrabold text-primary-text'
                                 : 'hover:bg-muted/60',
                         )}
                     >
@@ -261,7 +261,7 @@ export default function PosterWorkshop({
                                             className={cn(
                                                 'min-h-11 cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors',
                                                 on
-                                                    ? 'border-primary bg-primary/10 font-medium text-primary'
+                                                    ? 'border-primary bg-primary/10 font-extrabold text-primary-text'
                                                     : 'hover:bg-muted/60',
                                             )}
                                         >

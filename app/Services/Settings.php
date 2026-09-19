@@ -17,8 +17,8 @@ final class Settings
 
     /** Defaults are the shipped brand; the database only holds overrides. */
     public const DEFAULTS = [
-        'app_name_en' => 'Swaida Tickets Hub',
-        'app_name_ar' => 'مركز تذاكر السويداء',
+        'app_name_en' => 'Nas',
+        'app_name_ar' => 'ناس',
         'tagline_en' => 'Reserve your seat, pay at the venue.',
         'tagline_ar' => 'احجز مقعدك، وادفع في المكان.',
         'logo_path' => null,

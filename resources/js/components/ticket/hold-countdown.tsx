@@ -44,8 +44,8 @@ export function HoldCountdown({
     }
 
     return (
-        <div className="rounded-xl bg-brand-cta/15 p-4 text-center">
-            <p className="font-display text-2xl font-semibold text-[#8a5a0c] tabular-nums dark:text-[#f3c766]">
+        <div className="rounded-xl bg-status-pending-bg p-4 text-center">
+            <p className="text-2xl font-extrabold text-status-pending-fg tabular-nums">
                 {t('ticket.time_left', {
                     hours: left.hours,
                     minutes: left.minutes,
