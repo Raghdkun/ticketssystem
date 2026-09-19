@@ -41,8 +41,7 @@ final class EventPresenter
     public static function siblingEvents(Place $place, ?Event $exclude = null): array
     {
         return $place->events()
-            ->published()
-            ->where('appointments_close_at', '>', now())
+            ->listable()
             ->when($exclude, fn ($query) => $query->whereKeyNot($exclude->getKey()))
             ->orderBy('starts_at')
             ->limit(10)

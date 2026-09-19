@@ -129,6 +129,33 @@ class Event extends Model
         $query->where('status', EventStatus::Published);
     }
 
+    /**
+     * Events that have not happened yet, whether or not booking is still open.
+     *
+     * The public listing used to drop an event the moment its booking window
+     * closed -- which, since booking closes at or before the start, meant an
+     * event vanished from the home page on the day it happened and the
+     * platform looked empty at exactly the moment it was busiest. An event is
+     * listed until it ends; without an end time, a few hours after it starts.
+     *
+     * @param  Builder<Event>  $query
+     */
+    public function scopeListable(Builder $query): void
+    {
+        $query->published()->where(function (Builder $query) {
+            $query->where('ends_at', '>', now())
+                ->orWhere(function (Builder $query) {
+                    $query->whereNull('ends_at')
+                        ->where('starts_at', '>', now()->subHours(self::LINGER_HOURS));
+                });
+        });
+    }
+
+    /**
+     * How long an event with no end time stays listed after it starts.
+     */
+    public const LINGER_HOURS = 6;
+
     public function isFree(): bool
     {
         return (float) $this->price === 0.0;

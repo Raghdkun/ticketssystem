@@ -42,16 +42,55 @@ class HomeListingTest extends TestCase
         );
     }
 
-    public function test_it_hides_drafts_closed_events_and_inactive_venues(): void
+    public function test_it_hides_drafts_ended_events_and_inactive_venues(): void
     {
         $place = Place::factory()->create(['is_active' => true]);
         $this->eventAt($place, ['status' => EventStatus::Draft]);
-        $this->eventAt($place, ['appointments_close_at' => now()->subDay()]);
+        Event::factory()->ended()->for($place)->create(['status' => EventStatus::Published]);
 
         $dormant = Place::factory()->create(['is_active' => false]);
         $this->eventAt($dormant);
 
         $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page->has('events', 0));
+    }
+
+    /**
+     * Booking closes at or before the start, so hiding closed events hid every
+     * event on the day it happened -- the platform looked empty at exactly the
+     * moment it was busiest. An event stays listed until it is over, and the
+     * card says booking is closed.
+     */
+    public function test_an_event_whose_booking_has_closed_stays_listed_until_it_ends(): void
+    {
+        $place = Place::factory()->create(['is_active' => true]);
+        $this->eventAt($place, [
+            'starts_at' => now()->addHours(2),
+            'ends_at' => now()->addHours(6),
+            'appointments_close_at' => now()->subHour(),
+        ]);
+
+        $this->get('/')->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('events', 1)
+                ->where('events.0.is_open', false)
+        );
+    }
+
+    public function test_an_event_with_no_end_time_lingers_a_few_hours_after_it_starts(): void
+    {
+        $place = Place::factory()->create(['is_active' => true]);
+        $this->eventAt($place, [
+            'starts_at' => now()->subHours(Event::LINGER_HOURS - 1),
+            'ends_at' => null,
+            'appointments_close_at' => now()->subDay(),
+        ]);
+        $this->eventAt($place, [
+            'starts_at' => now()->subHours(Event::LINGER_HOURS + 1),
+            'ends_at' => null,
+            'appointments_close_at' => now()->subDay(),
+        ]);
+
+        $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page->has('events', 1));
     }
 
     public function test_it_can_be_filtered_to_one_venue(): void

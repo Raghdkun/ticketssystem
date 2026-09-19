@@ -26,8 +26,7 @@ class SitemapController extends Controller
         ];
 
         Event::query()
-            ->published()
-            ->where('appointments_close_at', '>', now())
+            ->listable()
             ->whereHas('place', fn ($query) => $query->where('is_active', true))
             ->with('place:id,slug')
             ->orderBy('starts_at')

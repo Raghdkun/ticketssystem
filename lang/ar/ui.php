@@ -291,6 +291,7 @@ return [
         'find_ticket' => 'ابحث عن تذكرتي',
         'seats_left' => 'متبقٍ :n مقعد',
         'sold_out' => 'اكتمل العدد',
+        'booking_closed' => 'أُغلق الحجز',
         'search' => 'ابحث عن فعالية',
         'search_placeholder' => 'ابحث بالاسم',
         'all_venues' => 'كل الأماكن',

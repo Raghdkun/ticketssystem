@@ -61,6 +61,7 @@ class HomeController extends Controller
                 'price' => (float) $event->price,
                 'currency' => $event->currency,
                 'seats_remaining' => $event->seatsRemaining(),
+                'is_open' => $event->isOpenForAppointments(),
                 'place_slug' => $event->place->slug,
                 'place_name_ar' => $event->place->name_ar,
                 'place_name_en' => $event->place->name_en,
@@ -86,7 +87,8 @@ class HomeController extends Controller
     }
 
     /**
-     * Published, and still taking bookings.
+     * Published and not yet over. Booking may already be closed -- the card
+     * says so -- but the event is still on and still worth seeing.
      *
      * A named method rather than a closure so the venue counts can reuse it
      * with the event builder's own scopes in scope.
@@ -96,9 +98,7 @@ class HomeController extends Controller
      */
     private function openScope(Builder $query): Builder
     {
-        return $query
-            ->published()
-            ->where('appointments_close_at', '>', now());
+        return $query->listable();
     }
 
     /**

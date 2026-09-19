@@ -291,6 +291,7 @@ return [
         'find_ticket' => 'Find my ticket',
         'seats_left' => ':n seats left',
         'sold_out' => 'Sold out',
+        'booking_closed' => 'Booking closed',
         'search' => 'Search events',
         'search_placeholder' => 'Search by name',
         'all_venues' => 'All venues',

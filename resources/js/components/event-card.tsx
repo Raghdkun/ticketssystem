@@ -14,6 +14,8 @@ export type ListedEvent = {
     price: number;
     currency: string;
     seats_remaining: number;
+    /** Booking window still open. An event stays listed until it ends. */
+    is_open: boolean;
     place_slug: string;
     place_name_ar: string;
     place_name_en: string;
@@ -33,6 +35,7 @@ export function EventCard({
     const { locale } = useLocale();
     const t = useTranslation();
     const soldOut = event.seats_remaining <= 0;
+    const closed = !event.is_open;
 
     return (
         <Link
@@ -90,14 +93,16 @@ export function EventCard({
                     <span
                         aria-hidden="true"
                         className={
-                            soldOut
+                            closed || soldOut
                                 ? 'size-1.5 rounded-full bg-muted-foreground'
                                 : 'size-1.5 rounded-full bg-primary'
                         }
                     />
-                    {soldOut
-                        ? t('home.sold_out')
-                        : t('home.seats_left', { n: event.seats_remaining })}
+                    {closed
+                        ? t('home.booking_closed')
+                        : soldOut
+                          ? t('home.sold_out')
+                          : t('home.seats_left', { n: event.seats_remaining })}
                 </p>
             </div>
         </Link>

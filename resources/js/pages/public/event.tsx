@@ -303,9 +303,11 @@ export default function EventPage({ event, place, siblings }: Props) {
                                 disabled={!event.is_open}
                                 className="shrink-0 cursor-pointer"
                             >
-                                {soldOut
-                                    ? t('event.notify_me')
-                                    : t('event.appoint')}
+                                {!event.is_open
+                                    ? t('event.closed')
+                                    : soldOut
+                                      ? t('event.notify_me')
+                                      : t('event.appoint')}
                             </Button>
                         </SheetTrigger>
 

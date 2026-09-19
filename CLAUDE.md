@@ -114,6 +114,19 @@ realtime status flip.
     `released by holder` with a null actor, which is what distinguishes it from
     a venue cancelling somebody.
 
+19. **An event is listed until it is over, not until booking closes.**
+    Booking closes at or before the start, so "only bookable events" hid every
+    event on the day it happened and the home page read "nothing is on" at
+    the busiest moment. `Event::listable()` keeps published events until
+    `ends_at`, or `LINGER_HOURS` after the start when there is no end time;
+    the card and the event page say **أُغلق الحجز** instead of pretending.
+    Past events live only on the venue's own page.
+20. **The app runs in `Asia/Damascus`.** Owners type event times as they read
+    them on a poster, into a `datetime-local` field, and whatever timezone
+    the app runs in is what those values mean. On UTC a 19:00 event was shown
+    to everyone in Syria as 22:00. `APP_TIMEZONE` defaults to Damascus and
+    `TimezoneTest` asserts a typed time comes back as the same wall-clock
+    time.
 ---
 
 ## Repository map
@@ -176,7 +189,7 @@ realtime status flip.
 | 12 | Whole-app accessibility and i18n sweep: an `h1` on every screen, tap-target floors that actually apply, Arabic-Indic digits out of the catalogue, the last untranslated strings |
 | 13 | Rebrand to ناس / Nas: wordmark + disc, cream/ink/orange tokens with a derived dark theme, Cairo committed and self-hosted, region-neutral copy, opt-in heritage mood in the poster prompt |
 
-**384 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**390 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a

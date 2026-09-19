@@ -65,7 +65,13 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    /*
+     * Owners type event times as they read them on a poster, in local time,
+     * into a datetime-local field. Whatever timezone the app runs in is what
+     * those values mean. UTC here meant a 19:00 event was shown to visitors
+     * as 22:00 -- three hours off, on every event, for everyone in Syria.
+     */
+    'timezone' => env('APP_TIMEZONE', 'Asia/Damascus'),
 
     /*
     |--------------------------------------------------------------------------

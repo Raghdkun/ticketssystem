@@ -23,10 +23,10 @@ class SitemapTest extends TestCase
             ->assertSee(route('events.show', [$event->place, $event]), false);
     }
 
-    public function test_it_excludes_drafts_closed_events_and_inactive_venues(): void
+    public function test_it_excludes_drafts_ended_events_and_inactive_venues(): void
     {
         $draft = Event::factory()->draft()->create();
-        $closed = Event::factory()->closed()->create();
+        $closed = Event::factory()->ended()->create();
         $inactive = Event::factory()->for(Place::factory()->create(['is_active' => false]))->create();
 
         $body = $this->get('/sitemap.xml')->getContent();

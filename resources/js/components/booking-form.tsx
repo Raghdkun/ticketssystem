@@ -97,7 +97,14 @@ export function BookingForm({
              * disabling the button. A form you cannot submit is a dead end,
              * and seats genuinely do come back on this platform.
              */}
-            {soldOut && event.is_open ? (
+            {!event.is_open ? (
+                <p
+                    role="status"
+                    className="rounded-xl bg-status-draft-bg p-4 text-center text-sm font-extrabold text-status-draft-fg"
+                >
+                    {t('event.closed')}
+                </p>
+            ) : soldOut ? (
                 <WaitingList event={event} place={place} />
             ) : (
                 <Form

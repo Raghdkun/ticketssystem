@@ -52,6 +52,18 @@ class EventFactory extends Factory
         return $this->state(fn () => ['appointments_close_at' => now()->subDay()]);
     }
 
+    /**
+     * Happened, and over: booking closed, doors opened, lights out.
+     */
+    public function ended(): static
+    {
+        return $this->state(fn () => [
+            'starts_at' => now()->subDays(2),
+            'ends_at' => now()->subDays(2)->addHours(4),
+            'appointments_close_at' => now()->subDays(3),
+        ]);
+    }
+
     public function soldOut(): static
     {
         return $this->state(fn () => ['total_quantity' => 1]);

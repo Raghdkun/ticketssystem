@@ -43,6 +43,7 @@ start from a stock Laravel file.
 | Variable | Value | Why |
 |---|---|---|
 | `APP_NAME` | `Nas` | Only the deployment's label — the name people see is admin-editable in the database. **Changing it rotates the cache prefix and the session cookie name**: everyone is signed out once, so run `php artisan cache:clear` in the same deploy |
+| `APP_TIMEZONE` | `Asia/Damascus` | Event times are typed by owners in local time and stored as-is. On UTC every event shows three hours late |
 | `APP_ENV` | `production` | |
 | `APP_DEBUG` | `false` | Stack traces leak file paths and query contents |
 | `APP_URL` | `https://your-domain` | QR codes encode absolute verification URLs. **Wrong value = every printed QR points at the wrong host** |
