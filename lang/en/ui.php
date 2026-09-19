@@ -110,6 +110,7 @@ return [
         'place_sub' => "Your venue's details and where it is on the map.",
         'place' => 'Venue',
         'finish_publish' => 'Finish and publish',
+        'awaiting_review' => 'Awaiting approval. It is not public until an administrator approves it.',
         'draft_meta' => 'No cover · :n seats · :date',
         'seats_meta' => ':taken of :total seats · :date',
         'filter_all' => 'All',

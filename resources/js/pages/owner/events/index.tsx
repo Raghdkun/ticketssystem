@@ -25,7 +25,12 @@ type EventRow = {
 type Props = {
     place: { name_ar: string; name_en: string; slug: string } | null;
     events: EventRow[];
-    counts: { all: number; published: number; draft: number };
+    counts: {
+        all: number;
+        published: number;
+        draft: number;
+        pending_review: number;
+    };
     filter: string;
 };
 
@@ -33,6 +38,7 @@ const FILTERS = [
     { key: 'all', label: 'owner.filter_all' },
     { key: 'published', label: 'event.status.published' },
     { key: 'draft', label: 'event.status.draft' },
+    { key: 'pending_review', label: 'event.status.pending_review' },
 ] as const;
 
 /**
@@ -138,6 +144,7 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                     <Stagger className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {events.map((event) => {
                             const draft = event.status === 'draft';
+                            const awaiting = event.status === 'pending_review';
                             const pct = Math.min(
                                 100,
                                 Math.round(
@@ -212,7 +219,11 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                     : event.title_ar}
                                             </p>
 
-                                            {draft ? (
+                                            {awaiting ? (
+                                                <p className="mt-auto pt-2 text-xs font-medium text-status-pending-fg">
+                                                    {t('owner.awaiting_review')}
+                                                </p>
+                                            ) : draft ? (
                                                 <p className="mt-auto pt-2 text-xs text-muted-foreground">
                                                     {t('owner.draft_meta', {
                                                         n: event.total_quantity,
@@ -255,7 +266,16 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                             way to bury the most distinctive
                                             thing an owner can do here. */}
                                         <div className="relative z-10 flex flex-wrap items-center gap-x-4 gap-y-2 border-t px-4 py-2.5">
-                                            {draft ? (
+                                            {awaiting ? (
+                                                <Link
+                                                    href={EventController.edit(
+                                                        event.id,
+                                                    )}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-text underline-offset-4 hover:underline"
+                                                >
+                                                    {t('common.edit')}
+                                                </Link>
+                                            ) : draft ? (
                                                 <Link
                                                     href={EventController.edit(
                                                         event.id,

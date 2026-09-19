@@ -31,7 +31,7 @@ class EventController extends Controller
             return Inertia::render('owner/events/index', [
                 'place' => null,
                 'events' => [],
-                'counts' => ['all' => 0, 'published' => 0, 'draft' => 0],
+                'counts' => ['all' => 0, 'published' => 0, 'draft' => 0, 'pending_review' => 0],
                 'filter' => 'all',
             ]);
         }
@@ -43,10 +43,11 @@ class EventController extends Controller
             'all' => $place->events()->count(),
             'published' => $place->events()->where('status', EventStatus::Published)->count(),
             'draft' => $place->events()->where('status', EventStatus::Draft)->count(),
+            'pending_review' => $place->events()->where('status', EventStatus::PendingReview)->count(),
         ];
 
         $filter = $request->query('status');
-        $filter = in_array($filter, ['published', 'draft'], true) ? $filter : 'all';
+        $filter = in_array($filter, ['published', 'draft', 'pending_review'], true) ? $filter : 'all';
 
         $events = $place->events()
             ->when($filter !== 'all', fn ($query) => $query->where('status', $filter))
@@ -103,8 +104,7 @@ class EventController extends Controller
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
-        return to_route('owner.events.index')
-            ->with('success', __('events.created'));
+        return $this->afterSave($event, __('events.created'));
     }
 
     public function edit(Request $request, Event $event): Response
@@ -159,8 +159,25 @@ class EventController extends Controller
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
-        return to_route('owner.events.index')
-            ->with('success', __('events.updated'));
+        return $this->afterSave($event, __('events.updated'));
+    }
+
+    /**
+     * Back to the list, with a message that matches what happened.
+     *
+     * "Event created" is the wrong thing to tell an owner whose event was
+     * parked for review instead of published: they read it as done, tell
+     * people to book, and nothing is public. The parked case gets its own
+     * message, in the warning tone, so the difference is impossible to miss.
+     */
+    private function afterSave(Event $event, string $saved): RedirectResponse
+    {
+        if ($event->status === EventStatus::PendingReview) {
+            return to_route('owner.events.index')
+                ->with('warning', __('events.sent_for_review'));
+        }
+
+        return to_route('owner.events.index')->with('success', $saved);
     }
 
     /**

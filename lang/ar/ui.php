@@ -110,6 +110,7 @@ return [
         'place_sub' => 'بيانات قاعتك وموقعها على الخريطة.',
         'place' => 'القاعة',
         'finish_publish' => 'أكمل ثم انشر',
+        'awaiting_review' => 'بانتظار الموافقة. لن تظهر للعامة حتى يوافق عليها المشرف.',
         'draft_meta' => 'لا غلاف · :n مقعدًا · :date',
         'seats_meta' => ':taken من :total مقعد · :date',
         'filter_all' => 'الكل',

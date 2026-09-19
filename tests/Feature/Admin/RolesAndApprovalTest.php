@@ -266,4 +266,36 @@ class RolesAndApprovalTest extends TestCase
 
         $this->assertStringNotContainsString('"revenue"', $response->getContent());
     }
+
+    /**
+     * An owner whose publish was parked must be told so, in so many words.
+     * "Event created" reads as done; nothing is public until an admin acts.
+     */
+    public function test_an_approval_tier_owner_is_told_their_event_went_to_review(): void
+    {
+        $owner = $this->owner(requiresApproval: true);
+
+        $this->actingAs($owner)
+            ->post(route('owner.events.store'), $this->eventPayload(['status' => 'published']))
+            ->assertRedirect(route('owner.events.index'))
+            ->assertSessionHas('warning', __('events.sent_for_review'))
+            ->assertSessionMissing('success');
+
+        $this->actingAs($owner)
+            ->get(route('owner.events.index'))
+            ->assertInertia(fn ($page) => $page
+                ->where('counts.pending_review', 1)
+                ->where('counts.published', 0)
+                ->where('events.0.status', 'pending_review'));
+    }
+
+    public function test_an_owner_who_can_publish_directly_is_told_it_was_created(): void
+    {
+        $owner = $this->owner();
+
+        $this->actingAs($owner)
+            ->post(route('owner.events.store'), $this->eventPayload(['status' => 'published']))
+            ->assertSessionHas('success', __('events.created'))
+            ->assertSessionMissing('warning');
+    }
 }
