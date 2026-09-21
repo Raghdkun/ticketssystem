@@ -219,7 +219,7 @@ realtime status flip.
 | `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel, holder release), `RepeatEvent`, `NotifyWatchers` |
 | `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender`, `Agreements` (terms in force, accept, publish), `Commercial` (offers, orders, event snapshot), `Otp/` (challenge + senders) |
 | `app/Support/` | `Color` (WCAG maths), `QrCode`, `NotificationCopy` (variant rotation), `PosterPrompt`, presenters |
-| `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation — no app chrome |
+| `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation, for-venues — no app chrome |
 | `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report, agreement (bare page, in front of the app), documents, commercial-offer, service-order |
 | `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
 | `resources/js/pages/admin/` | owners, settings, agreements (versions, publish, acceptances, who is outstanding), commercial-offers, service-orders, acceptances (the audit log) |
@@ -275,8 +275,9 @@ realtime status flip.
 | 14 | Owner feedback: cover removal, unlimited capacity, confirm-on-booking for free events, unlisted events, repeat from the form, saved-event dialog, required-field marks, delete-or-archive |
 | 15 | Partner Terms: versioned immutable agreement, per-venue acceptance records with legal identity and text hash, blocking re-acceptance gate, admin drafting/publishing, OTP layer with a null driver |
 | 16 | Commercial layer: per-venue offers, event terms snapshot with publish acknowledgement, service orders, the owner "Agreements & documents" page, the admin acceptance log |
+| 17 | `/for-venues`: the page for a venue that is not a partner yet — an admin-editable pitch and a WhatsApp button to the support number; linked from the footer and the login page; registration stays closed |
 
-**461 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**467 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a
@@ -468,6 +469,9 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
   only; inverting the whole container would invert our own pin and controls.
 - **Landmark is a first-class field**, not part of the address line. Street
   addressing in As-Suwayda is not what people navigate by.
+- **Every new fixed public path goes into the reserved list on `/{place}`.**
+  `for-venues` was added there in the same commit as its route, and
+  `ForVenuesTest` creates a venue with that slug to prove the page wins.
 - **`/{place}` is registered dead last and excludes reserved segments.** One
   free segment at the end of the table otherwise answers every fixed path, and
   a clean 404 on `/register` turns into a 405 that tells a prober something

@@ -9,6 +9,26 @@ type Props = {
 };
 
 /**
+ * wa.me wants the number in international form with no plus sign. People
+ * type numbers the way they dial them -- 09xx locally, 00963 or +963 from
+ * abroad -- so the local and 00 forms are turned into the E.164 digits.
+ * Syria is the default country, as everywhere else in the app.
+ */
+export function whatsappNumber(number: string): string {
+    const digits = number.replace(/\D/g, '');
+
+    if (digits.startsWith('00')) {
+        return digits.slice(2);
+    }
+
+    if (digits.startsWith('0')) {
+        return `963${digits.slice(1)}`;
+    }
+
+    return digits;
+}
+
+/**
  * Deep link into WhatsApp. Renders nothing when the venue has not published a
  * number, rather than showing a dead button.
  */
@@ -17,7 +37,7 @@ export function WhatsAppButton({ number, message, label, className }: Props) {
         return null;
     }
 
-    const href = `https://wa.me/${number.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    const href = `https://wa.me/${whatsappNumber(number)}?text=${encodeURIComponent(message)}`;
 
     return (
         <a

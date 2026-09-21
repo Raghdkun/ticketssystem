@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/lib/translation';
 import { settings } from '@/routes/admin';
 
@@ -16,6 +17,8 @@ type Props = {
         tagline_ar: string | null;
         logo_path: string | null;
         support_whatsapp: string | null;
+        venues_pitch_ar: string | null;
+        venues_pitch_en: string | null;
     };
 };
 
@@ -114,6 +117,39 @@ export default function PlatformSettings({ settings: values }: Props) {
                                     placeholder="09XXXXXXXX"
                                     defaultValue={values.support_whatsapp ?? ''}
                                 />
+                            </div>
+
+                            {/* The pitch on the "for venues" page: what a
+                                venue reads before it taps the WhatsApp button. */}
+                            <div className="grid gap-2">
+                                <Label htmlFor="venues_pitch_ar">
+                                    {t('admin.venues_pitch_ar')}
+                                </Label>
+                                <Textarea
+                                    id="venues_pitch_ar"
+                                    name="venues_pitch_ar"
+                                    dir="rtl"
+                                    rows={5}
+                                    defaultValue={values.venues_pitch_ar ?? ''}
+                                />
+                                <InputError message={errors.venues_pitch_ar} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="venues_pitch_en">
+                                    {t('admin.venues_pitch_en')}
+                                </Label>
+                                <Textarea
+                                    id="venues_pitch_en"
+                                    name="venues_pitch_en"
+                                    dir="ltr"
+                                    rows={5}
+                                    defaultValue={values.venues_pitch_en ?? ''}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    {t('admin.venues_pitch_hint')}
+                                </p>
+                                <InputError message={errors.venues_pitch_en} />
                             </div>
 
                             <div className="grid gap-2">

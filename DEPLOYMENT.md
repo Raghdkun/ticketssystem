@@ -487,6 +487,12 @@ moves a confirmed order through in progress, completed or cancelled.
 **Administration → Partner Terms → Acceptance log** lists every acceptance
 of every kind, filterable by venue, kind and date.
 
+**The "for venues" page** (`/for-venues`, linked from the footer and the
+login page) shows a pitch and a WhatsApp button. Both come from
+**Administration → Platform settings**: the pitch fields and the support
+WhatsApp number. Until a number is entered the page shows a "contact
+details not published yet" notice instead of a dead button.
+
 ## 13. Backups
 
 ```bash

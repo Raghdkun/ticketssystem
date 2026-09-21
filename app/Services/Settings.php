@@ -24,6 +24,10 @@ final class Settings
         'logo_path' => null,
         'icon_path' => null,
         'support_whatsapp' => null,
+        // The pitch on /for-venues. A few lines an administrator rewrites
+        // from the dashboard; the shipped text is a starting point.
+        'venues_pitch_ar' => "الناس يحجزون مقاعدهم من هواتفهم، ويدفعون عند بابك.\nأنت تتحقق من التذكرة بمسح رمز، ولا تحتاج إلى بوابة دفع.\nلا اقتطاع من سعر التذكرة، ولا أجهزة، ولا تدريب.\nتحدّث معنا وسنجهّز لك حسابًا.",
+        'venues_pitch_en' => "People reserve their seats from their phones and pay at your door.\nYou verify a ticket with one scan. No payment gateway needed.\nNothing is taken from the ticket price. No hardware, no training.\nTalk to us and we will set up your account.",
     ];
 
     /**

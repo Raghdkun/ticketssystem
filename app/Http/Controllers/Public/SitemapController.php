@@ -23,6 +23,7 @@ class SitemapController extends Controller
         // forbidding it there is a contradiction crawlers report as an error.
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
+            ['loc' => route('for_venues'), 'priority' => '0.5', 'changefreq' => 'monthly'],
         ];
 
         Event::query()

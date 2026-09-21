@@ -105,6 +105,13 @@ export default function Login({ status, canResetPassword }: Props) {
                 separatorPosition="before"
             />
 
+            {/* Registration is closed; a venue that is not a partner yet
+                needs a way to start the conversation, not a dead end. */}
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+                {t('venues.login_hint')}{' '}
+                <TextLink href="/for-venues">{t('venues.login_link')}</TextLink>
+            </p>
+
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
                     {status}

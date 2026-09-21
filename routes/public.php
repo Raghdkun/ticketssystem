@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Public\AppointmentController;
 use App\Http\Controllers\Public\EventController;
+use App\Http\Controllers\Public\ForVenuesController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\PlaceController;
@@ -20,6 +21,11 @@ Route::get('my-tickets', TicketLookupController::class)
 
 Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
+
+// The one page for a venue that is not yet a partner: what this is, and a
+// way to start the conversation. Registration stays closed; this opens a
+// chat, not an account.
+Route::get('for-venues', ForVenuesController::class)->name('for_venues');
 
 /*
  * Redeeming an invitation. Unauthenticated by necessity -- the person has no
@@ -81,7 +87,7 @@ Route::get('{place}', [PlaceController::class, 'show'])
         // answers every single-segment path, which turns a clean 404 on
         // /register into a 405 and tells a prober something lives there.
         'register', 'login', 'logout', 'dashboard', 'settings', 'admin',
-        'owner', 'verify', 'invite', 'privacy', 'terms', 'my-tickets',
+        'owner', 'verify', 'invite', 'privacy', 'terms', 'my-tickets', 'for-venues',
         'sitemap\.xml', 'robots\.txt', 'up', 'storage', 'build', 'api', 'user',
         't', 'forgot-password', 'reset-password', 'two-factor-challenge',
     ]).')$)[a-z0-9-]+')

@@ -31,6 +31,8 @@ class SettingsController extends Controller
             'tagline_en' => ['nullable', 'string', 'max:160'],
             'tagline_ar' => ['nullable', 'string', 'max:160'],
             'support_whatsapp' => ['nullable', 'string', 'max:20'],
+            'venues_pitch_ar' => ['nullable', 'string', 'max:1500'],
+            'venues_pitch_en' => ['nullable', 'string', 'max:1500'],
             // SVG is deliberately not accepted: it is script-carrying markup
             // served from our own origin, which would be a stored-XSS vector.
             'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],

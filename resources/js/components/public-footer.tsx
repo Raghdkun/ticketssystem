@@ -41,7 +41,7 @@ export function PublicFooter() {
                         {t('legal.terms')}
                     </Link>
                     <Link
-                        href="/login"
+                        href="/for-venues"
                         className="inline-flex cursor-pointer items-center transition-colors hover:text-foreground coarse:min-h-11"
                     >
                         {t('legal.for_venues')}
