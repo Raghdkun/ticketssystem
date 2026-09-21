@@ -2,7 +2,9 @@ import { Form } from '@inertiajs/react';
 import { CopyPlus } from 'lucide-react';
 import { useState } from 'react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogClose,
@@ -37,6 +39,8 @@ export function RepeatEvent({ eventId }: { eventId: number }) {
     const [open, setOpen] = useState(false);
     const [cadence, setCadence] = useState('weekly');
     const [count, setCount] = useState('4');
+    const [publish, setPublish] = useState(false);
+    const [ack, setAck] = useState(false);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -59,7 +63,7 @@ export function RepeatEvent({ eventId }: { eventId: number }) {
                     onSuccess={() => setOpen(false)}
                     className="space-y-4"
                 >
-                    {({ processing }) => (
+                    {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
                                 <Label htmlFor="cadence">
@@ -114,6 +118,61 @@ export function RepeatEvent({ eventId }: { eventId: number }) {
                                     value={count}
                                 />
                             </div>
+
+                            {/* Opt-in and loud: publishing copies puts them in
+                                front of the public without a second look. A
+                                paid event under an offer also needs the
+                                commercial acknowledgement; the server refuses
+                                without it, so the box is offered whenever
+                                publishing is on. */}
+                            <label
+                                htmlFor="repeat_publish_dialog"
+                                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"
+                            >
+                                <Checkbox
+                                    id="repeat_publish_dialog"
+                                    name="publish"
+                                    value="1"
+                                    checked={publish}
+                                    onCheckedChange={(v) =>
+                                        setPublish(v === true)
+                                    }
+                                    className="mt-0.5 cursor-pointer"
+                                />
+                                <span className="font-medium">
+                                    {t('form.repeat_publish')}
+                                </span>
+                            </label>
+
+                            {publish && (
+                                <>
+                                    <p
+                                        role="alert"
+                                        className="rounded-lg bg-status-danger-bg p-3 text-sm font-medium text-status-danger-fg"
+                                    >
+                                        {t('form.repeat_publish_warning')}
+                                    </p>
+                                    <label
+                                        htmlFor="repeat_ack_dialog"
+                                        className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
+                                    >
+                                        <Checkbox
+                                            id="repeat_ack_dialog"
+                                            name="commercial_ack"
+                                            value="1"
+                                            checked={ack}
+                                            onCheckedChange={(v) =>
+                                                setAck(v === true)
+                                            }
+                                            className="mt-0.5 cursor-pointer"
+                                        />
+                                        {t('commercial.ack_label')}
+                                    </label>
+                                    <InputError
+                                        message={errors.commercial_ack}
+                                    />
+                                </>
+                            )}
 
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>

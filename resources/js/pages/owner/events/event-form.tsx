@@ -185,17 +185,16 @@ export default function EventForm({
     const [unlisted, setUnlisted] = useState(values?.is_unlisted ?? false);
     const [removeCover, setRemoveCover] = useState(false);
     const [price, setPrice] = useState(String(values?.price ?? 0));
-    const [status, setStatus] = useState(values?.status ?? 'draft');
+    const [repeatCadence, setRepeatCadence] = useState('');
+    const [repeatPublish, setRepeatPublish] = useState(false);
 
     const isFree = Number(price) === 0;
-    // A paid event leaving draft goes out under the venue's commercial
-    // terms, and the owner confirms that here. Nothing to confirm without
-    // an accepted offer, for a free event, or once the terms are frozen.
+    // Saving never publishes any more; the dialog after saving does. The
+    // one way this form puts something in front of the public is
+    // "publish the copies", and paid copies under an offer need the
+    // commercial acknowledgement before a single one is made.
     const asksCommercial =
-        commercial !== null &&
-        !commercial.frozen &&
-        !isFree &&
-        status !== 'draft';
+        commercial !== null && !isFree && repeatCadence !== '' && repeatPublish;
     const [commercialAck, setCommercialAck] = useState(false);
 
     return (
@@ -385,36 +384,6 @@ export default function EventForm({
                                     required
                                     defaultValue={values?.hold_hours ?? 24}
                                 />
-                            </Field>
-
-                            <Field
-                                id="status"
-                                label={t('form.status')}
-                                error={errors.status}
-                                hint={
-                                    status === 'archived'
-                                        ? t('form.archived_note')
-                                        : undefined
-                                }
-                                required
-                            >
-                                <select
-                                    id="status"
-                                    name="status"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    className={SELECT_CLASS}
-                                >
-                                    <option value="draft">
-                                        {t('event.status.draft')}
-                                    </option>
-                                    <option value="published">
-                                        {t('event.status.published')}
-                                    </option>
-                                    <option value="archived">
-                                        {t('event.status.archived')}
-                                    </option>
-                                </select>
                             </Field>
 
                             <Field
@@ -809,7 +778,10 @@ export default function EventForm({
                                 <select
                                     id="repeat_cadence"
                                     name="repeat_cadence"
-                                    defaultValue=""
+                                    value={repeatCadence}
+                                    onChange={(e) =>
+                                        setRepeatCadence(e.target.value)
+                                    }
                                     className={SELECT_CLASS}
                                 >
                                     <option value="">
@@ -841,87 +813,122 @@ export default function EventForm({
                             <p className="text-xs text-muted-foreground sm:col-span-2">
                                 {t('form.repeat_note')}
                             </p>
+
+                            {/* Opt-in, loud, and only shown once a cadence is
+                                picked: this is the one control on the form
+                                that puts something in front of the public
+                                without a second look. */}
+                            {repeatCadence !== '' && (
+                                <div className="grid gap-2 sm:col-span-2">
+                                    <Option
+                                        id="repeat_publish"
+                                        name="repeat_publish"
+                                        label={t('form.repeat_publish')}
+                                        hint={t('form.repeat_note')}
+                                        checked={repeatPublish}
+                                        onCheckedChange={setRepeatPublish}
+                                    />
+                                    {repeatPublish && (
+                                        <p
+                                            role="alert"
+                                            className="rounded-lg bg-status-danger-bg p-3 text-sm font-medium text-status-danger-fg"
+                                        >
+                                            {t('form.repeat_publish_warning')}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </section>
                     </FormSection>
 
-                    {commercial !== null && !isFree && status !== 'draft' && (
-                        <section className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
-                            <div>
-                                <h2 className="text-sm font-extrabold">
-                                    {t('commercial.event_summary')}
-                                </h2>
-                                <p className="text-xs text-muted-foreground">
-                                    {commercial.frozen
-                                        ? t('commercial.event_frozen')
-                                        : t('commercial.event_hint')}
-                                </p>
-                            </div>
+                    {commercial !== null &&
+                        !isFree &&
+                        (commercial.frozen || asksCommercial) && (
+                            <section className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+                                <div>
+                                    <h2 className="text-sm font-extrabold">
+                                        {t('commercial.event_summary')}
+                                    </h2>
+                                    <p className="text-xs text-muted-foreground">
+                                        {commercial.frozen
+                                            ? t('commercial.event_frozen')
+                                            : t('commercial.event_hint')}
+                                    </p>
+                                </div>
 
-                            <dl className="grid gap-2 text-sm sm:grid-cols-3">
-                                <div>
-                                    <dt className="text-xs text-muted-foreground">
-                                        {t('commercial.fee')}
-                                    </dt>
-                                    <dd className="font-medium tabular-nums">
-                                        {commercial.fee_type === 'percentage' &&
-                                        commercial.fee_value !== null
-                                            ? `${commercial.fee_value}%`
-                                            : commercial.fee_value !== null
-                                              ? `${commercial.fee_value} ${commercial.currency ?? ''}`
-                                              : t(
-                                                    `commercial.fee_types.${commercial.fee_type}`,
-                                                )}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs text-muted-foreground">
-                                        {t('commercial.fee_payer')}
-                                    </dt>
-                                    <dd className="font-medium">
-                                        {t(
-                                            `commercial.fee_payers.${commercial.fee_payer}`,
-                                        )}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs text-muted-foreground">
-                                        {t('commercial.settlement')}
-                                    </dt>
-                                    <dd className="font-medium">
-                                        {commercial.settlement_days === null
-                                            ? t('commercial.settlement_none')
-                                            : t('commercial.settlement_days', {
-                                                  n: commercial.settlement_days,
-                                              })}
-                                    </dd>
-                                </div>
-                            </dl>
+                                <dl className="grid gap-2 text-sm sm:grid-cols-3">
+                                    <div>
+                                        <dt className="text-xs text-muted-foreground">
+                                            {t('commercial.fee')}
+                                        </dt>
+                                        <dd className="font-medium tabular-nums">
+                                            {commercial.fee_type ===
+                                                'percentage' &&
+                                            commercial.fee_value !== null
+                                                ? `${commercial.fee_value}%`
+                                                : commercial.fee_value !== null
+                                                  ? `${commercial.fee_value} ${commercial.currency ?? ''}`
+                                                  : t(
+                                                        `commercial.fee_types.${commercial.fee_type}`,
+                                                    )}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-muted-foreground">
+                                            {t('commercial.fee_payer')}
+                                        </dt>
+                                        <dd className="font-medium">
+                                            {t(
+                                                `commercial.fee_payers.${commercial.fee_payer}`,
+                                            )}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs text-muted-foreground">
+                                            {t('commercial.settlement')}
+                                        </dt>
+                                        <dd className="font-medium">
+                                            {commercial.settlement_days === null
+                                                ? t(
+                                                      'commercial.settlement_none',
+                                                  )
+                                                : t(
+                                                      'commercial.settlement_days',
+                                                      {
+                                                          n: commercial.settlement_days,
+                                                      },
+                                                  )}
+                                        </dd>
+                                    </div>
+                                </dl>
 
-                            {asksCommercial && (
-                                <>
-                                    <label
-                                        htmlFor="commercial_ack"
-                                        className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
-                                    >
-                                        <Checkbox
-                                            id="commercial_ack"
-                                            name="commercial_ack"
-                                            value="1"
-                                            checked={commercialAck}
-                                            onCheckedChange={(value) =>
-                                                setCommercialAck(value === true)
-                                            }
-                                            className="mt-0.5 cursor-pointer"
+                                {asksCommercial && (
+                                    <>
+                                        <label
+                                            htmlFor="commercial_ack"
+                                            className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
+                                        >
+                                            <Checkbox
+                                                id="commercial_ack"
+                                                name="commercial_ack"
+                                                value="1"
+                                                checked={commercialAck}
+                                                onCheckedChange={(value) =>
+                                                    setCommercialAck(
+                                                        value === true,
+                                                    )
+                                                }
+                                                className="mt-0.5 cursor-pointer"
+                                            />
+                                            {t('commercial.ack_label')}
+                                        </label>
+                                        <InputError
+                                            message={errors.commercial_ack}
                                         />
-                                        {t('commercial.ack_label')}
-                                    </label>
-                                    <InputError
-                                        message={errors.commercial_ack}
-                                    />
-                                </>
-                            )}
-                        </section>
-                    )}
+                                    </>
+                                )}
+                            </section>
+                        )}
 
                     <Button
                         type="submit"

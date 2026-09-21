@@ -41,16 +41,21 @@ final class RepeatEvent
 
     /**
      * @param  int  $count  How many copies to make, 1..MAX_COPIES.
+     * @param  EventStatus|null  $status  Where the copies land; drafts unless
+     *                                    the owner asked for them to go out
+     *                                    at once, in which case the caller
+     *                                    has already resolved the tier.
      * @return Collection<int, Event>
      */
-    public function handle(Event $event, string $cadence, int $count): Collection
+    public function handle(Event $event, string $cadence, int $count, ?EventStatus $status = null): Collection
     {
+        $status ??= EventStatus::Draft;
         $count = max(1, min($count, self::MAX_COPIES));
         [$unit, $step] = self::CADENCES[$cadence] ?? self::CADENCES['weekly'];
 
         $event->loadMissing(['rules', 'perks', 'place']);
 
-        return DB::transaction(function () use ($event, $unit, $step, $count): Collection {
+        return DB::transaction(function () use ($event, $unit, $step, $count, $status): Collection {
             $copies = new Collection;
 
             for ($i = 1; $i <= $count; $i++) {
@@ -61,7 +66,7 @@ final class RepeatEvent
                     'slug', 'status', 'promo_video_id', 'created_at', 'updated_at',
                 ]);
 
-                $copy->status = EventStatus::Draft;
+                $copy->status = $status;
                 $copy->promo_video_id = null;
                 $copy->starts_at = $this->shift($event->starts_at, $unit, $shift);
                 $copy->ends_at = $event->ends_at === null

@@ -60,7 +60,10 @@ class EventRequest extends FormRequest
             'ends_at' => ['nullable', 'date', 'after:starts_at'],
             'appointments_close_at' => ['required', 'date', 'before_or_equal:starts_at'],
 
-            'status' => ['required', new Enum(EventStatus::class)],
+            // Optional: the form no longer carries a status. A new event is
+            // a draft and goes live from the dialog after saving; an edit
+            // keeps whatever the event already is.
+            'status' => ['sometimes', new Enum(EventStatus::class)],
 
             // Checkboxes: absent when unticked, so the controller reads them
             // with boolean() rather than filling them from the safe set.
@@ -101,6 +104,8 @@ class EventRequest extends FormRequest
             // means "just this one", which is what the select starts on.
             'repeat_cadence' => ['nullable', 'string', Rule::in(array_keys(RepeatEvent::CADENCES))],
             'repeat_count' => ['required_with:repeat_cadence', 'nullable', 'integer', 'min:1', 'max:'.RepeatEvent::MAX_COPIES],
+            // Copies go out the moment they are made, rather than as drafts.
+            'repeat_publish' => ['sometimes', 'boolean'],
 
             // "I agree to publish under the commercial terms shown". Required
             // by the controller, not here, because whether it is needed
@@ -118,7 +123,7 @@ class EventRequest extends FormRequest
     {
         return $this->safe()->except([
             'cover', 'rules', 'perks', 'unlimited', 'is_unlisted', 'auto_confirm',
-            'remove_cover', 'repeat_cadence', 'repeat_count', 'commercial_ack',
+            'remove_cover', 'repeat_cadence', 'repeat_count', 'repeat_publish', 'commercial_ack',
         ]);
     }
 }

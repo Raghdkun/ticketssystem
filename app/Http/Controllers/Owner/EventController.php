@@ -17,6 +17,7 @@ use App\Services\CoverProcessor;
 use App\Services\MediaLibrary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -109,9 +110,10 @@ class EventController extends Controller
         $event = new Event($request->eventAttributes());
         $event->place_id = $place->id;
         $this->applyOptions($event, $request);
-        // An owner on the approval tier asking to publish gets pending review
-        // instead, which the public scope does not match.
-        $event->status = $publisher->resolve($request->user(), $event->status);
+        // A new event is a draft unless the request says otherwise; the
+        // dialog after saving is where it goes live. An owner on the
+        // approval tier asking to publish gets pending review instead.
+        $event->status = $publisher->resolve($request->user(), $event->status ?? EventStatus::Draft);
         $event->slug = $this->uniqueSlug($place, $request->string('title_en')->value());
         $this->assertTermsAcknowledged($event, $request);
         $event->save();
@@ -175,7 +177,7 @@ class EventController extends Controller
         // getRawOriginal, not getOriginal: the latter applies the cast and
         // hands back an enum, so comparing it to a string was always true and
         // every edit knocked a live event back into review.
-        if ($event->getRawOriginal('status') !== EventStatus::Published->value) {
+        if ($request->has('status') && $event->getRawOriginal('status') !== EventStatus::Published->value) {
             $event->status = $publisher->resolve($request->user(), $event->status);
         }
 
@@ -251,7 +253,11 @@ class EventController extends Controller
      */
     private function assertTermsAcknowledged(Event $event, EventRequest $request): void
     {
-        if ($this->offerToFreeze($event) !== null && ! $request->boolean('commercial_ack')) {
+        $needed = $this->offerToFreeze($event) !== null
+            || ($request->boolean('repeat_publish') && filled($request->input('repeat_cadence'))
+                && ! $event->isFree() && $this->commercial->currentOffer($event->place ?? Place::findOrFail($event->place_id)) !== null);
+
+        if ($needed && ! $request->boolean('commercial_ack')) {
             throw ValidationException::withMessages([
                 'commercial_ack' => __('ui.commercial.ack_required'),
             ]);
@@ -283,18 +289,105 @@ class EventController extends Controller
      */
     private function afterSave(Event $event, int $copies): RedirectResponse
     {
-        return to_route('owner.events.index')->with('saved_event', [
+        return to_route('owner.events.index')->with('saved_event', $this->savedPayload($event, $copies));
+    }
+
+    /**
+     * What the dialog needs: the state, a summary worth reading before
+     * pressing publish, and whether publishing needs the commercial
+     * acknowledgement.
+     *
+     * @return array<string, mixed>
+     */
+    private function savedPayload(Event $event, int $copies): array
+    {
+        $event->refresh();
+        $location = $event->resolvedLocation();
+        $offer = $this->offerToFreeze($event->status === EventStatus::Draft
+            ? (clone $event)->setAttribute('status', EventStatus::Published)
+            : $event);
+
+        return [
+            'id' => $event->id,
             'status' => $event->status->value,
             'title_ar' => $event->title_ar,
             'title_en' => $event->title_en,
             'url' => $event->status === EventStatus::Published
                 ? route('events.show', [$event->place, $event])
                 : null,
+            'edit_url' => route('owner.events.edit', $event),
             // By link only: the link above is the whole point, and the
             // dialog must not say it is on the home page.
             'unlisted' => $event->is_unlisted,
             'copies' => $copies,
-        ]);
+            'requires_approval' => auth()->user()?->needsPublishApproval() ?? false,
+            'summary' => [
+                'starts_at' => $event->starts_at->toIso8601String(),
+                'price' => (float) $event->price,
+                'currency' => $event->currency,
+                'is_free' => $event->isFree(),
+                'total_quantity' => $event->total_quantity,
+                'location' => $location?->name(),
+                'host' => $event->hostPlace()?->name(),
+                'auto_confirm' => $event->autoConfirms(),
+            ],
+            // The terms a paid event would go out under, and whether the
+            // owner still has to tick them.
+            'needs_ack' => $offer !== null,
+            'commercial' => $offer === null ? null : [
+                'fee_type' => $offer->fee_type,
+                'fee_value' => $offer->fee_value === null ? null : (float) $offer->fee_value,
+                'fee_payer' => $offer->fee_payer,
+                'settlement_days' => $offer->settlement_days,
+                'currency' => $offer->currency,
+            ],
+        ];
+    }
+
+    /**
+     * Take a draft live, from the dialog after saving.
+     *
+     * The same gate as publishing from the form: an owner on the approval
+     * tier lands in review, and a paid event under an offer needs the
+     * acknowledgement first.
+     */
+    public function publish(Request $request, Event $event, PublishEvent $publisher): RedirectResponse
+    {
+        $this->authorize('update', $event);
+        abort_unless($event->status === EventStatus::Draft, 409, 'Only a draft can be published.');
+
+        $event->status = $publisher->resolve($request->user(), EventStatus::Published);
+
+        $offer = $this->offerToFreeze($event);
+
+        if ($offer !== null && ! $request->boolean('commercial_ack')) {
+            throw ValidationException::withMessages([
+                'commercial_ack' => __('ui.commercial.ack_required'),
+            ]);
+        }
+
+        $event->save();
+
+        if ($offer !== null) {
+            $this->commercial->snapshotEvent($event, $offer, $request->user(), $request->ip());
+        }
+
+        return $this->afterSave($event, 0);
+    }
+
+    /**
+     * Take a live (or waiting) event back to draft. Quiet on purpose: it
+     * is the reverse of a click, not a deletion, and the tickets already
+     * sold stay exactly what they are.
+     */
+    public function unpublish(Request $request, Event $event): RedirectResponse
+    {
+        $this->authorize('update', $event);
+        abort_unless(in_array($event->status, [EventStatus::Published, EventStatus::PendingReview], true), 409);
+
+        $event->update(['status' => EventStatus::Draft]);
+
+        return $this->afterSave($event, 0);
     }
 
     /**
@@ -326,7 +419,55 @@ class EventController extends Controller
             return 0;
         }
 
-        return $repeat->handle($event, $cadence, (int) $request->input('repeat_count', 1))->count();
+        return $this->makeCopies(
+            $event,
+            $cadence,
+            (int) $request->input('repeat_count', 1),
+            $request->boolean('repeat_publish'),
+            $request->boolean('commercial_ack'),
+            $request,
+            $repeat,
+        )->count();
+    }
+
+    /**
+     * Copies, as drafts or straight out the door.
+     *
+     * Publishing copies is the one thing here that puts something in front
+     * of the public without a second look, so it is opt-in, resolved
+     * through the approval tier like any publish, and a paid event under
+     * an offer needs the acknowledgement before a single copy is made.
+     *
+     * @return Collection<int, Event>
+     */
+    private function makeCopies(Event $event, string $cadence, int $count, bool $publish, bool $acknowledged, Request $request, RepeatEvent $repeat): Collection
+    {
+        $status = null;
+        $offer = null;
+
+        if ($publish) {
+            $status = app(PublishEvent::class)->resolve($request->user(), EventStatus::Published);
+
+            if (! $event->isFree()) {
+                $offer = $this->commercial->currentOffer($event->place);
+
+                if ($offer !== null && ! $acknowledged) {
+                    throw ValidationException::withMessages([
+                        'commercial_ack' => __('ui.commercial.ack_required'),
+                    ]);
+                }
+            }
+        }
+
+        $copies = $repeat->handle($event, $cadence, $count, $status);
+
+        if ($offer !== null) {
+            foreach ($copies as $copy) {
+                $this->commercial->snapshotEvent($copy, $offer, $request->user(), $request->ip());
+            }
+        }
+
+        return $copies;
     }
 
     /**
@@ -352,9 +493,19 @@ class EventController extends Controller
         $validated = $request->validate([
             'cadence' => ['required', 'string', 'in:'.implode(',', array_keys(RepeatEvent::CADENCES))],
             'count' => ['required', 'integer', 'min:1', 'max:'.RepeatEvent::MAX_COPIES],
+            'publish' => ['sometimes', 'boolean'],
+            'commercial_ack' => ['sometimes', 'boolean'],
         ]);
 
-        $copies = $repeat->handle($event, $validated['cadence'], (int) $validated['count']);
+        $copies = $this->makeCopies(
+            $event,
+            $validated['cadence'],
+            (int) $validated['count'],
+            $request->boolean('publish'),
+            $request->boolean('commercial_ack'),
+            $request,
+            $repeat,
+        );
 
         return to_route('owner.events.index')
             ->with('success', __('events.repeated', ['count' => $copies->count()]));

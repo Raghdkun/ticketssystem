@@ -227,6 +227,20 @@ realtime status flip.
     section of the sidebar is hidden for them (`auth.has_place` is shared
     for this); one who also runs a venue keeps both. Approvals and the
     agreement gate never applied to administrators.
+33. **Saving saves; the dialog publishes.** The event form carries no
+    status control any more — owners did not understand "draft / published
+    / archived" as a select. A new event is a draft; `saved_event` opens a
+    dialog on the list with a summary (when, where, price, seats,
+    visibility, the commercial terms) and the choices for that state:
+    publish now (or send for review), keep editing, discard; for a live
+    event, view, keep editing, unpublish. `POST events/{event}/publish` and
+    `unpublish` are the two transitions; the commercial acknowledgement
+    moved into the dialog, where the terms are. `status` is still accepted
+    on store/update when sent (tests and any API client rely on it) but the
+    form never sends it. Repeating may publish the copies at once, behind
+    an off-by-default switch with a red warning; approval-tier copies land
+    in review, and paid copies under an offer need the acknowledgement
+    before a single one is made.
 ---
 
 ## Repository map
@@ -294,8 +308,9 @@ realtime status flip.
 | 16 | Commercial layer: per-venue offers, event terms snapshot with publish acknowledgement, service orders, the owner "Agreements & documents" page, the admin acceptance log |
 | 17 | `/for-venues`: the page for a venue that is not a partner yet — an admin-editable pitch and a WhatsApp button to the support number; linked from the footer and the login page; registration stays closed |
 | 18 | Organisers and shared rooms: place kind, a venue's "let others hold events here" switch, shared locations in the event form, host venue on public pages, hosted list for the venue owner; admins without a venue see the platform only; قاعة → مساحة |
+| 19 | The save dialog: no status select, summary plus publish / keep editing / discard / unpublish, acknowledgement in the dialog, repeat-and-publish with a warning |
 
-**475 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**487 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a

@@ -43,6 +43,8 @@ Route::middleware(['auth', 'verified'])
 
             Route::resource('events', EventController::class)->except(['show']);
             Route::post('events/{event}/repeat', [EventController::class, 'repeat'])->name('events.repeat');
+            Route::post('events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
+            Route::post('events/{event}/unpublish', [EventController::class, 'unpublish'])->name('events.unpublish');
 
             Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
             Route::post('staff', [StaffController::class, 'store'])->name('staff.store');
