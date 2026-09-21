@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import {
     CalendarDays,
     ClipboardCheck,
+    FileSignature,
     LayoutGrid,
     Mail,
     MapPin,
@@ -81,6 +82,11 @@ const mainNavItems: NavItem[] = [
         href: search(),
         icon: Search,
     },
+    {
+        title: 'agreement.nav',
+        href: '/owner/agreement',
+        icon: FileSignature,
+    },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -103,6 +109,11 @@ const adminNavItems: NavItem[] = [
         title: 'review.title',
         href: adminEvents(),
         icon: ClipboardCheck,
+    },
+    {
+        title: 'agreement.admin.title',
+        href: '/admin/agreements',
+        icon: FileSignature,
     },
     {
         title: 'admin.settings',

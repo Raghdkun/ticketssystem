@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\Otp\LogOtpSender;
+use App\Services\Otp\OtpChallenge;
+use App\Services\Otp\OtpSender;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +18,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The OTP sender is whichever carrier is configured, or nothing.
+        // Nothing is a real state: the agreement flow skips the code step
+        // and records that the phone was not verified. Adding Syriatel or
+        // MTN later is one class here and one line in config/otp.php.
+        $this->app->singleton(OtpChallenge::class, function () {
+            $sender = match (config('otp.driver')) {
+                'log' => new LogOtpSender,
+                default => null,
+            };
+
+            return new OtpChallenge($sender);
+        });
+        $this->app->bind(OtpSender::class, fn () => throw new \RuntimeException('Resolve OtpChallenge, not the sender.'));
     }
 
     /**

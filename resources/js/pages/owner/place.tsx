@@ -15,7 +15,20 @@ type Place = {
     name_ar: string;
     name_en: string;
     whatsapp_number: string | null;
+    legal_name: string | null;
+    registration_number: string | null;
+    representative_name: string | null;
+    representative_title: string | null;
+    representative_phone: string | null;
 };
+
+const LEGAL_FIELDS = [
+    { name: 'legal_name', ltr: false },
+    { name: 'registration_number', ltr: true },
+    { name: 'representative_name', ltr: false },
+    { name: 'representative_title', ltr: false },
+    { name: 'representative_phone', ltr: true },
+] as const;
 
 export default function OwnerPlace({ place }: { place: Place | null }) {
     const t = useTranslation();
@@ -101,6 +114,48 @@ export default function OwnerPlace({ place }: { place: Place | null }) {
                                             message={errors.whatsapp_number}
                                         />
                                     </div>
+                                </div>
+                            </section>
+
+                            {/* Who signs the Partner Terms. Optional here;
+                                the agreement screen insists on what it needs
+                                at the moment of signing. */}
+                            <section className="space-y-4 rounded-xl border p-4 sm:p-6">
+                                <div>
+                                    <h2 className="text-sm font-medium">
+                                        {t('owner.place_legal')}
+                                    </h2>
+                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                        {t('owner.place_legal_hint')}
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    {LEGAL_FIELDS.map((field) => (
+                                        <div
+                                            key={field.name}
+                                            className="grid gap-2"
+                                        >
+                                            <Label htmlFor={field.name}>
+                                                {t(`agreement.${field.name}`)}
+                                            </Label>
+                                            <Input
+                                                id={field.name}
+                                                name={field.name}
+                                                dir={
+                                                    field.ltr
+                                                        ? 'ltr'
+                                                        : undefined
+                                                }
+                                                defaultValue={
+                                                    place[field.name] ?? ''
+                                                }
+                                            />
+                                            <InputError
+                                                message={errors[field.name]}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </section>
 

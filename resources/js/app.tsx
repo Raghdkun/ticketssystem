@@ -19,6 +19,10 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            // The terms gate stands in front of the app, not inside it: a
+            // sidebar whose every link bounced back here would be a taunt.
+            case name === 'owner/agreement':
+                return null;
             // Public pages are standalone: no sidebar, no authenticated chrome.
             case name.startsWith('public/'):
                 return null;

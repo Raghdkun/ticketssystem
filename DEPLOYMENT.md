@@ -87,6 +87,7 @@ independently**, and half-configuring it is the confusing state:
 |---|---|---|
 | `VITE_FCM_VAPID_KEY` | The browser is never asked for permission | The opt-in does not render on the ticket page at all. Deliberate: a prompt that cannot produce a usable token is worse than no prompt |
 | `FCM_CREDENTIALS` | Devices register fine, nothing can ever be sent | Holders tap "notify me", it succeeds, and no notification ever arrives |
+| `OTP_DRIVER` | Empty: the agreement flow asks for no code and records `otp_channel = none`. `log`: codes go to the application log (testing only). | Nothing breaks; nothing is verified either |
 
 `VITE_FCM_VAPID_KEY` is Firebase Console → Project settings → **Cloud
 Messaging → Web Push certificates → key pair**. It is public and ships in the
@@ -457,7 +458,25 @@ platform ever has no prebuilt binary, the icons still ship — they are in git.
 
 ---
 
-## 12. Backups
+## 12. Partner Terms
+
+The first migration that ships the agreement tables also inserts version
+**1.0 as a draft placeholder**. Nothing is enforced until an administrator
+opens **Administration → Partner Terms**, replaces the placeholder text in
+both languages, and publishes it. From that moment every venue owner is
+redirected to `/owner/agreement` on their next visit and cannot change
+anything about their venue until they accept; the door (scanning, search,
+door sheet) stays open.
+
+- A published version can never be edited. Changing the terms means a new
+  draft with a new version number; publishing it retires the old one and
+  asks every venue to accept again. Old acceptances are kept.
+- The one-time code step is inactive until `OTP_DRIVER` names a carrier.
+  Set it to `log` on a staging box to exercise the flow; the code appears
+  in `storage/logs/laravel.log`.
+- Acceptance records are never deleted or backfilled. Do not seed them.
+
+## 13. Backups
 
 ```bash
 pg_dump swaida_tickets | gzip > /backups/tickets-$(date +%F).sql.gz

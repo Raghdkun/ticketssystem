@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Owner\AgreementController;
 use App\Http\Controllers\Owner\DoorSheetController;
 use App\Http\Controllers\Owner\EventController;
 use App\Http\Controllers\Owner\EventMediaController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Owner\PosterController;
 use App\Http\Controllers\Owner\StaffController;
 use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
+use App\Http\Middleware\EnsureAgreementAccepted;
 use App\Http\Middleware\EnsureManagesVenue;
 use Illuminate\Support\Facades\Route;
 
@@ -19,7 +21,15 @@ Route::middleware(['auth', 'verified'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
+        // The terms themselves sit outside the acceptance gate, obviously,
+        // but inside the venue one: door staff are not party to them.
         Route::middleware(EnsureManagesVenue::class)->group(function () {
+            Route::get('agreement', [AgreementController::class, 'show'])->name('agreement.show');
+            Route::post('agreement', [AgreementController::class, 'accept'])->name('agreement.accept');
+            Route::post('agreement/code', [AgreementController::class, 'sendCode'])->name('agreement.code');
+        });
+
+        Route::middleware([EnsureManagesVenue::class, EnsureAgreementAccepted::class])->group(function () {
             Route::resource('events', EventController::class)->except(['show']);
             Route::post('events/{event}/repeat', [EventController::class, 'repeat'])->name('events.repeat');
 

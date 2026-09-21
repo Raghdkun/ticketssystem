@@ -154,6 +154,39 @@ realtime status flip.
     any, the event goes to Archived, otherwise it is deleted with its cover
     and media files. The edit page words the control from the same count,
     so the owner knows which will happen before confirming.
+25. **The Partner Terms are versioned, immutable once published, and
+    accepted per venue.** `agreement_versions` holds drafts an admin edits
+    and publishes; from the moment of publishing the model itself throws on
+    any change to the text (`AgreementVersion::IMMUTABLE`), and publishing
+    a newer version retires the old one. `agreement_acceptances` is one row
+    per venue per version: a snapshot of the legal identity, the signer,
+    IP, user agent, locale, a SHA-256 of the exact text shown, and how the
+    phone was verified. Rows are never updated and the foreign keys
+    restrict rather than cascade, because the row is the evidence. **No
+    acceptance is ever backfilled**: the migration inserts version 1.0 as a
+    *draft placeholder* only, so nothing is enforced until an administrator
+    writes the real text and publishes it — at which point every existing
+    owner is asked, as the owner decided.
+26. **The gate blocks shaping a venue, not working its door.**
+    `EnsureAgreementAccepted` sits beside `EnsureManagesVenue` on the
+    dashboard and every venue-shaping route and redirects to
+    `/owner/agreement` (remembering where they were going). Scanning,
+    search and the door sheet stay open — paperwork must not stop somebody
+    scanning tickets on the night. Door staff, administrators without a
+    venue, buyers and an impersonating administrator pass through; an admin
+    cannot accept on somebody else's behalf, and blocking them would only
+    hide what they came to see. The checkbox is a real unticked form
+    control and the server rule is `accepted`, so absent, 0 and "false"
+    all fail; the form carries the version id it displayed and a stale one
+    is refused.
+27. **The one-time code is built and switched off.** `OtpChallenge` issues
+    a six-digit code, stores only its hash in the cache for ten minutes,
+    allows five wrong guesses, and consumes it on success. The sender is an
+    interface with one method; `OTP_DRIVER` is empty until Syriatel or MTN
+    credentials exist (`log` writes codes to the log for testing). While
+    there is no driver the step is skipped and the acceptance says
+    `otp_channel = none` — the record tells the truth rather than pretending
+    a phone was verified.
 ---
 
 ## Repository map
@@ -161,12 +194,12 @@ realtime status flip.
 | Path | What |
 |---|---|
 | `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel, holder release), `RepeatEvent`, `NotifyWatchers` |
-| `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender` |
+| `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender`, `Agreements` (terms in force, accept, publish), `Otp/` (challenge + senders) |
 | `app/Support/` | `Color` (WCAG maths), `QrCode`, `NotificationCopy` (variant rotation), `PosterPrompt`, presenters |
 | `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation — no app chrome |
-| `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report |
+| `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report, agreement (bare page, in front of the app) |
 | `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
-| `resources/js/pages/admin/` | owners, settings |
+| `resources/js/pages/admin/` | owners, settings, agreements (versions, publish, acceptances, who is outstanding) |
 | `lang/{ar,en}/ui.php` | the client string catalogue, shared via Inertia as dot-notation |
 
 ---
@@ -216,8 +249,9 @@ realtime status flip.
 | 12 | Whole-app accessibility and i18n sweep: an `h1` on every screen, tap-target floors that actually apply, Arabic-Indic digits out of the catalogue, the last untranslated strings |
 | 13 | Rebrand to ناس / Nas: wordmark + disc, cream/ink/orange tokens with a derived dark theme, Cairo committed and self-hosted, region-neutral copy, opt-in heritage mood in the poster prompt |
 | 14 | Owner feedback: cover removal, unlimited capacity, confirm-on-booking for free events, unlisted events, repeat from the form, saved-event dialog, required-field marks, delete-or-archive |
+| 15 | Partner Terms: versioned immutable agreement, per-venue acceptance records with legal identity and text hash, blocking re-acceptance gate, admin drafting/publishing, OTP layer with a null driver |
 
-**419 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**441 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a
@@ -429,6 +463,14 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
 - **`DatabaseTruncation` commits; `RefreshDatabase` does not.** `OverbookingTest` needs committed
   rows so its forked processes can see them, so it truncates in `tearDown` as well. Without that it
   leaves rows behind and every later test's row counts depend on execution order.
+- **The migration's placeholder owns version `1.0`.** A test that creates
+  a version `1.0` hits the unique index; the factory numbers from `1.1`
+  and tests that pick their own numbers use `5.x`.
+- **`Log::shouldReceive()` is how the log OTP driver is read in tests**:
+  the mock's `withArgs` closure captures the last six characters of the
+  message, which is the code. Set `config(['otp.driver' => 'log'])` and
+  `forgetInstance(OtpChallenge::class)` first, or the singleton keeps the
+  null sender it was built with.
 - **`null <= 0` is `true` in JavaScript.** When `seats_remaining` became
   nullable, every `soldOut = seats_remaining <= 0` on the client silently
   read an unlimited event as sold out. Each check is now `!== null &&`.

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AgreementController;
 use App\Http\Controllers\Admin\EventReviewController;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\InvitationController;
@@ -29,6 +30,13 @@ Route::middleware(['auth', 'verified', EnsureUserIsSuperAdmin::class])
         Route::post('events/{event}/{verdict}', [EventReviewController::class, 'decide'])
             ->whereIn('verdict', ['approve', 'reject'])->name('events.decide');
         Route::delete('events/{event}', [EventReviewController::class, 'destroy'])->name('events.destroy');
+
+        Route::get('agreements', [AgreementController::class, 'index'])->name('agreements.index');
+        Route::post('agreements', [AgreementController::class, 'store'])->name('agreements.store');
+        Route::get('agreements/{agreement}', [AgreementController::class, 'show'])->name('agreements.show');
+        Route::patch('agreements/{agreement}', [AgreementController::class, 'update'])->name('agreements.update');
+        Route::post('agreements/{agreement}/publish', [AgreementController::class, 'publish'])->name('agreements.publish');
+        Route::delete('agreements/{agreement}', [AgreementController::class, 'destroy'])->name('agreements.destroy');
 
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings');
         Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');

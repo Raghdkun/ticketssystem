@@ -18,11 +18,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name_en
  * @property string|null $logo_path
  * @property string|null $whatsapp_number
+ * @property string|null $legal_name
+ * @property string|null $registration_number
+ * @property string|null $representative_name
+ * @property string|null $representative_title
+ * @property string|null $representative_phone
  * @property bool $is_active
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
-#[Fillable(['user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active'])]
+#[Fillable([
+    'user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active',
+    'legal_name', 'registration_number', 'representative_name', 'representative_title', 'representative_phone',
+])]
 class Place extends Model
 {
     /** @use HasFactory<PlaceFactory> */
@@ -53,6 +61,20 @@ class Place extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
+    }
+
+    /** @return HasMany<AgreementAcceptance, $this> */
+    public function acceptances(): HasMany
+    {
+        return $this->hasMany(AgreementAcceptance::class);
+    }
+
+    /**
+     * Whether this venue has accepted a given version of the terms.
+     */
+    public function hasAccepted(AgreementVersion $version): bool
+    {
+        return $this->acceptances()->where('agreement_version_id', $version->id)->exists();
     }
 
     /** @return HasMany<Location, $this> */

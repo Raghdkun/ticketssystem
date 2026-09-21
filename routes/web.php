@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Middleware\EnsureAgreementAccepted;
 use App\Http\Middleware\EnsureManagesVenue;
 use Illuminate\Support\Facades\Route;
 
@@ -10,7 +11,7 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)
-        ->middleware(EnsureManagesVenue::class)
+        ->middleware([EnsureManagesVenue::class, EnsureAgreementAccepted::class])
         ->name('dashboard');
     Route::post('impersonation/stop', [ImpersonationController::class, 'stop'])->name('impersonation.stop');
 });
