@@ -32,7 +32,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { useIsDoorStaff, useIsSuperAdmin } from '@/lib/auth';
+import { useHasPlace, useIsDoorStaff, useIsSuperAdmin } from '@/lib/auth';
 import { useLocale } from '@/lib/locale';
 import { dashboard } from '@/routes';
 import {
@@ -158,6 +158,11 @@ export function AppSidebar() {
     // Platform administration is only reachable by super admins; the server
     // enforces this, the nav item just avoids showing a dead end.
     const isSuperAdmin = useIsSuperAdmin();
+    // An administrator who does not run a venue sees the platform only.
+    // One who does keeps both sections, as administering and owning are
+    // independent.
+    const hasPlace = useHasPlace();
+    const showOwnerSection = !(isSuperAdmin && !hasPlace);
 
     return (
         // The sidebar pins itself with physical left-0/right-0 from this prop,
@@ -182,18 +187,20 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain
-                    items={
-                        doorOnly
-                            ? mainNavItems.filter((item) =>
-                                  [
-                                      'owner.verify_title',
-                                      'owner.search_all',
-                                  ].includes(item.title),
-                              )
-                            : mainNavItems
-                    }
-                />
+                {showOwnerSection && (
+                    <NavMain
+                        items={
+                            doorOnly
+                                ? mainNavItems.filter((item) =>
+                                      [
+                                          'owner.verify_title',
+                                          'owner.search_all',
+                                      ].includes(item.title),
+                                  )
+                                : mainNavItems
+                        }
+                    />
+                )}
 
                 {isSuperAdmin && (
                     <NavMain

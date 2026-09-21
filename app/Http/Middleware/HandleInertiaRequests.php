@@ -44,6 +44,9 @@ class HandleInertiaRequests extends Middleware
             'platform' => fn () => $this->platform(),
             'auth' => [
                 'user' => $request->user(),
+                // Whether this account runs a venue. An administrator without
+                // one is shown the platform, not an empty owner area.
+                'has_place' => $request->user()?->places()->exists() ?? false,
                 // Present only while a super admin is acting as someone else.
                 'impersonating' => $request->session()->has(ImpersonationController::SESSION_KEY)
                     ? ['name' => $request->user()?->name]

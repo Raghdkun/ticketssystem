@@ -473,7 +473,7 @@ return [
     'legal' => [
         'privacy' => 'Privacy',
         'terms' => 'Terms',
-        'for_venues' => 'For venues',
+        'for_venues' => 'For partners',
         'privacy_title' => 'Privacy',
         'terms_title' => 'Terms of use',
     ],
@@ -1045,8 +1045,8 @@ return [
         'none' => 'Nothing matches.',
     ],
     'venues' => [
-        'title' => 'For venues',
-        'eyebrow' => 'Run a venue, a hall, a stage?',
+        'title' => 'For partners',
+        'eyebrow' => 'Run a venue, a hall, a stage, or organise events?',
         'heading' => 'Put your events on Nas',
         'whatsapp' => 'Talk to us on WhatsApp',
         'whatsapp_message' => 'Hello, I run a venue and would like to join Nas.',
