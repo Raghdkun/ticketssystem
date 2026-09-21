@@ -29,6 +29,8 @@ return [
         'sidebar' => 'Menu',
         'sidebar_desc' => 'The main navigation menu.',
         'toggle_sidebar' => 'Show or hide the menu',
+        'hold_to_confirm' => 'Hold to confirm',
+        'done' => 'Done',
     ],
 
     'event' => [

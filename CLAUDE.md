@@ -309,6 +309,7 @@ realtime status flip.
 | 17 | `/for-venues`: the page for a venue that is not a partner yet — an admin-editable pitch and a WhatsApp button to the support number; linked from the footer and the login page; registration stays closed |
 | 18 | Organisers and shared rooms: place kind, a venue's "let others hold events here" switch, shared locations in the event form, host venue on public pages, hosted list for the venue owner; admins without a venue see the platform only; قاعة → مساحة |
 | 19 | The save dialog: no status select, summary plus publish / keep editing / discard / unpublish, acknowledgement in the dialog, repeat-and-publish with a warning |
+| 20 | Motion from React Bits: blur headings, spotlight cards, magnetic primary buttons, sparks on decisive buttons, hold-to-confirm on destructive ones |
 
 **487 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
@@ -415,6 +416,45 @@ brings the artwork back, and the real details go on here.
 - **The reserved band comes back light as often as dark.** The compositor
   samples its luminance and flips the scrim, the text and the code plate
   accordingly; assuming a dark band puts dark text on a cream screenprint.
+
+## Motion from React Bits
+
+Five components vendored from React Bits (MIT) through the shadcn CLI,
+under `resources/js/components/bits/` in kebab case, ignored by ESLint like
+`components/ui`. Each is wrapped once in `components/motion/` so the house
+rules are applied in one place and every page uses the wrapper, never the
+vendored file:
+
+- **`BlurHeading`** (BlurText): the home tagline and the partners page
+  heading. Words settle in from a blur, starting at half opacity so the
+  text is readable if motion never runs. Splits by words, never letters —
+  letters would break Arabic joins. Plain text under reduced motion. The
+  vendored root was changed from `<p>` to `<span>` so it can sit inside an
+  `h1`.
+- **`SpotlightCard`**: the public event card. An orange light at 0.14
+  alpha follows the pointer. It is a `radial-gradient`, allowed because
+  it is a pointer effect, not brand decoration; `BrandTest` only forbids
+  `linear-gradient` and the Tailwind gradient utilities. The vendored
+  default classes (dark card, `rounded-3xl`) were removed so ours apply.
+- **`Magnet`**: the book-now and WhatsApp buttons lean toward the cursor.
+  Disabled on coarse pointers (`useFinePointer`, a `matchMedia` hook that
+  is false on the server) and under reduced motion. The wrapper's inline
+  `display` is overridden by passing `style`, which the component spreads
+  last.
+- **`Spark`** (ClickSpark): an orange burst on the decisive buttons —
+  accept the terms, publish, accept an offer. Children alone under
+  reduced motion.
+- **`HoldSubmit`** (HoldButton): hold to confirm on destructive actions —
+  delete or archive an event, discard a draft, decline an offer. A
+  completed hold submits the closest `<form>`, so the server sees an
+  ordinary request; coloured from the tokens, no glow, radius 10.
+  `type="button"` was added to the vendored button so it cannot submit
+  by itself.
+
+Dropped after inspection: TearTicket (renders its own ticket layout, and
+ours already has a tear-off and a stamp), SpringCheck (no native input,
+strikes the label through — wrong for a legal checkbox), AnimatedList
+(strings only, fixed height).
 
 ## Appearance
 
@@ -680,6 +720,10 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
 - **`Vite::asset()` resolves files referenced from CSS `url()`.** That is how
   the font preloads find their hashed paths; `@vite` only preloads its own
   chunks and CSS.
+- **The shadcn CLI rewrites pinned dependency versions.** Adding the React
+  Bits items changed `motion` from `^13.1.0` to `^12.43.0` in
+  `package.json` without asking. Check `package.json` after every
+  `shadcn add` and restore the pin.
 - **The npm cache on this machine has root-owned entries**, which silently skips platform-specific
   optional deps. Fix: `sudo chown -R $(id -u):$(id -g) ~/.npm`.
 

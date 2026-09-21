@@ -1,11 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
+import { useReducedMotion } from 'motion/react';
 import { BackLink } from '@/components/back-link';
+import Magnet from '@/components/bits/magnet';
 import { Wordmark } from '@/components/brand/wordmark';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
+import { BlurHeading } from '@/components/motion/blur-heading';
 import { PublicFooter } from '@/components/public-footer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { WhatsAppButton } from '@/components/whatsapp-button';
+import { useFinePointer } from '@/hooks/use-fine-pointer';
 import { useTranslation } from '@/lib/translation';
 import { login } from '@/routes';
 
@@ -25,6 +29,8 @@ type Props = {
  */
 export default function ForVenues({ pitch, whatsapp }: Props) {
     const t = useTranslation();
+    const finePointer = useFinePointer();
+    const reduceMotion = useReducedMotion();
 
     return (
         <div className="flex min-h-dvh flex-col bg-background">
@@ -55,7 +61,10 @@ export default function ForVenues({ pitch, whatsapp }: Props) {
                     {t('venues.eyebrow')}
                 </p>
                 <h1 className="mt-2 text-3xl font-extrabold text-balance">
-                    {t('venues.heading')}
+                    <BlurHeading
+                        text={t('venues.heading')}
+                        className="gap-x-[0.3em]"
+                    />
                 </h1>
                 <div className="mt-2 h-1 w-12 bg-primary" aria-hidden="true" />
 
@@ -67,12 +76,20 @@ export default function ForVenues({ pitch, whatsapp }: Props) {
 
                 <div className="mt-8 space-y-4">
                     {whatsapp ? (
-                        <WhatsAppButton
-                            number={whatsapp}
-                            message={t('venues.whatsapp_message')}
-                            label={t('venues.whatsapp')}
-                            className="min-h-13 text-base font-extrabold"
-                        />
+                        <Magnet
+                            disabled={!finePointer || reduceMotion === true}
+                            padding={60}
+                            magnetStrength={5}
+                            style={{ display: 'block' }}
+                            innerClassName="block"
+                        >
+                            <WhatsAppButton
+                                number={whatsapp}
+                                message={t('venues.whatsapp_message')}
+                                label={t('venues.whatsapp')}
+                                className="min-h-13 text-base font-extrabold"
+                            />
+                        </Magnet>
                     ) : (
                         <p
                             role="status"

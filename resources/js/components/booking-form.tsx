@@ -1,4 +1,6 @@
 import { Form } from '@inertiajs/react';
+import { useReducedMotion } from 'motion/react';
+import Magnet from '@/components/bits/magnet';
 import InputError from '@/components/input-error';
 import { Stepper } from '@/components/stepper';
 import { Button } from '@/components/ui/button';
@@ -6,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { WaitingList } from '@/components/waiting-list';
+import { useFinePointer } from '@/hooks/use-fine-pointer';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import { cn } from '@/lib/utils';
@@ -41,6 +44,8 @@ export function BookingForm({
 }: Props) {
     const { locale } = useLocale();
     const t = useTranslation();
+    const finePointer = useFinePointer();
+    const reduceMotion = useReducedMotion();
 
     const soldOut =
         event.seats_remaining !== null && event.seats_remaining <= 0;
@@ -252,16 +257,28 @@ export function BookingForm({
                                 </div>
                             )}
 
-                            <Button
-                                type="submit"
-                                size="lg"
-                                className="w-full"
-                                disabled={processing || !canAppoint}
+                            <Magnet
+                                disabled={
+                                    !finePointer ||
+                                    reduceMotion === true ||
+                                    !canAppoint
+                                }
+                                padding={50}
+                                magnetStrength={6}
+                                style={{ display: 'block' }}
+                                innerClassName="block"
                             >
-                                {soldOut
-                                    ? t('event.sold_out')
-                                    : t('event.appoint')}
-                            </Button>
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    className="w-full"
+                                    disabled={processing || !canAppoint}
+                                >
+                                    {soldOut
+                                        ? t('event.sold_out')
+                                        : t('event.appoint')}
+                                </Button>
+                            </Magnet>
 
                             {!allRulesAccepted && event.rules.length > 0 && (
                                 <p className="text-center text-xs text-muted-foreground">

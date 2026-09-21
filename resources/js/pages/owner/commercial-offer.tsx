@@ -9,6 +9,8 @@ import {
 } from '@/components/commercial/offer-summary';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { HoldSubmit } from '@/components/motion/hold-submit';
+import { Spark } from '@/components/motion/spark';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -92,18 +94,20 @@ export default function OwnerCommercialOffer({ offer }: { offer: Offer }) {
                                 <InputError message={errors.accept} />
 
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        disabled={processing || !ticked}
-                                    >
-                                        {processing ? (
-                                            <Spinner />
-                                        ) : (
-                                            <Handshake />
-                                        )}
-                                        {t('commercial.accept_button')}
-                                    </Button>
+                                    <Spark>
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            disabled={processing || !ticked}
+                                        >
+                                            {processing ? (
+                                                <Spinner />
+                                            ) : (
+                                                <Handshake />
+                                            )}
+                                            {t('commercial.accept_button')}
+                                        </Button>
+                                    </Spark>
 
                                     <Dialog
                                         open={declining}
@@ -142,15 +146,16 @@ export default function OwnerCommercialOffer({ offer }: { offer: Offer }) {
                                                                 )}
                                                             </Button>
                                                         </DialogClose>
-                                                        <Button
-                                                            type="submit"
-                                                            variant="destructive"
+                                                        <HoldSubmit
                                                             disabled={rejecting}
+                                                            doneLabel={t(
+                                                                'common.done',
+                                                            )}
                                                         >
                                                             {t(
-                                                                'commercial.reject_button',
+                                                                'common.hold_to_confirm',
                                                             )}
-                                                        </Button>
+                                                        </HoldSubmit>
                                                     </DialogFooter>
                                                 )}
                                             </Form>

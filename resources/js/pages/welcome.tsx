@@ -7,6 +7,7 @@ import { EventCard } from '@/components/event-card';
 import type { ListedEvent } from '@/components/event-card';
 import { FlashToaster } from '@/components/flash-toaster';
 import { LanguageToggle } from '@/components/language-toggle';
+import { BlurHeading } from '@/components/motion/blur-heading';
 import { PublicFooter } from '@/components/public-footer';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -173,7 +174,10 @@ export default function Welcome({
                     texture: the restraint is the brand. */}
                 <section className="rounded-lg border bg-card p-8 sm:p-12">
                     <h1 className="max-w-2xl text-3xl leading-tight font-extrabold sm:text-5xl">
-                        {platform.tagline ?? t('home.tagline')}
+                        <BlurHeading
+                            text={platform.tagline ?? t('home.tagline')}
+                            className="gap-x-[0.3em]"
+                        />
                     </h1>
                     <div
                         className="mt-5 h-1 w-16 rounded-full bg-primary"

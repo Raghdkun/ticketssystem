@@ -126,6 +126,7 @@ export default [
             'vite.config.ts',
             'resources/js/actions/**',
             'resources/js/components/ui/*',
+            'resources/js/components/bits/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
         ],

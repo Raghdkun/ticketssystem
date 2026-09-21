@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { Archive, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
+import { HoldSubmit } from '@/components/motion/hold-submit';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -99,19 +100,17 @@ export function DeleteEvent({
                                             {t('common.cancel')}
                                         </Button>
                                     </DialogClose>
-                                    <Button
-                                        type="submit"
-                                        variant={
+                                    <HoldSubmit
+                                        disabled={processing}
+                                        tone={
                                             willArchive
-                                                ? 'default'
+                                                ? 'primary'
                                                 : 'destructive'
                                         }
-                                        disabled={processing}
+                                        doneLabel={t('common.done')}
                                     >
-                                        {willArchive
-                                            ? t('owner.archive_event')
-                                            : t('owner.delete_event')}
-                                    </Button>
+                                        {t('common.hold_to_confirm')}
+                                    </HoldSubmit>
                                 </DialogFooter>
                             )}
                         </Form>

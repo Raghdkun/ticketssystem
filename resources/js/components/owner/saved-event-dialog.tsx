@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
+import { HoldSubmit } from '@/components/motion/hold-submit';
+import { Spark } from '@/components/motion/spark';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -82,7 +84,6 @@ export function SavedEventDialog() {
         .flash;
     const [dismissed, setDismissed] = useState<SavedEvent | null>(null);
     const [ack, setAck] = useState(false);
-    const [confirmingDiscard, setConfirmingDiscard] = useState(false);
     const saved =
         flash?.saved_event && flash.saved_event !== dismissed
             ? flash.saved_event
@@ -121,7 +122,6 @@ export function SavedEventDialog() {
             onOpenChange={(open) => {
                 if (!open) {
                     setDismissed(saved);
-                    setConfirmingDiscard(false);
                     setAck(false);
                 }
             }}
@@ -242,18 +242,22 @@ export function SavedEventDialog() {
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <Button
-                                        type="submit"
-                                        disabled={
-                                            processing ||
-                                            (saved.needs_ack && !ack)
-                                        }
-                                    >
-                                        <Send />
-                                        {saved.requires_approval
-                                            ? t('owner.saved.send_for_review')
-                                            : t('owner.saved.publish_now')}
-                                    </Button>
+                                    <Spark>
+                                        <Button
+                                            type="submit"
+                                            disabled={
+                                                processing ||
+                                                (saved.needs_ack && !ack)
+                                            }
+                                        >
+                                            <Send />
+                                            {saved.requires_approval
+                                                ? t(
+                                                      'owner.saved.send_for_review',
+                                                  )
+                                                : t('owner.saved.publish_now')}
+                                        </Button>
+                                    </Spark>
                                     <Button asChild variant="outline">
                                         <Link href={saved.edit_url}>
                                             <Pencil />
@@ -268,35 +272,25 @@ export function SavedEventDialog() {
 
                 {saved.status === 'draft' && (
                     <div className="flex flex-wrap items-center gap-2 border-t pt-3">
-                        {confirmingDiscard ? (
-                            <Form
-                                action={`/owner/events/${saved.id}`}
-                                method="delete"
-                            >
-                                {({ processing }) => (
-                                    <Button
-                                        type="submit"
-                                        variant="destructive"
-                                        size="sm"
-                                        disabled={processing}
-                                    >
-                                        <Trash2 />
-                                        {t('owner.saved.discard_confirm')}
-                                    </Button>
-                                )}
-                            </Form>
-                        ) : (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:text-destructive"
-                                onClick={() => setConfirmingDiscard(true)}
-                            >
-                                <Trash2 />
-                                {t('owner.saved.discard')}
-                            </Button>
-                        )}
+                        {/* Hold, not click: a draft deleted by a slip of the
+                            thumb is not recoverable. */}
+                        <Form
+                            action={`/owner/events/${saved.id}`}
+                            method="delete"
+                        >
+                            {({ processing }) => (
+                                <HoldSubmit
+                                    disabled={processing}
+                                    doneLabel={t('common.done')}
+                                >
+                                    <Trash2
+                                        className="size-4"
+                                        aria-hidden="true"
+                                    />
+                                    {t('owner.saved.discard')}
+                                </HoldSubmit>
+                            )}
+                        </Form>
                         <DialogClose asChild>
                             <Button variant="ghost" size="sm" type="button">
                                 {t('common.close')}

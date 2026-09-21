@@ -5,6 +5,7 @@ import { Wordmark } from '@/components/brand/wordmark';
 import { FlashToaster } from '@/components/flash-toaster';
 import InputError from '@/components/input-error';
 import { LanguageToggle } from '@/components/language-toggle';
+import { Spark } from '@/components/motion/spark';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -613,14 +614,16 @@ function AcceptForm({
                         <InputError message={errors.accept} />
 
                         <div className="flex flex-wrap items-center gap-3">
-                            <Button
-                                type="submit"
-                                size="lg"
-                                disabled={processing || !ticked}
-                            >
-                                {processing ? <Spinner /> : <ShieldCheck />}
-                                {t('agreement.continue_button')}
-                            </Button>
+                            <Spark>
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    disabled={processing || !ticked}
+                                >
+                                    {processing ? <Spinner /> : <ShieldCheck />}
+                                    {t('agreement.continue_button')}
+                                </Button>
+                            </Spark>
 
                             {/* Somebody who will not sign has a way out that
                                 is not "close the tab". */}
