@@ -422,6 +422,16 @@ class CommercialTest extends TestCase
                 ->where('history.0.kind', 'offer'));
     }
 
+    public function test_an_account_with_no_venue_gets_an_empty_state_not_a_403(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/owner/agreements')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('owner/documents')
+                ->where('place', null));
+    }
+
     public function test_the_audit_log_lists_and_filters_every_kind(): void
     {
         $owner = $this->owner();

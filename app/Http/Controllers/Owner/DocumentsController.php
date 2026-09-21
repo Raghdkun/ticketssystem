@@ -32,7 +32,13 @@ class DocumentsController extends Controller
     public function __invoke(Request $request): Response
     {
         $place = $request->user()->places()->first();
-        abort_if($place === null, 403, 'No venue is linked to this account.');
+
+        // A super admin, or an owner not yet linked to a venue, has no
+        // documents. An explanatory empty state, like every other owner
+        // page, rather than a 403 for clicking a link in their own sidebar.
+        if ($place === null) {
+            return Inertia::render('owner/documents', ['place' => null]);
+        }
 
         $current = $this->agreements->current();
         $termsAcceptance = $current === null ? null
@@ -42,6 +48,7 @@ class DocumentsController extends Controller
         $orders = $place->serviceOrders()->with('event:id,title_ar,title_en')->latest('id')->get();
 
         return Inertia::render('owner/documents', [
+            'place' => ['name_ar' => $place->name_ar, 'name_en' => $place->name_en],
             'terms' => [
                 'current' => $current === null ? null : [
                     'version' => $current->version,

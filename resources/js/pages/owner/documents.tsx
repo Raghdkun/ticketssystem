@@ -18,6 +18,8 @@ import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 
 type Props = {
+    /** Null for an account with no venue: an admin, or an owner not yet linked. */
+    place: { name_ar: string; name_en: string } | null;
     terms: {
         current: {
             version: string;
@@ -54,6 +56,7 @@ type Props = {
  * own page; nothing here can alter what was already accepted.
  */
 export default function OwnerDocuments({
+    place,
     terms,
     offer,
     orders,
@@ -64,6 +67,20 @@ export default function OwnerDocuments({
     const dateLocale = dateTag(locale);
     const date = (iso: string) =>
         new Date(iso).toLocaleDateString(dateLocale, { dateStyle: 'medium' });
+
+    if (!place) {
+        return (
+            <>
+                <Head title={t('documents.title')} />
+                <div className="p-4">
+                    <EmptyState
+                        icon={FileSignature}
+                        title={t('dash.no_place')}
+                    />
+                </div>
+            </>
+        );
+    }
 
     return (
         <>
