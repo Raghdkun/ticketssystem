@@ -9,6 +9,7 @@ import { MapPicker } from '@/components/map/map-picker';
 import PasswordInput from '@/components/password-input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -26,6 +27,7 @@ type Props = { token: string; email: string };
 export default function AcceptInvitation({ token, email }: Props) {
     const t = useTranslation();
     const [pin, setPin] = useState<LatLng | null>(null);
+    const [noVenue, setNoVenue] = useState(false);
 
     return (
         <div className="min-h-svh bg-background">
@@ -178,7 +180,40 @@ export default function AcceptInvitation({ token, email }: Props) {
                                 </div>
                             </section>
 
-                            <section className="space-y-4 rounded-xl border p-4 sm:p-6">
+                            {/* An organiser without a room of their own skips
+                                the location. The fields stay mounted and
+                                simply stop being required. */}
+                            <label
+                                htmlFor="no_venue"
+                                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm"
+                            >
+                                <Checkbox
+                                    id="no_venue"
+                                    name="no_venue"
+                                    value="1"
+                                    checked={noVenue}
+                                    onCheckedChange={(value) =>
+                                        setNoVenue(value === true)
+                                    }
+                                    className="mt-0.5 cursor-pointer"
+                                />
+                                <span className="grid gap-0.5">
+                                    <span className="font-medium">
+                                        {t('invite.no_venue')}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                        {t('invite.no_venue_hint')}
+                                    </span>
+                                </span>
+                            </label>
+
+                            <section
+                                className={
+                                    noVenue
+                                        ? 'hidden'
+                                        : 'space-y-4 rounded-xl border p-4 sm:p-6'
+                                }
+                            >
                                 <div>
                                     <h2 className="text-sm font-medium">
                                         {t('invite.first_location')}
@@ -197,7 +232,7 @@ export default function AcceptInvitation({ token, email }: Props) {
                                             id="location_name_ar"
                                             name="location_name_ar"
                                             dir="rtl"
-                                            required
+                                            required={!noVenue}
                                         />
                                         <InputError
                                             message={errors.location_name_ar}
@@ -211,7 +246,7 @@ export default function AcceptInvitation({ token, email }: Props) {
                                             id="location_name_en"
                                             name="location_name_en"
                                             dir="ltr"
-                                            required
+                                            required={!noVenue}
                                         />
                                         <InputError
                                             message={errors.location_name_en}

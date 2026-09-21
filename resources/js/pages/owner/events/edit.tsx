@@ -21,6 +21,7 @@ type Props = {
     /** Paid or still-held bookings: what deleting would take with it. */
     holders: number;
     commercial: CommercialSummary | null;
+    needs_location: boolean;
 };
 
 export default function EditEvent({
@@ -28,6 +29,7 @@ export default function EditEvent({
     locations,
     holders,
     commercial,
+    needs_location,
 }: Props) {
     const t = useTranslation();
 
@@ -45,6 +47,7 @@ export default function EditEvent({
                 <EventForm
                     locations={locations}
                     commercial={commercial}
+                    needsLocation={needs_location}
                     action={EventController.update.form(event.id)}
                     values={event}
                     submitLabel={t('form.save')}

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
 import { useTranslation } from '@/lib/translation';
 import locationsRoute from '@/routes/owner/locations';
@@ -29,11 +30,20 @@ type Location = {
     landmark_en: string | null;
     is_primary: boolean;
     images: LocationImage[];
+    /** Other accounts' events booked into this room. */
+    hosted: {
+        id: number;
+        title_ar: string;
+        title_en: string;
+        starts_at: string;
+        organiser_ar: string;
+        organiser_en: string;
+    }[];
 };
 
-type Props = { hasPlace: boolean; locations: Location[] };
+type Props = { hasPlace: boolean; shares: boolean; locations: Location[] };
 
-const BLANK: Omit<Location, 'id' | 'images'> = {
+const BLANK: Omit<Location, 'id' | 'images' | 'hosted'> = {
     name_ar: '',
     name_en: '',
     latitude: null,
@@ -45,7 +55,7 @@ const BLANK: Omit<Location, 'id' | 'images'> = {
     is_primary: false,
 };
 
-export default function OwnerLocations({ hasPlace, locations }: Props) {
+export default function OwnerLocations({ hasPlace, shares, locations }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
 
@@ -210,6 +220,67 @@ export default function OwnerLocations({ hasPlace, locations }: Props) {
                                             onDone={() => setEditing(null)}
                                         />
                                     )}
+
+                                    {/* What other accounts have booked into
+                                        this room. Theirs to run; yours to know. */}
+                                    <div className="border-t pt-3">
+                                        <p className="text-xs font-extrabold">
+                                            {t('owner.hosted_events')}
+                                        </p>
+                                        {!shares ? (
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {t('owner.hosted_off')}
+                                            </p>
+                                        ) : location.hosted.length === 0 ? (
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {t('owner.hosted_none')}
+                                            </p>
+                                        ) : (
+                                            <ul className="mt-1 space-y-1 text-sm">
+                                                {location.hosted.map(
+                                                    (event) => (
+                                                        <li
+                                                            key={event.id}
+                                                            className="flex flex-wrap items-baseline justify-between gap-2"
+                                                        >
+                                                            <span className="font-medium">
+                                                                {localised(
+                                                                    locale,
+                                                                    event.title_ar,
+                                                                    event.title_en,
+                                                                )}
+                                                            </span>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {t(
+                                                                    'owner.hosted_by',
+                                                                    {
+                                                                        organiser:
+                                                                            localised(
+                                                                                locale,
+                                                                                event.organiser_ar,
+                                                                                event.organiser_en,
+                                                                            ),
+                                                                    },
+                                                                )}
+                                                                {' · '}
+                                                                {new Date(
+                                                                    event.starts_at,
+                                                                ).toLocaleDateString(
+                                                                    dateTag(
+                                                                        locale,
+                                                                    ),
+                                                                    {
+                                                                        dateStyle:
+                                                                            'medium',
+                                                                    },
+                                                                )}
+                                                            </span>
+                                                        </li>
+                                                    ),
+                                                )}
+                                            </ul>
+                                        )}
+                                    </div>
                                 </article>
                             </li>
                         ))}
@@ -305,7 +376,7 @@ function LocationForm({
 }: {
     action: string;
     method: 'post' | 'patch';
-    values: Omit<Location, 'id' | 'images'>;
+    values: Omit<Location, 'id' | 'images' | 'hosted'>;
     onDone: () => void;
 }) {
     const t = useTranslation();

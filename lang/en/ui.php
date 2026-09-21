@@ -33,6 +33,7 @@ return [
 
     'event' => [
         'pay_at_venue' => 'Pay at the venue',
+        'organised_by' => 'Organised by :organiser',
         'seats_only' => 'Only :n seats left',
         'unlimited' => 'No limit',
         'per_person' => 'per person',
@@ -97,6 +98,14 @@ return [
     'owner' => [
         'place_location_moved' => 'Where events happen now lives on its own screen — a venue can have several locations, and each event picks one.',
         'place_legal' => 'Legal identity',
+        'share_locations' => 'Let other accounts hold events at my locations',
+        'share_locations_hint' => 'Organisers without a venue can pick your locations when creating an event. The event stays theirs: their terms, their door, their tickets. You see what is booked into your rooms.',
+        'share_locations_off' => 'Add a location first; there is nothing to share yet.',
+        'organiser_note' => 'This account organises events without a venue of its own. Events are held at venues that share their locations.',
+        'hosted_events' => 'Booked here by other accounts',
+        'hosted_none' => 'Nothing booked here by another account.',
+        'hosted_by' => 'by :organiser',
+        'hosted_off' => 'Sharing is off: other accounts cannot pick this room.',
         'place_legal_hint' => 'Who signs the Partner Terms for this venue. Asked for again at the moment of signing if anything is missing.',
         'locations_sub' => 'The places your events happen. Each event picks one.',
         'locations' => 'Locations',
@@ -590,6 +599,9 @@ return [
     ],
 
     'location' => [
+        'shared_group' => 'Shared by other venues',
+        'at_host' => ':location at :host',
+        'required_for_organiser' => 'Pick where this event happens. Your account has no room of its own.',
         'add' => 'Add a location',
         'none' => 'No locations yet. Add the first one so events have somewhere to happen.',
         'primary' => 'Default',
@@ -639,6 +651,8 @@ return [
         'email_fixed' => 'The invitation was sent to this address, so it cannot be changed here.',
         'your_venue' => 'Your venue',
         'first_location' => 'Where events happen',
+        'no_venue' => 'I organise events and do not own a venue',
+        'no_venue_hint' => 'You will hold your events at venues that have opened their locations to organisers. You can add a room of your own later.',
         'first_location_hint' => 'Your first location. You can add more, and pick one per event, once you are in.',
         'finish' => 'Create my account',
         'welcome' => 'Welcome. Your venue is ready.',

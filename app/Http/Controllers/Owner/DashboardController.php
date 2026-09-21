@@ -78,7 +78,7 @@ class DashboardController extends Controller
         }
 
         return [
-            'location' => $place->locations()->exists(),
+            'location' => $place->isOrganiser() || $place->locations()->exists(),
             'event' => $place->events()->exists(),
             'published' => false,
             'staff' => User::query()->where('door_staff_for', $place->id)->exists(),

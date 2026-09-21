@@ -132,11 +132,29 @@ export default function EventPage({ event, place, siblings }: Props) {
                                     </span>
                                 </div>
 
+                                {/* Where it happens comes first; an organiser's
+                                    name follows, because a buyer navigates to
+                                    the room, not to the company. */}
                                 <p className="text-sm font-medium text-white/80">
                                     <VenueLink
-                                        name={placeName}
+                                        name={
+                                            event.host
+                                                ? localised(
+                                                      locale,
+                                                      event.host.name_ar,
+                                                      event.host.name_en,
+                                                  )
+                                                : placeName
+                                        }
                                         location={event.location}
                                     />
+                                    {event.host && (
+                                        <span className="ms-2 text-white/60">
+                                            {t('event.organised_by', {
+                                                organiser: placeName,
+                                            })}
+                                        </span>
+                                    )}
                                 </p>
                                 <h1 className="mt-1 text-3xl leading-tight font-bold text-white sm:text-4xl lg:text-5xl">
                                     {title}

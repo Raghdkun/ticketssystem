@@ -4,6 +4,7 @@ namespace App\Http\Requests\Owner;
 
 use App\Actions\RepeatEvent;
 use App\Enums\EventStatus;
+use App\Models\Place;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -36,6 +37,8 @@ class EventRequest extends FormRequest
      */
     public function rules(): array
     {
+        $place = $this->user()?->places()->first();
+
         return [
             'title_ar' => ['required', 'string', 'max:255'],
             'title_en' => ['required', 'string', 'max:255'],
@@ -65,14 +68,20 @@ class EventRequest extends FormRequest
             'auto_confirm' => ['sometimes', 'boolean'],
             'remove_cover' => ['sometimes', 'boolean'],
 
-            // Scoped to the owner's own venue: without the exists constraint an
-            // owner could attach their event to somebody else's address.
+            // The owner's own locations, or one a venue has opened to other
+            // accounts. Anything else is somebody's address without their
+            // consent. An organiser has no room of its own and must pick one;
+            // a venue that has not added its first location yet may still
+            // draft, and falls back to its primary once one exists.
             'location_id' => [
+                Rule::requiredIf(fn () => $place !== null && $place->isOrganiser()),
                 'nullable',
-                Rule::exists('locations', 'id')->where(
-                    'place_id',
-                    $this->user()?->places()->value('id')
-                ),
+                Rule::exists('locations', 'id')->where(fn ($query) => $query
+                    ->where('place_id', $place?->id)
+                    ->orWhereIn('place_id', Place::query()
+                        ->where('shares_locations', true)
+                        ->where('is_active', true)
+                        ->select('id'))),
             ],
 
             // Optional on purpose: an owner should be able to get an event

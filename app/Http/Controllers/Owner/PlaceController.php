@@ -34,6 +34,9 @@ class PlaceController extends Controller
                 'name_ar' => $place->name_ar,
                 'name_en' => $place->name_en,
                 'whatsapp_number' => $place->whatsapp_number,
+                'kind' => $place->kind,
+                'shares_locations' => $place->shares_locations,
+                'has_locations' => $place->locations()->exists(),
                 'legal_name' => $place->legal_name,
                 'registration_number' => $place->registration_number,
                 'representative_name' => $place->representative_name,
@@ -51,7 +54,10 @@ class PlaceController extends Controller
 
         $this->authorize('update', $place);
 
-        $place->update($request->validated());
+        $place->fill($request->safe()->except(['shares_locations']));
+        // A switch: absent when off, so it is read explicitly.
+        $place->shares_locations = $request->boolean('shares_locations');
+        $place->save();
 
         return back()->with('success', __('ui.owner.place_saved'));
     }

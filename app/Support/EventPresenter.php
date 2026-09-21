@@ -70,6 +70,13 @@ final class EventPresenter
             // one so an event drafted before locations existed still shows an
             // address. Null when neither has been filled in.
             'location' => $event->resolvedLocation()?->forPublic(),
+            // The venue whose room this is, when the event is an organiser's
+            // and not the venue's own.
+            'host' => ($host = $event->hostPlace()) === null ? null : [
+                'slug' => $host->slug,
+                'name_ar' => $host->name_ar,
+                'name_en' => $host->name_en,
+            ],
             'seats_remaining' => $event->seatsRemaining(),
             'is_unlimited' => $event->isUnlimited(),
             // Reached by its link alone. The page says so to crawlers; the

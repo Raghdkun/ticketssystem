@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\OwnerInvitation;
+use App\Models\Place;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -57,8 +58,10 @@ class InvitationController extends Controller
             'place_name_en' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
             'whatsapp_number' => ['nullable', 'string', 'max:32'],
 
-            'location_name_ar' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
-            'location_name_en' => [Rule::requiredIf(! $staff), 'string', 'max:120'],
+            // An organiser has no room of their own: no first location.
+            'no_venue' => ['sometimes', 'boolean'],
+            'location_name_ar' => [Rule::requiredIf(! $staff && ! $request->boolean('no_venue')), 'nullable', 'string', 'max:120'],
+            'location_name_en' => [Rule::requiredIf(! $staff && ! $request->boolean('no_venue')), 'nullable', 'string', 'max:120'],
             'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
             'address_ar' => ['nullable', 'string', 'max:255'],
@@ -100,13 +103,25 @@ class InvitationController extends Controller
                 return $user;
             }
 
+            $organiser = (bool) ($data['no_venue'] ?? false);
+
             $place = $user->places()->create([
                 'slug' => $this->uniqueSlug($data['place_name_en']),
+                'kind' => $organiser ? Place::KIND_ORGANISER : Place::KIND_VENUE,
                 'name_ar' => $data['place_name_ar'],
                 'name_en' => $data['place_name_en'],
                 'whatsapp_number' => $data['whatsapp_number'] ?? null,
                 'is_active' => true,
             ]);
+
+            if ($organiser) {
+                $invitation->forceFill([
+                    'accepted_at' => now(),
+                    'accepted_user_id' => $user->id,
+                ])->save();
+
+                return $user;
+            }
 
             // Their first location, and therefore the venue's default.
             $place->locations()->create([

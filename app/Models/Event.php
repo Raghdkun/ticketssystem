@@ -116,6 +116,21 @@ class Event extends Model
         return $this->location ?? $this->place->primaryLocation();
     }
 
+    /**
+     * The venue whose room this event borrows, when it is not the event's
+     * own place. Null for an event held at home.
+     */
+    public function hostPlace(): ?Place
+    {
+        $location = $this->resolvedLocation();
+
+        if ($location === null || $location->place_id === $this->place_id) {
+            return null;
+        }
+
+        return $location->place;
+    }
+
     /** @return HasMany<Ticket, $this> */
     public function tickets(): HasMany
     {

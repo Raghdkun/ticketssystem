@@ -8,9 +8,11 @@ import type { CommercialSummary, LocationOption } from './event-form';
 export default function CreateEvent({
     locations,
     commercial,
+    needs_location,
 }: {
     locations: LocationOption[];
     commercial: CommercialSummary | null;
+    needs_location: boolean;
 }) {
     const t = useTranslation();
 
@@ -28,6 +30,7 @@ export default function CreateEvent({
                 <EventForm
                     locations={locations}
                     commercial={commercial}
+                    needsLocation={needs_location}
                     action={EventController.store.form()}
                     submitLabel={t('form.create')}
                 />

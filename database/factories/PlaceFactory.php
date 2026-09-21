@@ -31,4 +31,16 @@ class PlaceFactory extends Factory
             'is_active' => true,
         ];
     }
+
+    /** Lets other accounts hold events at its locations. */
+    public function sharing(): static
+    {
+        return $this->state(fn () => ['shares_locations' => true]);
+    }
+
+    /** Runs events, owns no room. */
+    public function organiser(): static
+    {
+        return $this->state(fn () => ['kind' => Place::KIND_ORGANISER]);
+    }
 }

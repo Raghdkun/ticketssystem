@@ -47,7 +47,7 @@ class HomeController extends Controller
         $total = (clone $matching)->count();
 
         $events = $matching
-            ->with('place:id,slug,name_ar,name_en')
+            ->with(['place:id,slug,name_ar,name_en', 'location.place:id,slug,name_ar,name_en'])
             ->orderBy('starts_at')
             ->limit(self::LIMIT)
             ->get()
@@ -65,6 +65,8 @@ class HomeController extends Controller
                 'place_slug' => $event->place->slug,
                 'place_name_ar' => $event->place->name_ar,
                 'place_name_en' => $event->place->name_en,
+                'host_name_ar' => $event->hostPlace()?->name_ar,
+                'host_name_en' => $event->hostPlace()?->name_en,
             ])
             ->all();
 

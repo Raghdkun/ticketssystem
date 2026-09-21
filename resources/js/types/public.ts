@@ -42,6 +42,8 @@ export type PromoVideo = {
 
 export type PublicEvent = {
     location: PublicLocation | null;
+    /** The venue whose room this is, when the event is an organiser's. */
+    host: { slug: string; name_ar: string; name_en: string } | null;
     slug: string;
     title_ar: string;
     title_en: string;

@@ -17,6 +17,8 @@ class PlaceRequest extends FormRequest
             'name_ar' => ['required', 'string', 'max:120'],
             'name_en' => ['required', 'string', 'max:120'],
             'whatsapp_number' => ['nullable', 'string', 'max:32'],
+            // Blanket permission for other accounts to hold events here.
+            'shares_locations' => ['sometimes', 'boolean'],
 
             // The legal identity that goes on the agreement. Optional here,
             // required at the moment of acceptance.

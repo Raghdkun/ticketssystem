@@ -23,6 +23,9 @@ export type ListedEvent = {
     place_slug: string;
     place_name_ar: string;
     place_name_en: string;
+    /** The venue whose room this is, when the event is an organiser's. */
+    host_name_ar?: string | null;
+    host_name_en?: string | null;
 };
 
 /**
@@ -72,11 +75,17 @@ export function EventCard({
                     <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <MapPin className="size-3.5 shrink-0" />
                         <span className="truncate">
-                            {localised(
-                                locale,
-                                event.place_name_ar,
-                                event.place_name_en,
-                            )}
+                            {event.host_name_ar
+                                ? localised(
+                                      locale,
+                                      event.host_name_ar,
+                                      event.host_name_en ?? null,
+                                  )
+                                : localised(
+                                      locale,
+                                      event.place_name_ar,
+                                      event.place_name_en,
+                                  )}
                         </span>
                     </p>
                 )}

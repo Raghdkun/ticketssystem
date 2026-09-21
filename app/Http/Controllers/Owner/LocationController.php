@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\EventStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\LocationRequest;
+use App\Models\Event;
 use App\Models\Location;
 use App\Models\Place;
 use Illuminate\Http\RedirectResponse;
@@ -30,8 +32,28 @@ class LocationController extends Controller
 
         return Inertia::render('owner/locations', [
             'hasPlace' => true,
+            'shares' => $place->shares_locations,
             'locations' => $place->locations()->with('images')->get()
-                ->map(fn (Location $location) => $this->payload($location))->all(),
+                ->map(fn (Location $location) => [
+                    ...$this->payload($location),
+                    // Other accounts' events booked into this room. Read
+                    // only: the event is theirs, the address is yours.
+                    'hosted' => $location->events()
+                        ->where('place_id', '!=', $place->id)
+                        ->where('status', EventStatus::Published)
+                        ->where('starts_at', '>', now()->subDay())
+                        ->with('place:id,name_ar,name_en')
+                        ->orderBy('starts_at')
+                        ->get()
+                        ->map(fn (Event $event) => [
+                            'id' => $event->id,
+                            'title_ar' => $event->title_ar,
+                            'title_en' => $event->title_en,
+                            'starts_at' => $event->starts_at->toIso8601String(),
+                            'organiser_ar' => $event->place->name_ar,
+                            'organiser_en' => $event->place->name_en,
+                        ])->all(),
+                ])->all(),
         ]);
     }
 

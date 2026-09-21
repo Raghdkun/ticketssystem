@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/lib/translation';
 import locationsRoute from '@/routes/owner/locations';
 import placeRoute from '@/routes/owner/place';
@@ -15,6 +16,9 @@ type Place = {
     name_ar: string;
     name_en: string;
     whatsapp_number: string | null;
+    kind: 'venue' | 'organiser';
+    shares_locations: boolean;
+    has_locations: boolean;
     legal_name: string | null;
     registration_number: string | null;
     representative_name: string | null;
@@ -183,6 +187,52 @@ export default function OwnerPlace({ place }: { place: Place | null }) {
                                         </div>
                                     ))}
                                 </div>
+                            </section>
+
+                            {/* Blanket permission for organisers to book this
+                                venue's rooms. Nothing to share without a room. */}
+                            <section className="space-y-3 rounded-xl border p-4 sm:p-6">
+                                {place.kind === 'organiser' ? (
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('owner.organiser_note')}
+                                    </p>
+                                ) : (
+                                    <>
+                                        <label className="flex min-h-11 items-start gap-3 text-sm">
+                                            <Switch
+                                                name="shares_locations"
+                                                value="1"
+                                                defaultChecked={
+                                                    place.shares_locations
+                                                }
+                                                disabled={!place.has_locations}
+                                                aria-label={t(
+                                                    'owner.share_locations',
+                                                )}
+                                                className="mt-0.5"
+                                            />
+                                            <span>
+                                                <span className="block font-medium">
+                                                    {t('owner.share_locations')}
+                                                </span>
+                                                <span className="block text-xs text-muted-foreground">
+                                                    {place.has_locations
+                                                        ? t(
+                                                              'owner.share_locations_hint',
+                                                          )
+                                                        : t(
+                                                              'owner.share_locations_off',
+                                                          )}
+                                                </span>
+                                            </span>
+                                        </label>
+                                        <input
+                                            type="hidden"
+                                            name="shares_locations"
+                                            value="0"
+                                        />
+                                    </>
+                                )}
                             </section>
 
                             <section className="space-y-3 rounded-xl border p-4 sm:p-6">

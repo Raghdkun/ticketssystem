@@ -210,6 +210,23 @@ realtime status flip.
     confirmed by the venue with the same acceptance snapshot, then worked
     through `in_progress` → `completed` or `cancelled` by the admin. Terms
     freeze on send; only the status moves after that.
+31. **An organiser is a place with no room; a venue may lend its rooms.**
+    `places.kind` is `venue` or `organiser`; `places.shares_locations` is a
+    venue owner's blanket permission for other accounts to pick its
+    locations. The event stays the organiser's — their terms, their offer,
+    their door — only `location_id` points into another venue.
+    `Place::usableLocations()` is the one list (own rooms first, then
+    shared), `EventRequest` validates against the same rule, and only an
+    organiser is forced to choose (a venue that has not added its first
+    room yet may still draft). Public pages name the host venue first and
+    the organiser after it; the venue owner sees what is booked into each
+    room on the locations page, read only. The invitation form has "I
+    organise events and do not own a venue", which skips the first
+    location and creates an organiser.
+32. **An administrator without a venue sees the platform only.** The owner
+    section of the sidebar is hidden for them (`auth.has_place` is shared
+    for this); one who also runs a venue keeps both. Approvals and the
+    agreement gate never applied to administrators.
 ---
 
 ## Repository map
@@ -276,8 +293,9 @@ realtime status flip.
 | 15 | Partner Terms: versioned immutable agreement, per-venue acceptance records with legal identity and text hash, blocking re-acceptance gate, admin drafting/publishing, OTP layer with a null driver |
 | 16 | Commercial layer: per-venue offers, event terms snapshot with publish acknowledgement, service orders, the owner "Agreements & documents" page, the admin acceptance log |
 | 17 | `/for-venues`: the page for a venue that is not a partner yet — an admin-editable pitch and a WhatsApp button to the support number; linked from the footer and the login page; registration stays closed |
+| 18 | Organisers and shared rooms: place kind, a venue's "let others hold events here" switch, shared locations in the event form, host venue on public pages, hosted list for the venue owner; admins without a venue see the platform only; قاعة → مساحة |
 
-**467 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**475 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a

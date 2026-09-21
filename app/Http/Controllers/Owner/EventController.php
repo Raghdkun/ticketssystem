@@ -94,6 +94,8 @@ class EventController extends Controller
 
         return Inertia::render('owner/events/create', [
             'locations' => $this->locationOptions($place),
+            // An organiser has no default room, so a location is required.
+            'needs_location' => $place->isOrganiser(),
             'commercial' => $this->commercialSummary($place, null),
         ]);
     }
@@ -128,6 +130,7 @@ class EventController extends Controller
 
         return Inertia::render('owner/events/edit', [
             'locations' => $this->locationOptions($event->place),
+            'needs_location' => $event->place->isOrganiser(),
             'commercial' => $this->commercialSummary($event->place, $event),
             'event' => [
                 ...$event->only([
@@ -389,15 +392,20 @@ class EventController extends Controller
     }
 
     /**
-     * @return array<int, array{id: int, name_ar: string, name_en: string, is_primary: bool}>
+     * The venue's own locations, then every shared one from other venues,
+     * each carrying its host's name so the form can say whose room it is.
+     *
+     * @return array<int, array{id: int, name_ar: string, name_en: string, is_primary: bool, host_ar: string|null, host_en: string|null}>
      */
     private function locationOptions(Place $place): array
     {
-        return $place->locations()->get()->map(fn (Location $location) => [
+        return $place->usableLocations()->get()->map(fn (Location $location) => [
             'id' => $location->id,
             'name_ar' => $location->name_ar,
             'name_en' => $location->name_en,
-            'is_primary' => $location->is_primary,
+            'is_primary' => $location->is_primary && $location->place_id === $place->id,
+            'host_ar' => $location->place_id === $place->id ? null : $location->place->name_ar,
+            'host_en' => $location->place_id === $place->id ? null : $location->place->name_en,
         ])->all();
     }
 

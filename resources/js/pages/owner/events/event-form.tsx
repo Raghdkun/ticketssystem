@@ -55,6 +55,8 @@ type Props = {
     locations?: LocationOption[];
     /** The venue's commercial terms, when it has accepted an offer. */
     commercial?: CommercialSummary | null;
+    /** An organiser with no room of its own has to pick one. */
+    needsLocation?: boolean;
 };
 
 export type LocationOption = {
@@ -62,6 +64,9 @@ export type LocationOption = {
     name_ar: string;
     name_en: string;
     is_primary: boolean;
+    /** The venue whose room this is, when it is not the owner's own. */
+    host_ar: string | null;
+    host_en: string | null;
 };
 
 const CADENCES = ['daily', 'weekly', 'fortnightly', 'monthly'] as const;
@@ -165,6 +170,7 @@ export default function EventForm({
     submitLabel,
     locations = [],
     commercial = null,
+    needsLocation = false,
 }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
@@ -415,31 +421,93 @@ export default function EventForm({
                                 id="location_id"
                                 label={t('location.pick')}
                                 error={errors.location_id}
+                                hint={
+                                    needsLocation
+                                        ? t('location.required_for_organiser')
+                                        : undefined
+                                }
+                                required={needsLocation}
                             >
                                 <select
                                     id="location_id"
                                     name="location_id"
+                                    required={needsLocation}
                                     defaultValue={values?.location_id ?? ''}
                                     className={SELECT_CLASS}
                                 >
                                     {/* Empty means "wherever the venue defaults
                                         to", which is what an owner with a single
-                                        location wants and never has to think about. */}
-                                    <option value="">
-                                        {t('location.use_default')}
+                                        location wants and never has to think about.
+                                        An organiser has no default and must choose. */}
+                                    <option value="" disabled={needsLocation}>
+                                        {needsLocation
+                                            ? '—'
+                                            : t('location.use_default')}
                                     </option>
-                                    {locations.map((location) => (
-                                        <option
-                                            key={location.id}
-                                            value={location.id}
+                                    {locations
+                                        .filter((l) => l.host_ar === null)
+                                        .map((location) => (
+                                            <option
+                                                key={location.id}
+                                                value={location.id}
+                                            >
+                                                {localised(
+                                                    locale,
+                                                    location.name_ar,
+                                                    location.name_en,
+                                                )}
+                                            </option>
+                                        ))}
+                                    {locations.some(
+                                        (l) => l.host_ar !== null,
+                                    ) && (
+                                        <optgroup
+                                            label={t('location.shared_group')}
                                         >
-                                            {localised(
-                                                locale,
-                                                location.name_ar,
-                                                location.name_en,
-                                            )}
-                                        </option>
-                                    ))}
+                                            {locations
+                                                .filter(
+                                                    (l) => l.host_ar !== null,
+                                                )
+                                                .map((location) => (
+                                                    <option
+                                                        key={location.id}
+                                                        value={location.id}
+                                                    >
+                                                        {localised(
+                                                            locale,
+                                                            location.name_ar,
+                                                            location.name_en,
+                                                        ) ===
+                                                        localised(
+                                                            locale,
+                                                            location.host_ar,
+                                                            location.host_en,
+                                                        )
+                                                            ? localised(
+                                                                  locale,
+                                                                  location.host_ar,
+                                                                  location.host_en,
+                                                              )
+                                                            : t(
+                                                                  'location.at_host',
+                                                                  {
+                                                                      location:
+                                                                          localised(
+                                                                              locale,
+                                                                              location.name_ar,
+                                                                              location.name_en,
+                                                                          ),
+                                                                      host: localised(
+                                                                          locale,
+                                                                          location.host_ar,
+                                                                          location.host_en,
+                                                                      ),
+                                                                  },
+                                                              )}
+                                                    </option>
+                                                ))}
+                                        </optgroup>
+                                    )}
                                 </select>
                             </Field>
 

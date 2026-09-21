@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\CarbonImmutable;
 use Database\Factories\PlaceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $user_id
  * @property string $slug
+ * @property string $kind venue | organiser
+ * @property bool $shares_locations
  * @property string $name_ar
  * @property string $name_en
  * @property string|null $logo_path
@@ -28,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $updated_at
  */
 #[Fillable([
-    'user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active',
+    'user_id', 'slug', 'kind', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active', 'shares_locations',
     'legal_name', 'registration_number', 'representative_name', 'representative_role', 'representative_phone',
 ])]
 class Place extends Model
@@ -48,7 +51,42 @@ class Place extends Model
     {
         return [
             'is_active' => 'boolean',
+            'shares_locations' => 'boolean',
         ];
+    }
+
+    public const KIND_VENUE = 'venue';
+
+    public const KIND_ORGANISER = 'organiser';
+
+    /**
+     * An organiser runs events but owns no room: every event of theirs
+     * happens at a venue that shares its locations.
+     */
+    public function isOrganiser(): bool
+    {
+        return $this->kind === self::KIND_ORGANISER;
+    }
+
+    /**
+     * Locations this place may hold an event at: its own, plus every
+     * location of an active venue that has opened its doors to others.
+     *
+     * @return Builder<Location>
+     */
+    public function usableLocations(): Builder
+    {
+        return Location::query()
+            ->where(fn ($query) => $query
+                ->where('place_id', $this->id)
+                ->orWhereIn('place_id', self::query()
+                    ->where('shares_locations', true)
+                    ->where('is_active', true)
+                    ->whereKeyNot($this->id)
+                    ->select('id')))
+            ->with('place:id,slug,name_ar,name_en')
+            ->orderByRaw('place_id = ? desc', [$this->id])
+            ->orderBy('sort');
     }
 
     /** @return BelongsTo<User, $this> */
