@@ -18,7 +18,7 @@ type Place = {
     legal_name: string | null;
     registration_number: string | null;
     representative_name: string | null;
-    representative_title: string | null;
+    representative_role: string | null;
     representative_phone: string | null;
 };
 
@@ -26,9 +26,11 @@ const LEGAL_FIELDS = [
     { name: 'legal_name', ltr: false },
     { name: 'registration_number', ltr: true },
     { name: 'representative_name', ltr: false },
-    { name: 'representative_title', ltr: false },
+    { name: 'representative_role', ltr: false },
     { name: 'representative_phone', ltr: true },
 ] as const;
+
+const ROLES = ['owner', 'manager', 'organiser', 'authorised', 'other'];
 
 export default function OwnerPlace({ place }: { place: Place | null }) {
     const t = useTranslation();
@@ -139,18 +141,42 @@ export default function OwnerPlace({ place }: { place: Place | null }) {
                                             <Label htmlFor={field.name}>
                                                 {t(`agreement.${field.name}`)}
                                             </Label>
-                                            <Input
-                                                id={field.name}
-                                                name={field.name}
-                                                dir={
-                                                    field.ltr
-                                                        ? 'ltr'
-                                                        : undefined
-                                                }
-                                                defaultValue={
-                                                    place[field.name] ?? ''
-                                                }
-                                            />
+                                            {field.name ===
+                                            'representative_role' ? (
+                                                <select
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    defaultValue={
+                                                        place[field.name] ?? ''
+                                                    }
+                                                    className="min-h-11 rounded-md border border-input bg-input-background px-3 text-sm"
+                                                >
+                                                    <option value="">—</option>
+                                                    {ROLES.map((role) => (
+                                                        <option
+                                                            key={role}
+                                                            value={role}
+                                                        >
+                                                            {t(
+                                                                `agreement.roles.${role}`,
+                                                            )}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <Input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    dir={
+                                                        field.ltr
+                                                            ? 'ltr'
+                                                            : undefined
+                                                    }
+                                                    defaultValue={
+                                                        place[field.name] ?? ''
+                                                    }
+                                                />
+                                            )}
                                             <InputError
                                                 message={errors[field.name]}
                                             />

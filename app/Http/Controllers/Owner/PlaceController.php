@@ -37,7 +37,7 @@ class PlaceController extends Controller
                 'legal_name' => $place->legal_name,
                 'registration_number' => $place->registration_number,
                 'representative_name' => $place->representative_name,
-                'representative_title' => $place->representative_title,
+                'representative_role' => $place->representative_role,
                 'representative_phone' => $place->representative_phone,
             ],
         ]);

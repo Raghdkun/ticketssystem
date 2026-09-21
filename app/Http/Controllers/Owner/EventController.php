@@ -8,14 +8,17 @@ use App\Enums\EventStatus;
 use App\Enums\TicketStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
+use App\Models\CommercialOffer;
 use App\Models\Event;
 use App\Models\Location;
 use App\Models\Place;
+use App\Services\Commercial;
 use App\Services\CoverProcessor;
 use App\Services\MediaLibrary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,6 +27,7 @@ class EventController extends Controller
     public function __construct(
         private readonly CoverProcessor $covers,
         private readonly MediaLibrary $library,
+        private readonly Commercial $commercial,
     ) {}
 
     public function index(Request $request): Response
@@ -90,6 +94,7 @@ class EventController extends Controller
 
         return Inertia::render('owner/events/create', [
             'locations' => $this->locationOptions($place),
+            'commercial' => $this->commercialSummary($place, null),
         ]);
     }
 
@@ -106,11 +111,13 @@ class EventController extends Controller
         // instead, which the public scope does not match.
         $event->status = $publisher->resolve($request->user(), $event->status);
         $event->slug = $this->uniqueSlug($place, $request->string('title_en')->value());
+        $this->assertTermsAcknowledged($event, $request);
         $event->save();
 
         $this->syncRules($event, $request->input('rules', []));
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
+        $this->snapshotTerms($event, $request);
 
         return $this->afterSave($event, $this->repeatFromForm($event, $request, $repeat));
     }
@@ -121,6 +128,7 @@ class EventController extends Controller
 
         return Inertia::render('owner/events/edit', [
             'locations' => $this->locationOptions($event->place),
+            'commercial' => $this->commercialSummary($event->place, $event),
             'event' => [
                 ...$event->only([
                     'id', 'slug', 'title_ar', 'title_en', 'description_ar', 'description_en',
@@ -168,13 +176,96 @@ class EventController extends Controller
             $event->status = $publisher->resolve($request->user(), $event->status);
         }
 
+        $this->assertTermsAcknowledged($event, $request);
         $event->save();
 
         $this->syncRules($event, $request->input('rules', []));
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
+        $this->snapshotTerms($event, $request);
 
         return $this->afterSave($event, $this->repeatFromForm($event, $request, $repeat));
+    }
+
+    /**
+     * The commercial terms a paid event would go out under, for the form.
+     *
+     * Null when the venue has no accepted offer: the form then shows no
+     * summary and asks for no acknowledgement. Once an event carries a
+     * snapshot the terms are its own, and the form shows those instead.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function commercialSummary(Place $place, ?Event $event): ?array
+    {
+        $snapshot = $event?->commercialSnapshot;
+
+        if ($snapshot !== null) {
+            return [
+                'frozen' => true,
+                'fee_type' => $snapshot->fee_type,
+                'fee_value' => $snapshot->fee_value === null ? null : (float) $snapshot->fee_value,
+                'fee_payer' => $snapshot->fee_payer,
+                'settlement_days' => $snapshot->settlement_days,
+                'currency' => $snapshot->currency,
+            ];
+        }
+
+        $offer = $this->commercial->currentOffer($place);
+
+        if ($offer === null) {
+            return null;
+        }
+
+        return [
+            'frozen' => false,
+            'fee_type' => $offer->fee_type,
+            'fee_value' => $offer->fee_value === null ? null : (float) $offer->fee_value,
+            'fee_payer' => $offer->fee_payer,
+            'settlement_days' => $offer->settlement_days,
+            'currency' => $offer->currency,
+        ];
+    }
+
+    /**
+     * The offer a paid event leaving draft would be frozen under, or null
+     * when there is nothing to freeze: a draft, a free event, an event that
+     * already carries its terms, or a venue with no accepted offer.
+     */
+    private function offerToFreeze(Event $event): ?CommercialOffer
+    {
+        if ($event->status === EventStatus::Draft || $event->isFree() || ($event->exists && $event->commercialSnapshot !== null)) {
+            return null;
+        }
+
+        return $this->commercial->currentOffer($event->place ?? Place::findOrFail($event->place_id));
+    }
+
+    /**
+     * The owner has to tick that they publish under the venue's terms.
+     * Checked before anything is saved: a refused submission must leave no
+     * event behind.
+     */
+    private function assertTermsAcknowledged(Event $event, EventRequest $request): void
+    {
+        if ($this->offerToFreeze($event) !== null && ! $request->boolean('commercial_ack')) {
+            throw ValidationException::withMessages([
+                'commercial_ack' => __('ui.commercial.ack_required'),
+            ]);
+        }
+    }
+
+    /**
+     * Freeze the venue's commercial terms onto a paid event as it leaves
+     * draft. Without an accepted offer nothing is recorded.
+     */
+    private function snapshotTerms(Event $event, EventRequest $request): void
+    {
+        $offer = $this->offerToFreeze($event);
+
+        if ($offer !== null) {
+            $this->commercial->snapshotEvent($event, $offer, $request->user(), $request->ip());
+        }
     }
 
     /**

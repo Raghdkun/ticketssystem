@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $legal_name
  * @property string|null $registration_number
  * @property string|null $representative_name
- * @property string|null $representative_title
+ * @property string|null $representative_role
  * @property string|null $representative_phone
  * @property bool $is_active
  * @property CarbonImmutable|null $created_at
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'user_id', 'slug', 'name_ar', 'name_en', 'logo_path', 'whatsapp_number', 'is_active',
-    'legal_name', 'registration_number', 'representative_name', 'representative_title', 'representative_phone',
+    'legal_name', 'registration_number', 'representative_name', 'representative_role', 'representative_phone',
 ])]
 class Place extends Model
 {
@@ -75,6 +75,18 @@ class Place extends Model
     public function hasAccepted(AgreementVersion $version): bool
     {
         return $this->acceptances()->where('agreement_version_id', $version->id)->exists();
+    }
+
+    /** @return HasMany<CommercialOffer, $this> */
+    public function offers(): HasMany
+    {
+        return $this->hasMany(CommercialOffer::class);
+    }
+
+    /** @return HasMany<ServiceOrder, $this> */
+    public function serviceOrders(): HasMany
+    {
+        return $this->hasMany(ServiceOrder::class);
     }
 
     /** @return HasMany<Location, $this> */

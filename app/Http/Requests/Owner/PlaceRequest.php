@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Owner;
 
+use App\Models\AgreementAcceptance;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PlaceRequest extends FormRequest
 {
@@ -21,7 +23,7 @@ class PlaceRequest extends FormRequest
             'legal_name' => ['nullable', 'string', 'max:160'],
             'registration_number' => ['nullable', 'string', 'max:80'],
             'representative_name' => ['nullable', 'string', 'max:120'],
-            'representative_title' => ['nullable', 'string', 'max:80'],
+            'representative_role' => ['nullable', 'string', Rule::in(AgreementAcceptance::ROLES)],
             'representative_phone' => ['nullable', 'string', 'max:32'],
 
         ];

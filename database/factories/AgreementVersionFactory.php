@@ -30,6 +30,7 @@ class AgreementVersionFactory extends Factory
             'body_ar' => 'نص الاتفاقية '.self::$sequence,
             'body_en' => 'Agreement text '.self::$sequence,
             'status' => AgreementStatus::Draft,
+            'requires_reacceptance' => true,
         ];
     }
 

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
@@ -20,6 +21,7 @@ export type VersionSummary = {
     title_ar: string;
     title_en: string;
     status: 'draft' | 'published' | 'retired';
+    requires_reacceptance: boolean;
     published_at: string | null;
     retired_at: string | null;
     acceptances_count: number;
@@ -85,14 +87,21 @@ export default function AdminAgreements({
                         title={t('agreement.admin.title')}
                         description={t('agreement.admin.subtitle')}
                     />
-                    <Button
-                        type="button"
-                        onClick={() => setDrafting((open) => !open)}
-                        aria-expanded={drafting}
-                    >
-                        <Plus />
-                        {t('agreement.admin.new_draft')}
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button asChild variant="outline">
+                            <Link href="/admin/acceptances">
+                                {t('agreement.admin.audit')}
+                            </Link>
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setDrafting((open) => !open)}
+                            aria-expanded={drafting}
+                        >
+                            <Plus />
+                            {t('agreement.admin.new_draft')}
+                        </Button>
+                    </div>
                 </div>
 
                 {drafting && (
@@ -215,6 +224,37 @@ export default function AdminAgreements({
                                     </div>
                                 </div>
 
+                                <label className="flex min-h-11 items-start gap-3 text-sm">
+                                    {/* A wrapping label does not name a Radix
+                                        switch the way it names a native input. */}
+                                    <Switch
+                                        name="requires_reacceptance"
+                                        value="1"
+                                        defaultChecked
+                                        aria-label={t(
+                                            'agreement.admin.requires_reacceptance',
+                                        )}
+                                        className="mt-0.5"
+                                    />
+                                    <span>
+                                        <span className="block font-medium">
+                                            {t(
+                                                'agreement.admin.requires_reacceptance',
+                                            )}
+                                        </span>
+                                        <span className="block text-xs text-muted-foreground">
+                                            {t(
+                                                'agreement.admin.requires_reacceptance_hint',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
+                                <input
+                                    type="hidden"
+                                    name="requires_reacceptance"
+                                    value="0"
+                                />
+
                                 <Button type="submit" disabled={processing}>
                                     {processing ? (
                                         <Spinner />
@@ -249,6 +289,13 @@ export default function AdminAgreements({
                                             <VersionStatusBadge
                                                 status={version.status}
                                             />
+                                            <Badge variant="outline">
+                                                {t(
+                                                    version.requires_reacceptance
+                                                        ? 'agreement.admin.material'
+                                                        : 'agreement.admin.informational',
+                                                )}
+                                            </Badge>
                                         </p>
                                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
                                             {localised(

@@ -476,6 +476,17 @@ door sheet) stays open.
   in `storage/logs/laravel.log`.
 - Acceptance records are never deleted or backfilled. Do not seed them.
 
+**Commercial offers** live under **Administration → Commercial offers**:
+pick the venue, fill the fee, who pays it, settlement days and what is
+included, save the draft, then **Send to venue**. The owner finds it under
+**Agreements & documents** and accepts or declines it. Once a venue has an
+accepted offer, every paid event it publishes asks the owner to confirm
+those terms and freezes them onto the event. **Service orders** work the
+same way under **Administration → Service orders**, and the administrator
+moves a confirmed order through in progress, completed or cancelled.
+**Administration → Partner Terms → Acceptance log** lists every acceptance
+of every kind, filterable by venue, kind and date.
+
 ## 13. Backups
 
 ```bash

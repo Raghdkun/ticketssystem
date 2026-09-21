@@ -9,16 +9,26 @@ import { DeleteEvent } from '@/components/owner/delete-event';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
-import type { EventFormValues, LocationOption } from './event-form';
+import type {
+    CommercialSummary,
+    EventFormValues,
+    LocationOption,
+} from './event-form';
 
 type Props = {
     event: EventFormValues & { id: number; media: MediaItem[] };
     locations: LocationOption[];
     /** Paid or still-held bookings: what deleting would take with it. */
     holders: number;
+    commercial: CommercialSummary | null;
 };
 
-export default function EditEvent({ event, locations, holders }: Props) {
+export default function EditEvent({
+    event,
+    locations,
+    holders,
+    commercial,
+}: Props) {
     const t = useTranslation();
 
     return (
@@ -34,6 +44,7 @@ export default function EditEvent({ event, locations, holders }: Props) {
 
                 <EventForm
                     locations={locations}
+                    commercial={commercial}
                     action={EventController.update.form(event.id)}
                     values={event}
                     submitLabel={t('form.save')}

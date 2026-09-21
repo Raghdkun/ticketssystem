@@ -3,7 +3,9 @@ import {
     CalendarDays,
     ClipboardCheck,
     FileSignature,
+    Handshake,
     LayoutGrid,
+    PackageCheck,
     Mail,
     MapPin,
     ScanLine,
@@ -83,8 +85,8 @@ const mainNavItems: NavItem[] = [
         icon: Search,
     },
     {
-        title: 'agreement.nav',
-        href: '/owner/agreement',
+        title: 'documents.title',
+        href: '/owner/agreements',
         icon: FileSignature,
     },
 ];
@@ -114,6 +116,16 @@ const adminNavItems: NavItem[] = [
         title: 'agreement.admin.title',
         href: '/admin/agreements',
         icon: FileSignature,
+    },
+    {
+        title: 'commercial.admin.title',
+        href: '/admin/commercial-offers',
+        icon: Handshake,
+    },
+    {
+        title: 'orders.admin.title',
+        href: '/admin/service-orders',
+        icon: PackageCheck,
     },
     {
         title: 'admin.settings',

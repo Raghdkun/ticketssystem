@@ -40,7 +40,13 @@ final class Agreements
 
         $current = $this->current();
 
-        return $current !== null && ! $place->hasAccepted($current);
+        if ($current === null || $place->hasAccepted($current)) {
+            return false;
+        }
+
+        // A wording fix does not stop anyone who has already agreed to an
+        // earlier version; only a first acceptance or a material change does.
+        return $current->requires_reacceptance || ! $place->acceptances()->exists();
     }
 
     /**
@@ -50,7 +56,7 @@ final class Agreements
      * acceptance starts from what was signed last time. Idempotent per
      * version and venue: a double submission returns the first record.
      *
-     * @param  array{legal_name: string, registration_number: ?string, representative_name: string, representative_title: ?string, representative_phone: string}  $identity
+     * @param  array{legal_name: string, registration_number: ?string, representative_name: string, representative_role: string, representative_phone: string}  $identity
      */
     public function accept(
         AgreementVersion $version,
@@ -75,11 +81,22 @@ final class Agreements
 
             $place->fill($identity)->save();
 
+            // A repeat of an earlier version's acceptance is worth telling
+            // apart from a first one in the log.
+            $reaccepting = $place->acceptances()->exists();
+
             $acceptance = AgreementAcceptance::create([
                 'agreement_version_id' => $version->id,
                 'place_id' => $place->id,
                 'user_id' => $user->id,
                 ...$identity,
+                'email_snapshot' => $user->email,
+                'authority_claimed' => true,
+                'acceptance_method' => match (true) {
+                    $otpVerified => 'clickwrap_otp',
+                    $user->email_verified_at !== null => 'clickwrap_verified_account',
+                    default => 'clickwrap',
+                },
                 'content_hash' => $version->content_hash ?? $version->hashContent(),
                 'locale' => $locale,
                 'ip' => $ip,
@@ -89,10 +106,10 @@ final class Agreements
                 'accepted_at' => now(),
             ]);
 
-            AuditLog::record('agreement_accepted', $user, [
+            AuditLog::record($reaccepting ? 'agreement_reaccepted' : 'agreement_accepted', $user, [
                 'version' => $version->version,
                 'place' => $place->id,
-                'otp' => $acceptance->otp_channel,
+                'method' => $acceptance->acceptance_method,
             ]);
 
             return $acceptance;

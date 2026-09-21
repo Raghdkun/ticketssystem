@@ -76,8 +76,9 @@ class AgreementController extends Controller
                     'place_en' => $acceptance->place->name_en,
                     'legal_name' => $acceptance->legal_name,
                     'representative_name' => $acceptance->representative_name,
-                    'representative_title' => $acceptance->representative_title,
+                    'representative_role' => $acceptance->representative_role,
                     'representative_phone' => $acceptance->representative_phone,
+                    'acceptance_method' => $acceptance->acceptance_method,
                     'accepted_by' => $acceptance->user?->name,
                     'accepted_at' => $acceptance->accepted_at->toIso8601String(),
                     'otp_channel' => $acceptance->otp_channel,
@@ -135,6 +136,7 @@ class AgreementController extends Controller
             'body_en' => ['required', 'string', 'max:60000'],
             'change_note_ar' => ['nullable', 'string', 'max:2000'],
             'change_note_en' => ['nullable', 'string', 'max:2000'],
+            'requires_reacceptance' => ['required', 'boolean'],
         ]);
     }
 
@@ -149,6 +151,7 @@ class AgreementController extends Controller
             'title_ar' => $version->title_ar,
             'title_en' => $version->title_en,
             'status' => $version->status->value,
+            'requires_reacceptance' => $version->requires_reacceptance,
             'published_at' => $version->published_at?->toIso8601String(),
             'retired_at' => $version->retired_at?->toIso8601String(),
             'acceptances_count' => $version->acceptances_count ?? $version->acceptances()->count(),

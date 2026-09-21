@@ -21,8 +21,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $legal_name
  * @property string|null $registration_number
  * @property string $representative_name
- * @property string|null $representative_title
+ * @property string $representative_role
  * @property string $representative_phone
+ * @property string|null $email_snapshot
+ * @property bool $authority_claimed
+ * @property string $acceptance_method
  * @property string $content_hash
  * @property string $locale
  * @property string|null $ip
@@ -36,17 +39,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 #[Fillable([
     'agreement_version_id', 'place_id', 'user_id',
-    'legal_name', 'registration_number', 'representative_name', 'representative_title', 'representative_phone',
-    'content_hash', 'locale', 'ip', 'user_agent', 'otp_channel', 'otp_verified_at', 'accepted_at',
+    'legal_name', 'registration_number', 'representative_name', 'representative_role', 'representative_phone',
+    'email_snapshot', 'authority_claimed', 'acceptance_method', 'content_hash', 'locale', 'ip', 'user_agent', 'otp_channel', 'otp_verified_at', 'accepted_at',
 ])]
 class AgreementAcceptance extends Model
 {
+    /** The roles a representative may sign in. */
+    public const ROLES = ['owner', 'manager', 'organiser', 'authorised', 'other'];
+
     /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'authority_claimed' => 'boolean',
             'otp_verified_at' => 'datetime',
             'accepted_at' => 'datetime',
         ];

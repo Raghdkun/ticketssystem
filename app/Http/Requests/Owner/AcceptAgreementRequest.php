@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Owner;
 
+use App\Models\AgreementAcceptance;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Propaganistas\LaravelPhone\PhoneNumber;
 use Propaganistas\LaravelPhone\Rules\Phone;
 
@@ -27,7 +29,7 @@ class AcceptAgreementRequest extends FormRequest
             'legal_name' => ['required', 'string', 'max:160'],
             'registration_number' => ['nullable', 'string', 'max:80'],
             'representative_name' => ['required', 'string', 'max:120'],
-            'representative_title' => ['nullable', 'string', 'max:80'],
+            'representative_role' => ['required', 'string', Rule::in(AgreementAcceptance::ROLES)],
             'representative_phone' => ['required', 'string', (new Phone)->country(['SY'])->mobile()],
 
             // Not pre-ticked, and "accepted" rather than "boolean": the
@@ -39,7 +41,7 @@ class AcceptAgreementRequest extends FormRequest
     }
 
     /**
-     * @return array{legal_name: string, registration_number: ?string, representative_name: string, representative_title: ?string, representative_phone: string}
+     * @return array{legal_name: string, registration_number: ?string, representative_name: string, representative_role: string, representative_phone: string}
      */
     public function identity(): array
     {
@@ -47,7 +49,7 @@ class AcceptAgreementRequest extends FormRequest
             'legal_name' => $this->string('legal_name')->trim()->value(),
             'registration_number' => $this->filled('registration_number') ? $this->string('registration_number')->trim()->value() : null,
             'representative_name' => $this->string('representative_name')->trim()->value(),
-            'representative_title' => $this->filled('representative_title') ? $this->string('representative_title')->trim()->value() : null,
+            'representative_role' => $this->string('representative_role')->value(),
             'representative_phone' => $this->normalisedPhone(),
         ];
     }

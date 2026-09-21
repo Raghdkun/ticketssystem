@@ -187,6 +187,29 @@ realtime status flip.
     there is no driver the step is skipped and the acceptance says
     `otp_channel = none` — the record tells the truth rather than pretending
     a phone was verified.
+28. **A commercial offer is a document the venue acknowledges, not a
+    calculation.** `commercial_offers` is one venue's arrangement — fee
+    type and value, who pays it, settlement days, subscription, what is
+    included, validity — written by an admin, sent, and accepted or
+    declined by the venue. Nothing invoices or deducts: there is no payment
+    gateway and decision 4 stands. The terms freeze when sent (model guard
+    on `TERMS`), the acceptance lives on the row (signer snapshot, method,
+    IP, hash), and accepting a newer offer supersedes the old one. Sending
+    a new offer withdraws one still waiting, so a venue never has two open.
+29. **A paid event freezes its terms when it leaves draft.**
+    `event_commercial_snapshots` copies the accepted offer's figures onto
+    the event the moment the owner publishes (or submits for review), and
+    the model refuses every update afterwards. The owner ticks
+    `commercial_ack` on the form — checked *before* the event is saved, so
+    a refused submission leaves nothing behind — and the submit button
+    reads "confirm and publish". Free events, drafts and venues without an
+    offer are asked nothing. A later offer never touches an earlier event.
+30. **Service orders are the same shape, one level down.** `service_orders`
+    is one paid service (door staff, promotion, photography…) for a venue,
+    optionally tied to one of its events; drafted and sent by an admin,
+    confirmed by the venue with the same acceptance snapshot, then worked
+    through `in_progress` → `completed` or `cancelled` by the admin. Terms
+    freeze on send; only the status moves after that.
 ---
 
 ## Repository map
@@ -194,12 +217,13 @@ realtime status flip.
 | Path | What |
 |---|---|
 | `app/Actions/` | `AppointTicket` (seat locking), `VerifyTicket` (check-in, no-show, cancel, holder release), `RepeatEvent`, `NotifyWatchers` |
-| `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender`, `Agreements` (terms in force, accept, publish), `Otp/` (challenge + senders) |
+| `app/Services/` | `CoverProcessor`, `MediaLibrary`, `EventReport`, `Settings`, `PlatformStats`, `PushSender`, `Agreements` (terms in force, accept, publish), `Commercial` (offers, orders, event snapshot), `Otp/` (challenge + senders) |
 | `app/Support/` | `Color` (WCAG maths), `QrCode`, `NotificationCopy` (variant rotation), `PosterPrompt`, presenters |
 | `resources/js/pages/public/` | place, event, ticket, my-tickets, invitation — no app chrome |
-| `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report, agreement (bare page, in front of the app) |
+| `resources/js/pages/owner/` | dashboard, events, place, scan, search, verify, door-sheet, report, agreement (bare page, in front of the app), documents, commercial-offer, service-order |
 | `resources/js/components/map/` | `map-canvas` (shared Leaflet), `map-picker` (owner) |
-| `resources/js/pages/admin/` | owners, settings, agreements (versions, publish, acceptances, who is outstanding) |
+| `resources/js/pages/admin/` | owners, settings, agreements (versions, publish, acceptances, who is outstanding), commercial-offers, service-orders, acceptances (the audit log) |
+| `resources/js/components/commercial/` | `offer-summary` (terms table, status badge, signature record), `order-summary`, `offer-fields`, `order-fields` |
 | `lang/{ar,en}/ui.php` | the client string catalogue, shared via Inertia as dot-notation |
 
 ---
@@ -250,8 +274,9 @@ realtime status flip.
 | 13 | Rebrand to ناس / Nas: wordmark + disc, cream/ink/orange tokens with a derived dark theme, Cairo committed and self-hosted, region-neutral copy, opt-in heritage mood in the poster prompt |
 | 14 | Owner feedback: cover removal, unlimited capacity, confirm-on-booking for free events, unlisted events, repeat from the form, saved-event dialog, required-field marks, delete-or-archive |
 | 15 | Partner Terms: versioned immutable agreement, per-venue acceptance records with legal identity and text hash, blocking re-acceptance gate, admin drafting/publishing, OTP layer with a null driver |
+| 16 | Commercial layer: per-venue offers, event terms snapshot with publish acknowledgement, service orders, the owner "Agreements & documents" page, the admin acceptance log |
 
-**441 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**461 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a
@@ -463,6 +488,13 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
 - **`DatabaseTruncation` commits; `RefreshDatabase` does not.** `OverbookingTest` needs committed
   rows so its forked processes can see them, so it truncates in `tearDown` as well. Without that it
   leaves rows behind and every later test's row counts depend on execution order.
+- **Validate before you persist.** The commercial acknowledgement was first
+  checked after `$event->save()`, so a refused submission still created the
+  event. `assertTermsAcknowledged()` now runs before the save and the test
+  asserts `Event::count()` is still zero.
+- **Inertia's `where()` uses strict comparison, and JSON has no `5.0`.** A
+  float that happens to be whole comes back as an int; assert `5`, not
+  `5.0`.
 - **The migration's placeholder owns version `1.0`.** A test that creates
   a version `1.0` hits the unique index; the factory numbers from `1.1`
   and tests that pick their own numbers use `5.x`.

@@ -51,7 +51,7 @@ class AgreementTest extends TestCase
             'legal_name' => 'Qanawat Hall LLC',
             'registration_number' => 'SY-12345',
             'representative_name' => 'Samer Haddad',
-            'representative_title' => 'Manager',
+            'representative_role' => 'manager',
             'representative_phone' => '0991234567',
             'accept' => '1',
             ...$overrides,
@@ -162,6 +162,11 @@ class AgreementTest extends TestCase
         $this->assertSame($version->content_hash, $acceptance->content_hash);
         $this->assertSame('none', $acceptance->otp_channel);
         $this->assertNull($acceptance->otp_verified_at);
+        $this->assertSame('manager', $acceptance->representative_role);
+        $this->assertSame($owner->email, $acceptance->email_snapshot);
+        $this->assertTrue($acceptance->authority_claimed);
+        // The factory account has a verified email, so the click stood on it.
+        $this->assertSame('clickwrap_verified_account', $acceptance->acceptance_method);
         $this->assertNotNull($acceptance->accepted_at);
         $this->assertNotNull($acceptance->ip);
 
@@ -188,8 +193,8 @@ class AgreementTest extends TestCase
             ->assertSessionHasErrors('accept');
 
         $this->actingAs($owner)
-            ->post('/owner/agreement', $this->acceptance($version, ['legal_name' => '', 'representative_phone' => 'nope']))
-            ->assertSessionHasErrors(['legal_name', 'representative_phone']);
+            ->post('/owner/agreement', $this->acceptance($version, ['legal_name' => '', 'representative_phone' => 'nope', 'representative_role' => 'ceo']))
+            ->assertSessionHasErrors(['legal_name', 'representative_phone', 'representative_role']);
 
         $this->assertSame(0, AgreementAcceptance::count());
     }
@@ -286,6 +291,32 @@ class AgreementTest extends TestCase
         $this->assertSame(1, AgreementAcceptance::where('agreement_version_id', $v1->id)->count());
 
         $this->assertDatabaseHas('audit_logs', ['action' => 'agreement_published']);
+
+        // Signing again is logged as a re-acceptance, and the old row stays.
+        $this->actingAs($owner)->post('/owner/agreement', $this->acceptance($v2->fresh()));
+        $this->assertDatabaseHas('audit_logs', ['action' => 'agreement_reaccepted']);
+        $this->assertSame(2, AgreementAcceptance::count());
+    }
+
+    public function test_a_wording_update_tells_but_does_not_block(): void
+    {
+        $v1 = AgreementVersion::factory()->published()->create(['version' => '6.0']);
+        $owner = $this->owner();
+        $this->actingAs($owner)->post('/owner/agreement', $this->acceptance($v1));
+
+        $v2 = AgreementVersion::factory()->create(['version' => '6.1', 'requires_reacceptance' => false]);
+        app(Agreements::class)->publish($v2, $this->admin());
+
+        $this->actingAs($owner)->get('/dashboard')->assertOk();
+        $this->actingAs($owner)
+            ->get('/owner/agreement')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('agreement.version', '6.1')
+                ->where('standing', true)
+                ->where('previous.version', '6.0'));
+
+        // A venue that never signed anything is still asked, wording fix or not.
+        $this->actingAs($this->owner())->get('/dashboard')->assertRedirect('/owner/agreement');
     }
 
     // ------------------------------------------------------------------
@@ -303,6 +334,7 @@ class AgreementTest extends TestCase
                 'title_en' => 'Terms',
                 'body_ar' => 'نص',
                 'body_en' => 'Text',
+                'requires_reacceptance' => '1',
             ])
             ->assertSessionHasNoErrors();
 
@@ -316,8 +348,10 @@ class AgreementTest extends TestCase
                 'title_en' => 'Terms',
                 'body_ar' => 'نص',
                 'body_en' => 'Final text',
+                'requires_reacceptance' => '0',
             ])
             ->assertSessionHasNoErrors();
+        $this->assertFalse($draft->fresh()->requires_reacceptance);
         $this->assertSame('Final text', $draft->fresh()->body_en);
 
         $this->actingAs($admin)->post("/admin/agreements/{$draft->id}/publish")->assertRedirect();
@@ -325,7 +359,7 @@ class AgreementTest extends TestCase
 
         // Editing after publishing is refused before the model even sees it.
         $this->actingAs($admin)
-            ->patch("/admin/agreements/{$draft->id}", ['version' => '1.1', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x'])
+            ->patch("/admin/agreements/{$draft->id}", ['version' => '1.1', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x', 'requires_reacceptance' => '1'])
             ->assertStatus(409);
         $this->actingAs($admin)->delete("/admin/agreements/{$draft->id}")->assertStatus(409);
 
@@ -353,11 +387,11 @@ class AgreementTest extends TestCase
         AgreementVersion::factory()->create(['version' => '3.0']);
 
         $this->actingAs($admin)
-            ->post('/admin/agreements', ['version' => '3.0', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x'])
+            ->post('/admin/agreements', ['version' => '3.0', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x', 'requires_reacceptance' => '1'])
             ->assertSessionHasErrors('version');
 
         $this->actingAs($admin)
-            ->post('/admin/agreements', ['version' => 'final', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x'])
+            ->post('/admin/agreements', ['version' => 'final', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x', 'requires_reacceptance' => '1'])
             ->assertSessionHasErrors('version');
     }
 
@@ -437,7 +471,7 @@ class AgreementTest extends TestCase
     public function test_the_audit_log_names_the_acts(): void
     {
         $admin = $this->admin();
-        $this->actingAs($admin)->post('/admin/agreements', ['version' => '9.0', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x']);
+        $this->actingAs($admin)->post('/admin/agreements', ['version' => '9.0', 'title_ar' => 'x', 'title_en' => 'x', 'body_ar' => 'x', 'body_en' => 'x', 'requires_reacceptance' => '1']);
         $draft = AgreementVersion::where('version', '9.0')->firstOrFail();
         $this->actingAs($admin)->delete("/admin/agreements/{$draft->id}");
 

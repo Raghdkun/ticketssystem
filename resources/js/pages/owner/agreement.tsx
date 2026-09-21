@@ -32,8 +32,9 @@ type Accepted = {
     accepted_at: string;
     legal_name: string;
     representative_name: string;
-    representative_title: string | null;
+    representative_role: string;
     representative_phone: string;
+    acceptance_method: string;
     otp_channel: string;
     content_hash: string;
 };
@@ -44,15 +45,18 @@ type Place = {
     legal_name: string | null;
     registration_number: string | null;
     representative_name: string | null;
-    representative_title: string | null;
+    representative_role: string | null;
     representative_phone: string | null;
 };
 
 type Props = {
-    agreement: Agreement | null;
+    agreement: (Agreement & { requires_reacceptance: boolean }) | null;
     accepted: Accepted | null;
     previous: { version: string; accepted_at: string } | null;
+    /** A wording-only update: the earlier acceptance still stands. */
+    standing: boolean;
     place: Place | null;
+    roles: string[];
     otp: { enabled: boolean; sent_to: string | null };
 };
 
@@ -72,7 +76,9 @@ export default function OwnerAgreement({
     agreement,
     accepted,
     previous,
+    standing,
     place,
+    roles,
     otp,
 }: Props) {
     const t = useTranslation();
@@ -133,9 +139,11 @@ export default function OwnerAgreement({
                             <p className="text-xs font-extrabold tracking-wide text-primary-text uppercase">
                                 {accepted
                                     ? t('agreement.accepted_title')
-                                    : previous
-                                      ? t('agreement.updated_title')
-                                      : t('agreement.gate_title')}
+                                    : standing
+                                      ? t('agreement.standing_title')
+                                      : previous
+                                        ? t('agreement.updated_title')
+                                        : t('agreement.gate_title')}
                             </p>
                             <h1 className="text-3xl font-extrabold">
                                 {localised(
@@ -164,6 +172,13 @@ export default function OwnerAgreement({
                                 <p className="max-w-[65ch] text-sm text-muted-foreground">
                                     {t('agreement.accepted_body', {
                                         version: agreement.version,
+                                    })}
+                                </p>
+                            ) : standing && previous ? (
+                                <p className="max-w-[65ch] text-sm text-muted-foreground">
+                                    {t('agreement.standing_body', {
+                                        version: agreement.version,
+                                        previous: previous.version,
                                     })}
                                 </p>
                             ) : previous ? (
@@ -227,6 +242,8 @@ export default function OwnerAgreement({
                                     agreement={agreement}
                                     place={place}
                                     placeName={placeName}
+                                    roles={roles}
+                                    reaccepting={previous !== null}
                                     otp={otp}
                                     phone={phone}
                                     onPhoneChange={setPhone}
@@ -275,11 +292,11 @@ function AcceptedRecord({
                 />
                 <Row
                     label={t('agreement.representative_name')}
-                    value={
-                        accepted.representative_title
-                            ? `${accepted.representative_name} · ${accepted.representative_title}`
-                            : accepted.representative_name
-                    }
+                    value={`${accepted.representative_name} · ${t(`agreement.roles.${accepted.representative_role}`)}`}
+                />
+                <Row
+                    label={t('agreement.method_label')}
+                    value={t(`agreement.method.${accepted.acceptance_method}`)}
                 />
                 <Row
                     label={t('agreement.representative_phone')}
@@ -344,6 +361,8 @@ function AcceptForm({
     agreement,
     place,
     placeName,
+    roles,
+    reaccepting,
     otp,
     phone,
     onPhoneChange,
@@ -351,6 +370,9 @@ function AcceptForm({
     agreement: Agreement;
     place: Place;
     placeName: string;
+    roles: string[];
+    /** A venue that signed an earlier version reads a shorter sentence. */
+    reaccepting: boolean;
     otp: Props['otp'];
     phone: string;
     onPhoneChange: (value: string) => void;
@@ -484,17 +506,29 @@ function AcceptForm({
                                 </Field>
 
                                 <Field
-                                    id="representative_title"
-                                    label={t('agreement.representative_title')}
-                                    error={errors.representative_title}
+                                    id="representative_role"
+                                    label={t('agreement.representative_role')}
+                                    error={errors.representative_role}
+                                    required
                                 >
-                                    <Input
-                                        id="representative_title"
-                                        name="representative_title"
+                                    <select
+                                        id="representative_role"
+                                        name="representative_role"
+                                        required
                                         defaultValue={
-                                            place.representative_title ?? ''
+                                            place.representative_role ?? ''
                                         }
-                                    />
+                                        className="min-h-11 rounded-md border border-input bg-input-background px-3 text-sm"
+                                    >
+                                        <option value="" disabled>
+                                            —
+                                        </option>
+                                        {roles.map((role) => (
+                                            <option key={role} value={role}>
+                                                {t(`agreement.roles.${role}`)}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </Field>
 
                                 <Field
@@ -554,11 +588,26 @@ function AcceptForm({
                                 }
                                 className="mt-0.5 cursor-pointer"
                             />
-                            <span>
-                                {t('agreement.accept_label', {
-                                    version: agreement.version,
-                                    place: placeName,
-                                })}
+                            <span className="space-y-1">
+                                <span className="block">
+                                    {reaccepting
+                                        ? t('agreement.reaccept_label')
+                                        : t('agreement.authority_label')}
+                                </span>
+                                <span className="block text-xs text-muted-foreground">
+                                    {t('agreement.accept_label', {
+                                        version: agreement.version,
+                                        place: placeName,
+                                    })}{' '}
+                                    <a
+                                        href="/privacy"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="underline underline-offset-4 hover:text-foreground"
+                                    >
+                                        {t('agreement.privacy')}
+                                    </a>
+                                </span>
                             </span>
                         </label>
                         <InputError message={errors.accept} />
@@ -570,7 +619,7 @@ function AcceptForm({
                                 disabled={processing || !ticked}
                             >
                                 {processing ? <Spinner /> : <ShieldCheck />}
-                                {t('agreement.accept_button')}
+                                {t('agreement.continue_button')}
                             </Button>
 
                             {/* Somebody who will not sign has a way out that

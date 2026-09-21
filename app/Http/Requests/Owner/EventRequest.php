@@ -92,6 +92,11 @@ class EventRequest extends FormRequest
             // means "just this one", which is what the select starts on.
             'repeat_cadence' => ['nullable', 'string', Rule::in(array_keys(RepeatEvent::CADENCES))],
             'repeat_count' => ['required_with:repeat_cadence', 'nullable', 'integer', 'min:1', 'max:'.RepeatEvent::MAX_COPIES],
+
+            // "I agree to publish under the commercial terms shown". Required
+            // by the controller, not here, because whether it is needed
+            // depends on the event and the venue.
+            'commercial_ack' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -104,7 +109,7 @@ class EventRequest extends FormRequest
     {
         return $this->safe()->except([
             'cover', 'rules', 'perks', 'unlimited', 'is_unlisted', 'auto_confirm',
-            'remove_cover', 'repeat_cadence', 'repeat_count',
+            'remove_cover', 'repeat_cadence', 'repeat_count', 'commercial_ack',
         ]);
     }
 }

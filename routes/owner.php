@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Owner\AgreementController;
+use App\Http\Controllers\Owner\CommercialOfferController;
+use App\Http\Controllers\Owner\DocumentsController;
 use App\Http\Controllers\Owner\DoorSheetController;
 use App\Http\Controllers\Owner\EventController;
 use App\Http\Controllers\Owner\EventMediaController;
@@ -10,6 +12,7 @@ use App\Http\Controllers\Owner\LocationController;
 use App\Http\Controllers\Owner\LocationImageController;
 use App\Http\Controllers\Owner\PlaceController;
 use App\Http\Controllers\Owner\PosterController;
+use App\Http\Controllers\Owner\ServiceOrderController;
 use App\Http\Controllers\Owner\StaffController;
 use App\Http\Controllers\Owner\TicketSearchController;
 use App\Http\Controllers\Owner\VerificationController;
@@ -30,6 +33,14 @@ Route::middleware(['auth', 'verified'])
         });
 
         Route::middleware([EnsureManagesVenue::class, EnsureAgreementAccepted::class])->group(function () {
+            // Agreements and documents: what this venue has signed.
+            Route::get('agreements', DocumentsController::class)->name('documents');
+            Route::get('commercial-offers/{offer}', [CommercialOfferController::class, 'show'])->name('offers.show');
+            Route::post('commercial-offers/{offer}/accept', [CommercialOfferController::class, 'accept'])->name('offers.accept');
+            Route::post('commercial-offers/{offer}/reject', [CommercialOfferController::class, 'reject'])->name('offers.reject');
+            Route::get('service-orders/{order}', [ServiceOrderController::class, 'show'])->name('orders.show');
+            Route::post('service-orders/{order}/accept', [ServiceOrderController::class, 'accept'])->name('orders.accept');
+
             Route::resource('events', EventController::class)->except(['show']);
             Route::post('events/{event}/repeat', [EventController::class, 'repeat'])->name('events.repeat');
 

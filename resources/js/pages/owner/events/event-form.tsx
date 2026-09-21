@@ -37,12 +37,24 @@ export type EventFormValues = {
     perks: EventPerk[];
 };
 
+export type CommercialSummary = {
+    /** Already frozen onto this event; shown, not asked about. */
+    frozen: boolean;
+    fee_type: string;
+    fee_value: number | null;
+    fee_payer: string;
+    settlement_days: number | null;
+    currency: string | null;
+};
+
 type Props = {
     /** Wayfinder form props, e.g. EventController.store.form() */
     action: Record<string, unknown>;
     values?: Partial<EventFormValues>;
     submitLabel: string;
     locations?: LocationOption[];
+    /** The venue's commercial terms, when it has accepted an offer. */
+    commercial?: CommercialSummary | null;
 };
 
 export type LocationOption = {
@@ -152,6 +164,7 @@ export default function EventForm({
     values,
     submitLabel,
     locations = [],
+    commercial = null,
 }: Props) {
     const t = useTranslation();
     const { locale } = useLocale();
@@ -169,6 +182,15 @@ export default function EventForm({
     const [status, setStatus] = useState(values?.status ?? 'draft');
 
     const isFree = Number(price) === 0;
+    // A paid event leaving draft goes out under the venue's commercial
+    // terms, and the owner confirms that here. Nothing to confirm without
+    // an accepted offer, for a free event, or once the terms are frozen.
+    const asksCommercial =
+        commercial !== null &&
+        !commercial.frozen &&
+        !isFree &&
+        status !== 'draft';
+    const [commercialAck, setCommercialAck] = useState(false);
 
     return (
         <Form
@@ -754,8 +776,94 @@ export default function EventForm({
                         </section>
                     </FormSection>
 
-                    <Button type="submit" disabled={processing}>
-                        {submitLabel}
+                    {commercial !== null && !isFree && status !== 'draft' && (
+                        <section className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+                            <div>
+                                <h2 className="text-sm font-extrabold">
+                                    {t('commercial.event_summary')}
+                                </h2>
+                                <p className="text-xs text-muted-foreground">
+                                    {commercial.frozen
+                                        ? t('commercial.event_frozen')
+                                        : t('commercial.event_hint')}
+                                </p>
+                            </div>
+
+                            <dl className="grid gap-2 text-sm sm:grid-cols-3">
+                                <div>
+                                    <dt className="text-xs text-muted-foreground">
+                                        {t('commercial.fee')}
+                                    </dt>
+                                    <dd className="font-medium tabular-nums">
+                                        {commercial.fee_type === 'percentage' &&
+                                        commercial.fee_value !== null
+                                            ? `${commercial.fee_value}%`
+                                            : commercial.fee_value !== null
+                                              ? `${commercial.fee_value} ${commercial.currency ?? ''}`
+                                              : t(
+                                                    `commercial.fee_types.${commercial.fee_type}`,
+                                                )}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt className="text-xs text-muted-foreground">
+                                        {t('commercial.fee_payer')}
+                                    </dt>
+                                    <dd className="font-medium">
+                                        {t(
+                                            `commercial.fee_payers.${commercial.fee_payer}`,
+                                        )}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt className="text-xs text-muted-foreground">
+                                        {t('commercial.settlement')}
+                                    </dt>
+                                    <dd className="font-medium">
+                                        {commercial.settlement_days === null
+                                            ? t('commercial.settlement_none')
+                                            : t('commercial.settlement_days', {
+                                                  n: commercial.settlement_days,
+                                              })}
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            {asksCommercial && (
+                                <>
+                                    <label
+                                        htmlFor="commercial_ack"
+                                        className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
+                                    >
+                                        <Checkbox
+                                            id="commercial_ack"
+                                            name="commercial_ack"
+                                            value="1"
+                                            checked={commercialAck}
+                                            onCheckedChange={(value) =>
+                                                setCommercialAck(value === true)
+                                            }
+                                            className="mt-0.5 cursor-pointer"
+                                        />
+                                        {t('commercial.ack_label')}
+                                    </label>
+                                    <InputError
+                                        message={errors.commercial_ack}
+                                    />
+                                </>
+                            )}
+                        </section>
+                    )}
+
+                    <Button
+                        type="submit"
+                        disabled={
+                            processing || (asksCommercial && !commercialAck)
+                        }
+                    >
+                        {asksCommercial
+                            ? t('commercial.publish_button')
+                            : submitLabel}
                     </Button>
                 </>
             )}

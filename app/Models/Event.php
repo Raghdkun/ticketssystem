@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Place $place
+ * @property-read EventCommercialSnapshot|null $commercialSnapshot
  */
 #[Fillable([
     'slug', 'location_id', 'title_ar', 'title_en', 'description_ar', 'description_en',
@@ -118,6 +120,12 @@ class Event extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    /** @return HasOne<EventCommercialSnapshot, $this> */
+    public function commercialSnapshot(): HasOne
+    {
+        return $this->hasOne(EventCommercialSnapshot::class);
     }
 
     /** @return HasMany<EventWatcher, $this> */

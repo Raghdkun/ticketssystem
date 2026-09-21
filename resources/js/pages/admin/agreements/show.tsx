@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
@@ -38,8 +39,9 @@ type Acceptance = {
     place_en: string;
     legal_name: string;
     representative_name: string;
-    representative_title: string | null;
+    representative_role: string;
     representative_phone: string;
+    acceptance_method: string;
     accepted_by: string | null;
     accepted_at: string;
     otp_channel: string;
@@ -226,6 +228,39 @@ export default function AdminAgreement({
                                         />
                                     </div>
                                 </div>
+
+                                <label className="flex min-h-11 items-start gap-3 text-sm">
+                                    {/* A wrapping label does not name a Radix
+                                        switch the way it names a native input. */}
+                                    <Switch
+                                        name="requires_reacceptance"
+                                        value="1"
+                                        defaultChecked={
+                                            agreement.requires_reacceptance
+                                        }
+                                        aria-label={t(
+                                            'agreement.admin.requires_reacceptance',
+                                        )}
+                                        className="mt-0.5"
+                                    />
+                                    <span>
+                                        <span className="block font-medium">
+                                            {t(
+                                                'agreement.admin.requires_reacceptance',
+                                            )}
+                                        </span>
+                                        <span className="block text-xs text-muted-foreground">
+                                            {t(
+                                                'agreement.admin.requires_reacceptance_hint',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
+                                <input
+                                    type="hidden"
+                                    name="requires_reacceptance"
+                                    value="0"
+                                />
 
                                 <div className="flex flex-wrap items-center gap-3">
                                     <Button type="submit" disabled={processing}>
@@ -436,11 +471,17 @@ export default function AdminAgreement({
                                                         {
                                                             acceptance.representative_name
                                                         }
-                                                        {acceptance.representative_title &&
-                                                            ` · ${acceptance.representative_title}`}
+                                                        {' · '}
+                                                        {t(
+                                                            `agreement.roles.${acceptance.representative_role}`,
+                                                        )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
                                                         {acceptance.accepted_by}
+                                                        {' · '}
+                                                        {t(
+                                                            `agreement.method.${acceptance.acceptance_method}`,
+                                                        )}
                                                     </p>
                                                 </td>
                                                 <td

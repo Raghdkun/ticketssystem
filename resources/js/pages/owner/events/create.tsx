@@ -3,12 +3,14 @@ import EventController from '@/actions/App/Http/Controllers/Owner/EventControlle
 import Heading from '@/components/heading';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
-import type { LocationOption } from './event-form';
+import type { CommercialSummary, LocationOption } from './event-form';
 
 export default function CreateEvent({
     locations,
+    commercial,
 }: {
     locations: LocationOption[];
+    commercial: CommercialSummary | null;
 }) {
     const t = useTranslation();
 
@@ -25,6 +27,7 @@ export default function CreateEvent({
 
                 <EventForm
                     locations={locations}
+                    commercial={commercial}
                     action={EventController.store.form()}
                     submitLabel={t('form.create')}
                 />

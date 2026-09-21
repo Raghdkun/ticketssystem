@@ -40,6 +40,8 @@ class AgreementController extends Controller
             : null;
         // The last thing this venue agreed to, for the "what changed" note.
         $previous = $place?->acceptances()->with('version')->latest('accepted_at')->first();
+        // A wording-only update leaves the earlier acceptance standing.
+        $standing = $current !== null && $accepted === null && $previous !== null && ! $current->requires_reacceptance;
 
         return Inertia::render('owner/agreement', [
             'agreement' => $current === null ? null : [
@@ -52,7 +54,9 @@ class AgreementController extends Controller
                 'change_note_ar' => $current->change_note_ar,
                 'change_note_en' => $current->change_note_en,
                 'published_at' => $current->published_at?->toIso8601String(),
+                'requires_reacceptance' => $current->requires_reacceptance,
             ],
+            'standing' => $standing,
             'accepted' => $accepted === null ? null : $this->acceptance($accepted),
             'previous' => $previous === null || $previous->agreement_version_id === $current?->id
                 ? null
@@ -63,9 +67,10 @@ class AgreementController extends Controller
                 'legal_name' => $place->legal_name,
                 'registration_number' => $place->registration_number,
                 'representative_name' => $place->representative_name,
-                'representative_title' => $place->representative_title,
+                'representative_role' => $place->representative_role,
                 'representative_phone' => $place->representative_phone,
             ],
+            'roles' => AgreementAcceptance::ROLES,
             'otp' => [
                 'enabled' => $this->otp->isEnabled(),
                 // Set by sendCode(), so the page knows to show the code field.
@@ -155,8 +160,9 @@ class AgreementController extends Controller
             'accepted_at' => $acceptance->accepted_at->toIso8601String(),
             'legal_name' => $acceptance->legal_name,
             'representative_name' => $acceptance->representative_name,
-            'representative_title' => $acceptance->representative_title,
+            'representative_role' => $acceptance->representative_role,
             'representative_phone' => $acceptance->representative_phone,
+            'acceptance_method' => $acceptance->acceptance_method,
             'otp_channel' => $acceptance->otp_channel,
             'content_hash' => $acceptance->content_hash,
         ];

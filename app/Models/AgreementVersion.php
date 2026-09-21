@@ -26,6 +26,7 @@ use LogicException;
  * @property string|null $change_note_ar
  * @property string|null $change_note_en
  * @property AgreementStatus $status
+ * @property bool $requires_reacceptance
  * @property string|null $content_hash
  * @property CarbonImmutable|null $published_at
  * @property int|null $published_by
@@ -36,7 +37,7 @@ use LogicException;
  */
 #[Fillable([
     'kind', 'version', 'title_ar', 'title_en', 'body_ar', 'body_en',
-    'change_note_ar', 'change_note_en',
+    'change_note_ar', 'change_note_en', 'requires_reacceptance',
 ])]
 class AgreementVersion extends Model
 {
@@ -53,7 +54,7 @@ class AgreementVersion extends Model
      */
     public const IMMUTABLE = [
         'kind', 'version', 'title_ar', 'title_en', 'body_ar', 'body_en',
-        'change_note_ar', 'change_note_en', 'content_hash', 'published_at', 'published_by',
+        'change_note_ar', 'change_note_en', 'requires_reacceptance', 'content_hash', 'published_at', 'published_by',
     ];
 
     /**
@@ -63,6 +64,7 @@ class AgreementVersion extends Model
     {
         return [
             'status' => AgreementStatus::class,
+            'requires_reacceptance' => 'boolean',
             'published_at' => 'datetime',
             'retired_at' => 'datetime',
         ];

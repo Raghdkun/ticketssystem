@@ -33,6 +33,9 @@ return new class extends Migration
             $table->text('change_note_ar')->nullable();
             $table->text('change_note_en')->nullable();
             $table->string('status', 16)->default('draft');
+            // A material change blocks every venue until they accept again;
+            // a wording fix is announced and nothing more.
+            $table->boolean('requires_reacceptance')->default(true);
             // SHA-256 of the published text. An acceptance carries the same
             // hash, which is how it proves what was shown.
             $table->string('content_hash', 64)->nullable();
@@ -59,8 +62,15 @@ return new class extends Migration
             $table->string('legal_name', 160);
             $table->string('registration_number', 80)->nullable();
             $table->string('representative_name', 120);
-            $table->string('representative_title', 80)->nullable();
+            $table->string('representative_role', 32);
             $table->string('representative_phone', 32);
+            $table->string('email_snapshot')->nullable();
+            // The checkbox text asserts authority to bind the organisation;
+            // the column records that the assertion was made.
+            $table->boolean('authority_claimed')->default(false);
+            // clickwrap, clickwrap_verified_account, clickwrap_otp: what
+            // stood behind the click.
+            $table->string('acceptance_method', 32)->default('clickwrap');
 
             $table->string('content_hash', 64);
             $table->string('locale', 2);
@@ -81,8 +91,8 @@ return new class extends Migration
             $table->string('legal_name', 160)->nullable()->after('name_en');
             $table->string('registration_number', 80)->nullable()->after('legal_name');
             $table->string('representative_name', 120)->nullable()->after('registration_number');
-            $table->string('representative_title', 80)->nullable()->after('representative_name');
-            $table->string('representative_phone', 32)->nullable()->after('representative_title');
+            $table->string('representative_role', 32)->nullable()->after('representative_name');
+            $table->string('representative_phone', 32)->nullable()->after('representative_role');
         });
 
         // A first version to edit, as a draft. Nothing is enforced until an
@@ -91,8 +101,8 @@ return new class extends Migration
         DB::table('agreement_versions')->insert([
             'kind' => 'partner_terms',
             'version' => '1.0',
-            'title_ar' => 'شروط الشراكة',
-            'title_en' => 'Partner Terms',
+            'title_ar' => 'اتفاقية استخدام وشراكة منصة ناس',
+            'title_en' => 'Nas Platform Terms of Use and Partnership',
             'body_ar' => "نص مؤقت. استبدله بشروط الشراكة الفعلية قبل النشر.\n\nهذه الاتفاقية بين المنصة والجهة المشغّلة للمكان. تحدد ما تقدمه المنصة، وما يلتزم به الشريك، وكيف تُعالج الحجوزات والدفع في المكان.",
             'body_en' => "Placeholder text. Replace it with the real Partner Terms before publishing.\n\nThis agreement is between the platform and the organisation operating a venue. It sets out what the platform provides, what the partner undertakes, and how bookings and payment at the venue are handled.",
             'status' => 'draft',
@@ -106,7 +116,7 @@ return new class extends Migration
         Schema::table('places', function (Blueprint $table) {
             $table->dropColumn([
                 'legal_name', 'registration_number', 'representative_name',
-                'representative_title', 'representative_phone',
+                'representative_role', 'representative_phone',
             ]);
         });
 
