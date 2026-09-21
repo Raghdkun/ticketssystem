@@ -94,7 +94,10 @@ final class VerifyTicket
 
             // Re-checking in with a different arrival count is a correction,
             // not a duplicate, so only an identical no-op is short-circuited.
-            $isCorrection = $to === TicketStatus::Paid && $note !== null;
+            // A ticket confirmed on booking is already Paid but has never
+            // been at the door, so its first scan is a check-in, not a repeat.
+            $isCorrection = $to === TicketStatus::Paid
+                && ($note !== null || $locked->verified_at === null);
 
             if ($locked->status === $to && ! $isCorrection) {
                 return $locked;

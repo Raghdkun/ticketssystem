@@ -131,6 +131,29 @@ realtime status flip.
     to everyone in Syria as 22:00. `APP_TIMEZONE` defaults to Damascus and
     `TimezoneTest` asserts a typed time comes back as the same wall-clock
     time.
+21. **A null capacity is "as many as turn up".** `events.total_quantity`
+    is nullable; null means no seat count, no sold-out state, no waiting
+    list and no fill rate. `seatsRemaining()` returns null and every
+    consumer decides what that means for it, rather than a huge number
+    that would render. Zero was never a valid capacity, so null is
+    unambiguous.
+22. **Unlisted is a listing rule, not a status.** `events.is_unlisted`
+    keeps an event published and bookable at its own URL and off every
+    listing: `Event::listed()` is folded into `listable()` and `ended()`,
+    the venue page adds it, the sitemap goes through `listable()`, and the
+    page sends `noindex`. A new listing that forgets the scope is the only
+    way to leak one.
+23. **A free event may confirm on booking.** `events.auto_confirm` only
+    takes effect while the price is zero (`autoConfirms()`); the ticket is
+    created Paid with no hold and `verified_at` null, and the door's first
+    scan is a check-in rather than a no-op — `VerifyTicket` treats
+    Paid-with-no-verification as unseen.
+24. **Deleting an event people hold tickets for archives it instead.** A
+    ticket is a record on somebody's phone and a line in a report.
+    `EventController::destroy` counts paid and still-held bookings; with
+    any, the event goes to Archived, otherwise it is deleted with its cover
+    and media files. The edit page words the control from the same count,
+    so the owner knows which will happen before confirming.
 ---
 
 ## Repository map
@@ -192,8 +215,9 @@ realtime status flip.
 | 11 | Rotating notification copy, hold reminders, waiting list, holder self-release, repeatable events, home listing filters, collapsible event form, first-run checklist, one numeral rule |
 | 12 | Whole-app accessibility and i18n sweep: an `h1` on every screen, tap-target floors that actually apply, Arabic-Indic digits out of the catalogue, the last untranslated strings |
 | 13 | Rebrand to ناس / Nas: wordmark + disc, cream/ink/orange tokens with a derived dark theme, Cairo committed and self-hosted, region-neutral copy, opt-in heritage mood in the poster prompt |
+| 14 | Owner feedback: cover removal, unlimited capacity, confirm-on-booking for free events, unlisted events, repeat from the form, saved-event dialog, required-field marks, delete-or-archive |
 
-**392 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
+**419 tests**, PHPStan clean, Lighthouse mobile 100 on accessibility / SEO /
 agentic browsing. Best practices scores 96 **against the dev server only** —
 the sole deduction is a cookie warning on a `localhost:5173` request for
 Leaflet's stylesheet, which does not exist once Vite has built. Audit a
@@ -405,6 +429,20 @@ no vendor to migrate off. Both the owner's picker and the public sheet share
 - **`DatabaseTruncation` commits; `RefreshDatabase` does not.** `OverbookingTest` needs committed
   rows so its forked processes can see them, so it truncates in `tearDown` as well. Without that it
   leaves rows behind and every later test's row counts depend on execution order.
+- **`null <= 0` is `true` in JavaScript.** When `seats_remaining` became
+  nullable, every `soldOut = seats_remaining <= 0` on the client silently
+  read an unlimited event as sold out. Each check is now `!== null &&`.
+- **`assertSessionHas('key', null)` cannot pass.** It goes through `has()`,
+  which treats a null value as absent. Assert with a closure over the
+  parent key instead.
+- **A Radix `Checkbox` submits only when it has a `name`**, through a
+  hidden input it renders itself, and only when ticked. The server reads
+  those with `boolean()`; filling them from the validated set would leave
+  the old value in place when the box is unticked.
+- **The saved-event dialog is derived state, not an effect.** The flash
+  lives one request; the dialog is open while the payload exists and is
+  not the one dismissed. `react-hooks/set-state-in-effect` refuses the
+  `useEffect` + `setState` version.
 - **`disabled` does nothing on a shadcn `Button asChild`** that renders an anchor — the control still
   navigates. Do not render the action at all when it is not permitted.
 - **The sidebar pins with physical `left-0`/`right-0`** from its `side` prop while its spacer follows

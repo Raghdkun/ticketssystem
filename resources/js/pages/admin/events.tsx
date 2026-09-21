@@ -15,7 +15,7 @@ type AdminEvent = {
     status: string;
     starts_at: string;
     tickets_count: number;
-    total_quantity: number;
+    total_quantity: number | null;
     place: { name_ar: string; name_en: string };
 };
 

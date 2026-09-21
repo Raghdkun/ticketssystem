@@ -26,13 +26,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $promo_video_id
  * @property string $price
  * @property string $currency
- * @property int $total_quantity
+ * @property int|null $total_quantity Null means unlimited.
  * @property int $max_per_appointment
  * @property int $hold_hours
  * @property CarbonImmutable $starts_at
  * @property CarbonImmutable|null $ends_at
  * @property CarbonImmutable $appointments_close_at
  * @property EventStatus $status
+ * @property bool $is_unlisted
+ * @property bool $auto_confirm
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Place $place
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'slug', 'location_id', 'title_ar', 'title_en', 'description_ar', 'description_en',
     'price', 'currency', 'total_quantity', 'max_per_appointment', 'hold_hours',
     'starts_at', 'ends_at', 'appointments_close_at', 'status',
+    'is_unlisted', 'auto_confirm',
 ])]
 class Event extends Model
 {
@@ -59,6 +62,8 @@ class Event extends Model
             'ends_at' => 'datetime',
             'appointments_close_at' => 'datetime',
             'status' => EventStatus::class,
+            'is_unlisted' => 'boolean',
+            'auto_confirm' => 'boolean',
         ];
     }
 
@@ -130,6 +135,20 @@ class Event extends Model
     }
 
     /**
+     * Events that may appear in any listing.
+     *
+     * An unlisted event is still published -- its page renders and it takes
+     * bookings -- but it is reached by its link alone. Every listing goes
+     * through here, so a new listing cannot forget the rule.
+     *
+     * @param  Builder<Event>  $query
+     */
+    public function scopeListed(Builder $query): void
+    {
+        $query->where('is_unlisted', false);
+    }
+
+    /**
      * Events that have not happened yet, whether or not booking is still open.
      *
      * The public listing used to drop an event the moment its booking window
@@ -142,7 +161,7 @@ class Event extends Model
      */
     public function scopeListable(Builder $query): void
     {
-        $query->published()->where(function (Builder $query) {
+        $query->published()->listed()->where(function (Builder $query) {
             $query->where('ends_at', '>', now())
                 ->orWhere(function (Builder $query) {
                     $query->whereNull('ends_at')
@@ -163,7 +182,7 @@ class Event extends Model
      */
     public function scopeEnded(Builder $query): void
     {
-        $query->published()->where(function (Builder $query) {
+        $query->published()->listed()->where(function (Builder $query) {
             $query->where('ends_at', '<=', now())
                 ->orWhere(function (Builder $query) {
                     $query->whereNull('ends_at')
@@ -199,9 +218,48 @@ class Event extends Model
         return (int) $this->tickets()->holdingSeats()->sum('quantity');
     }
 
-    public function seatsRemaining(): int
+    /**
+     * Seats still free, or null when the event has no capacity at all.
+     *
+     * Null rather than a very large number: a count that is not there should
+     * not render, and every caller has to decide what "unlimited" means for
+     * it -- no sold-out state, no waiting list, no fill percentage.
+     */
+    public function seatsRemaining(): ?int
     {
+        if ($this->total_quantity === null) {
+            return null;
+        }
+
         return max(0, $this->total_quantity - $this->seatsTaken());
+    }
+
+    public function isUnlimited(): bool
+    {
+        return $this->total_quantity === null;
+    }
+
+    /**
+     * Whether the seats are there for a booking of this size.
+     */
+    public function hasSeatsFor(int $quantity): bool
+    {
+        $remaining = $this->seatsRemaining();
+
+        return $remaining === null || $quantity <= $remaining;
+    }
+
+    /**
+     * Whether a booking is confirmed the moment it is made.
+     *
+     * Only a free event may do this: there is nothing to pay, so a hold that
+     * expires for non-payment would be a hold that expires for nothing. The
+     * flag is stored regardless so a price change does not lose the choice,
+     * but it only takes effect while the event is free.
+     */
+    public function autoConfirms(): bool
+    {
+        return $this->auto_confirm && $this->isFree();
     }
 
     /**

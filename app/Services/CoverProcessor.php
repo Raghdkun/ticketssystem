@@ -32,6 +32,23 @@ final class CoverProcessor
     private const DISK = 'public';
 
     /**
+     * Take the cover away again, files and all.
+     *
+     * A published event may outlive its artwork -- a sponsor pulls out, a
+     * photo turns out not to be the venue's to use -- and the only way to
+     * remove one was to upload another. The event renders without a cover
+     * everywhere, so nothing else needs to know.
+     */
+    public function remove(Event $event): void
+    {
+        Storage::disk(self::DISK)->deleteDirectory("events/{$event->id}");
+
+        $event->cover_path = null;
+        $event->cover_variants = null;
+        $event->save();
+    }
+
+    /**
      * Generate variants + palette for an event from raw image bytes.
      */
     public function process(Event $event, string $contents): void

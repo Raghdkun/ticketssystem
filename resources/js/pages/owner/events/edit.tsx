@@ -5,6 +5,7 @@ import { EventQrCard } from '@/components/event-qr-card';
 import Heading from '@/components/heading';
 import { MediaManager } from '@/components/media-manager';
 import type { MediaItem } from '@/components/media-manager';
+import { DeleteEvent } from '@/components/owner/delete-event';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/lib/translation';
 import EventForm from './event-form';
@@ -13,9 +14,11 @@ import type { EventFormValues, LocationOption } from './event-form';
 type Props = {
     event: EventFormValues & { id: number; media: MediaItem[] };
     locations: LocationOption[];
+    /** Paid or still-held bookings: what deleting would take with it. */
+    holders: number;
 };
 
-export default function EditEvent({ event, locations }: Props) {
+export default function EditEvent({ event, locations, holders }: Props) {
     const t = useTranslation();
 
     return (
@@ -46,6 +49,13 @@ export default function EditEvent({ event, locations }: Props) {
                 </Button>
 
                 <MediaManager eventId={event.id} media={event.media} />
+
+                <DeleteEvent
+                    eventId={event.id}
+                    title={event.title_en}
+                    holders={holders}
+                    archived={event.status === 'archived'}
+                />
             </div>
         </>
     );

@@ -1,9 +1,17 @@
 import { Head, Link } from '@inertiajs/react';
-import { BarChart3, ImageIcon, Plus, Printer, Sparkles } from 'lucide-react';
+import {
+    BarChart3,
+    EyeOff,
+    ImageIcon,
+    Plus,
+    Printer,
+    Sparkles,
+} from 'lucide-react';
 import EventController from '@/actions/App/Http/Controllers/Owner/EventController';
 import Heading from '@/components/heading';
 import { Stagger, StaggerItem } from '@/components/motion/stagger';
 import { RepeatEvent } from '@/components/owner/repeat-event';
+import { SavedEventDialog } from '@/components/owner/saved-event-dialog';
 import { Button } from '@/components/ui/button';
 import { dateTag } from '@/lib/format';
 import { localised, useLocale } from '@/lib/locale';
@@ -15,8 +23,9 @@ type EventRow = {
     title_ar: string;
     title_en: string;
     status: string;
+    is_unlisted: boolean;
     starts_at: string;
-    total_quantity: number;
+    total_quantity: number | null;
     seats_taken: number;
     tickets_count: number;
     cover: string | null;
@@ -30,6 +39,7 @@ type Props = {
         published: number;
         draft: number;
         pending_review: number;
+        archived: number;
     };
     filter: string;
 };
@@ -39,6 +49,7 @@ const FILTERS = [
     { key: 'published', label: 'event.status.published' },
     { key: 'draft', label: 'event.status.draft' },
     { key: 'pending_review', label: 'event.status.pending_review' },
+    { key: 'archived', label: 'event.status.archived' },
 ] as const;
 
 /**
@@ -70,6 +81,8 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
     return (
         <>
             <Head title={t('owner.events')} />
+
+            <SavedEventDialog />
 
             <div className="flex flex-col gap-6 p-4">
                 <div className="flex flex-wrap items-end justify-between gap-4">
@@ -145,14 +158,21 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                         {events.map((event) => {
                             const draft = event.status === 'draft';
                             const awaiting = event.status === 'pending_review';
-                            const pct = Math.min(
-                                100,
-                                Math.round(
-                                    (event.seats_taken /
-                                        Math.max(1, event.total_quantity)) *
-                                        100,
-                                ),
-                            );
+                            // No capacity, no percentage.
+                            const pct =
+                                event.total_quantity === null
+                                    ? null
+                                    : Math.min(
+                                          100,
+                                          Math.round(
+                                              (event.seats_taken /
+                                                  Math.max(
+                                                      1,
+                                                      event.total_quantity,
+                                                  )) *
+                                                  100,
+                                          ),
+                                      );
                             const date = new Date(
                                 event.starts_at,
                             ).toLocaleDateString(dateLocale, {
@@ -182,13 +202,24 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                 />
                                             )}
 
-                                            <span className="absolute start-3 top-3">
+                                            <span className="absolute start-3 top-3 flex flex-wrap gap-1.5">
                                                 <StatusChip
                                                     status={event.status}
                                                     label={t(
                                                         `event.status.${event.status}`,
                                                     )}
                                                 />
+                                                {event.is_unlisted && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-card/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
+                                                        <EyeOff
+                                                            className="size-3"
+                                                            aria-hidden="true"
+                                                        />
+                                                        {t(
+                                                            'owner.unlisted_badge',
+                                                        )}
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
 
@@ -225,35 +256,58 @@ export default function EventsIndex({ place, events, counts, filter }: Props) {
                                                 </p>
                                             ) : draft ? (
                                                 <p className="mt-auto pt-2 text-xs text-muted-foreground">
-                                                    {t('owner.draft_meta', {
-                                                        n: event.total_quantity,
-                                                        date,
-                                                    })}
+                                                    {event.total_quantity ===
+                                                    null
+                                                        ? t(
+                                                              'owner.draft_meta_unlimited',
+                                                              { date },
+                                                          )
+                                                        : t(
+                                                              'owner.draft_meta',
+                                                              {
+                                                                  n: event.total_quantity,
+                                                                  date,
+                                                              },
+                                                          )}
                                                 </p>
                                             ) : (
                                                 <div className="mt-auto pt-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                                                            <div
-                                                                className="h-full rounded-full"
-                                                                style={{
-                                                                    width: `${pct}%`,
-                                                                    backgroundColor:
-                                                                        'var(--primary)',
-                                                                }}
-                                                            />
+                                                    {pct !== null && (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                                                <div
+                                                                    className="h-full rounded-full"
+                                                                    style={{
+                                                                        width: `${pct}%`,
+                                                                        backgroundColor:
+                                                                            'var(--primary)',
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs font-semibold tabular-nums">
+                                                                {pct}%
+                                                            </span>
                                                         </div>
-                                                        <span className="text-xs font-semibold tabular-nums">
-                                                            {pct}%
-                                                        </span>
-                                                    </div>
+                                                    )}
 
                                                     <p className="mt-1.5 text-xs text-muted-foreground">
-                                                        {t('owner.seats_meta', {
-                                                            taken: event.seats_taken,
-                                                            total: event.total_quantity,
-                                                            date,
-                                                        })}
+                                                        {event.total_quantity ===
+                                                        null
+                                                            ? t(
+                                                                  'owner.seats_meta_unlimited',
+                                                                  {
+                                                                      taken: event.seats_taken,
+                                                                      date,
+                                                                  },
+                                                              )
+                                                            : t(
+                                                                  'owner.seats_meta',
+                                                                  {
+                                                                      taken: event.seats_taken,
+                                                                      total: event.total_quantity,
+                                                                      date,
+                                                                  },
+                                                              )}
                                                     </p>
                                                 </div>
                                             )}

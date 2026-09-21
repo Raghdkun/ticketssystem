@@ -14,20 +14,24 @@ type Report = {
     by_status: Record<string, { bookings: number; seats: number }>;
     totals: {
         bookings: number;
-        seats_capacity: number;
+        seats_capacity: number | null;
         seats_booked: number;
         seats_paid: number;
         seats_arrived: number;
-        seats_remaining: number;
+        seats_remaining: number | null;
     };
     money: {
         currency: string;
         price: number;
         collected: number;
         outstanding: number;
-        potential: number;
+        potential: number | null;
     };
-    rates: { attendance: number; fill: number; no_show_bookings: number };
+    rates: {
+        attendance: number;
+        fill: number | null;
+        no_show_bookings: number;
+    };
 };
 
 type Props = {
@@ -54,7 +58,8 @@ function Metric({
     tone,
 }: {
     label: string;
-    value: number;
+    /** A word where a figure does not exist, e.g. an event with no capacity. */
+    value: number | string;
     suffix?: string;
     tone?: string;
 }) {
@@ -62,7 +67,7 @@ function Metric({
         <StaggerItem className="rounded-xl border bg-card p-4 transition-colors hover:border-primary/40">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone ?? ''}`}>
-                <Counter value={value} />
+                {typeof value === 'number' ? <Counter value={value} /> : value}
                 {suffix && (
                     <span className="ms-1 text-sm font-medium">{suffix}</span>
                 )}
@@ -105,7 +110,9 @@ export default function EventReportPage({ event, report, waiting }: Props) {
                 <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <Metric
                         label={t('owner.capacity')}
-                        value={report.totals.seats_capacity}
+                        value={
+                            report.totals.seats_capacity ?? t('event.unlimited')
+                        }
                     />
                     <Metric
                         label={t('owner.booked')}
@@ -120,11 +127,13 @@ export default function EventReportPage({ event, report, waiting }: Props) {
                         value={report.rates.no_show_bookings}
                         tone="text-orange-600 dark:text-orange-400"
                     />
-                    <Metric
-                        label={t('owner.fill_rate')}
-                        value={report.rates.fill}
-                        suffix="%"
-                    />
+                    {report.rates.fill !== null && (
+                        <Metric
+                            label={t('owner.fill_rate')}
+                            value={report.rates.fill}
+                            suffix="%"
+                        />
+                    )}
                     <Metric
                         label={t('owner.attendance_rate')}
                         value={report.rates.attendance}

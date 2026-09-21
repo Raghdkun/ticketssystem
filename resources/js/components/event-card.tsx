@@ -14,7 +14,8 @@ export type ListedEvent = {
     is_free: boolean;
     price: number;
     currency: string;
-    seats_remaining: number;
+    /** Null when the event has no seat limit. */
+    seats_remaining: number | null;
     /** Booking window still open. An event stays listed until it ends. */
     is_open: boolean;
     /** Already happened; shown only as a record, never as an offer. */
@@ -37,7 +38,8 @@ export function EventCard({
 }) {
     const { locale } = useLocale();
     const t = useTranslation();
-    const soldOut = event.seats_remaining <= 0;
+    const soldOut =
+        event.seats_remaining !== null && event.seats_remaining <= 0;
     const closed = !event.is_open;
     const ended = event.ended === true;
 
@@ -111,9 +113,11 @@ export function EventCard({
                           ? t('home.booking_closed')
                           : soldOut
                             ? t('home.sold_out')
-                            : t('home.seats_left', {
-                                  n: event.seats_remaining,
-                              })}
+                            : event.seats_remaining === null
+                              ? t('home.booking_open')
+                              : t('home.seats_left', {
+                                    n: event.seats_remaining,
+                                })}
                 </p>
             </div>
         </Link>

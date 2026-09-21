@@ -6,4 +6,5 @@ return [
     'updated' => 'Event updated.',
     'deleted' => 'Event deleted.',
     'repeated' => 'Created :count draft copies. Review the dates before publishing.',
+    'archived_instead' => 'People hold tickets for this event, so it was archived rather than deleted. Their tickets stay valid.',
 ];

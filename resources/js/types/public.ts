@@ -54,7 +54,11 @@ export type PublicEvent = {
     ends_at: string | null;
     appointments_close_at: string;
     cover: EventCover;
-    seats_remaining: number;
+    /** Null when the event has no seat limit. */
+    seats_remaining: number | null;
+    is_unlimited: boolean;
+    /** Reached by its link alone; the page tells crawlers so. */
+    is_unlisted: boolean;
     is_open: boolean;
     max_per_appointment: number;
     rules: PublicEventRule[];

@@ -71,6 +71,10 @@ final class EventPresenter
             // address. Null when neither has been filled in.
             'location' => $event->resolvedLocation()?->forPublic(),
             'seats_remaining' => $event->seatsRemaining(),
+            'is_unlimited' => $event->isUnlimited(),
+            // Reached by its link alone. The page says so to crawlers; the
+            // listings never had it to begin with.
+            'is_unlisted' => $event->is_unlisted,
             'is_open' => $event->isOpenForAppointments(),
             'max_per_appointment' => $event->max_per_appointment,
             'rules' => $event->rules->map(fn (EventRule $rule) => [

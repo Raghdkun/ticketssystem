@@ -25,6 +25,7 @@ class PlaceController extends Controller
 
         $events = $place->events()
             ->published()
+            ->listed()
             ->with('location')
             ->orderBy('starts_at')
             ->get();

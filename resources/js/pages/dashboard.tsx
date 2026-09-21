@@ -56,7 +56,7 @@ type Upcoming = {
     title_en: string;
     starts_at: string;
     is_draft: boolean;
-    total_quantity: number;
+    total_quantity: number | null;
     seats_taken: number;
 };
 
@@ -385,22 +385,27 @@ export default function Dashboard({
                         ) : (
                             <ul className="space-y-2">
                                 {upcoming.map((event) => {
-                                    const left = Math.max(
-                                        0,
-                                        event.total_quantity -
-                                            event.seats_taken,
-                                    );
-                                    const pct = Math.min(
-                                        100,
-                                        Math.round(
-                                            (event.seats_taken /
-                                                Math.max(
-                                                    1,
-                                                    event.total_quantity,
-                                                )) *
-                                                100,
-                                        ),
-                                    );
+                                    // No capacity, no percentage: there is
+                                    // nothing to be a fraction of.
+                                    const total = event.total_quantity;
+                                    const left =
+                                        total === null
+                                            ? null
+                                            : Math.max(
+                                                  0,
+                                                  total - event.seats_taken,
+                                              );
+                                    const pct =
+                                        total === null
+                                            ? null
+                                            : Math.min(
+                                                  100,
+                                                  Math.round(
+                                                      (event.seats_taken /
+                                                          Math.max(1, total)) *
+                                                          100,
+                                                  ),
+                                              );
 
                                     return (
                                         <li key={event.id}>
@@ -428,45 +433,59 @@ export default function Dashboard({
                                                                     'medium',
                                                             },
                                                         )}
-                                                        {!event.is_draft && (
-                                                            <span className="font-semibold text-foreground tabular-nums">
-                                                                {pct}%
-                                                            </span>
-                                                        )}
+                                                        {!event.is_draft &&
+                                                            pct !== null && (
+                                                                <span className="font-semibold text-foreground tabular-nums">
+                                                                    {pct}%
+                                                                </span>
+                                                            )}
                                                     </span>
                                                 </div>
 
                                                 {event.is_draft ? (
                                                     <p className="mt-2 text-xs text-muted-foreground">
-                                                        {t(
-                                                            'dash.not_published',
-                                                            {
-                                                                n: event.total_quantity,
-                                                            },
-                                                        )}
+                                                        {total === null
+                                                            ? t(
+                                                                  'dash.not_published_unlimited',
+                                                              )
+                                                            : t(
+                                                                  'dash.not_published',
+                                                                  { n: total },
+                                                              )}
                                                     </p>
                                                 ) : (
                                                     <>
-                                                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                                                            <div
-                                                                className="h-full rounded-full transition-[width] duration-500"
-                                                                style={{
-                                                                    width: `${pct}%`,
-                                                                    backgroundColor:
-                                                                        'var(--primary)',
-                                                                }}
-                                                            />
-                                                        </div>
+                                                        {pct !== null && (
+                                                            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                                                                <div
+                                                                    className="h-full rounded-full transition-[width] duration-500"
+                                                                    style={{
+                                                                        width: `${pct}%`,
+                                                                        backgroundColor:
+                                                                            'var(--primary)',
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
 
                                                         <p className="mt-1 text-xs text-muted-foreground">
-                                                            {t(
-                                                                'dash.of_total',
-                                                                {
-                                                                    taken: event.seats_taken,
-                                                                    total: event.total_quantity,
-                                                                    left,
-                                                                },
-                                                            )}
+                                                            {total === null
+                                                                ? t(
+                                                                      'dash.of_total_unlimited',
+                                                                      {
+                                                                          taken: event.seats_taken,
+                                                                      },
+                                                                  )
+                                                                : t(
+                                                                      'dash.of_total',
+                                                                      {
+                                                                          taken: event.seats_taken,
+                                                                          total,
+                                                                          left:
+                                                                              left ??
+                                                                              0,
+                                                                      },
+                                                                  )}
                                                         </p>
                                                     </>
                                                 )}

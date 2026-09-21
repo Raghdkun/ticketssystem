@@ -68,4 +68,25 @@ class EventFactory extends Factory
     {
         return $this->state(fn () => ['total_quantity' => 1]);
     }
+
+    /**
+     * No seat limit at all.
+     */
+    public function unlimited(): static
+    {
+        return $this->state(fn () => ['total_quantity' => null]);
+    }
+
+    public function unlisted(): static
+    {
+        return $this->state(fn () => ['is_unlisted' => true]);
+    }
+
+    /**
+     * Free, and confirmed the moment somebody books.
+     */
+    public function autoConfirming(): static
+    {
+        return $this->state(fn () => ['price' => 0, 'auto_confirm' => true]);
+    }
 }

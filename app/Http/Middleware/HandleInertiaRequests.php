@@ -104,6 +104,15 @@ class HandleInertiaRequests extends Middleware
             $flash['invitation_link'] = $link;
         }
 
+        // What just happened to an event the owner saved: which state it
+        // landed in and where it can be seen. Drives the confirmation dialog
+        // on the events list, which a toast was too easy to miss for.
+        $saved = $request->session()->get('saved_event');
+
+        if (is_array($saved)) {
+            $flash['saved_event'] = $saved;
+        }
+
         return $flash;
     }
 

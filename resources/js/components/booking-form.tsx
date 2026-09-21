@@ -42,7 +42,8 @@ export function BookingForm({
     const { locale } = useLocale();
     const t = useTranslation();
 
-    const soldOut = event.seats_remaining <= 0;
+    const soldOut =
+        event.seats_remaining !== null && event.seats_remaining <= 0;
     const allRulesAccepted = event.rules.every((rule) =>
         accepted.includes(rule.id),
     );
@@ -151,10 +152,17 @@ export function BookingForm({
                                 <Stepper
                                     value={quantity}
                                     onChange={onQuantityChange}
-                                    max={Math.min(
-                                        event.max_per_appointment,
-                                        Math.max(event.seats_remaining, 1),
-                                    )}
+                                    max={
+                                        event.seats_remaining === null
+                                            ? event.max_per_appointment
+                                            : Math.min(
+                                                  event.max_per_appointment,
+                                                  Math.max(
+                                                      event.seats_remaining,
+                                                      1,
+                                                  ),
+                                              )
+                                    }
                                     name="quantity"
                                     label={t('event.people')}
                                 />

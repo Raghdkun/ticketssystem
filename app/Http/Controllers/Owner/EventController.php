@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Owner;
 use App\Actions\PublishEvent;
 use App\Actions\RepeatEvent;
 use App\Enums\EventStatus;
+use App\Enums\TicketStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\EventRequest;
 use App\Models\Event;
 use App\Models\Location;
 use App\Models\Place;
 use App\Services\CoverProcessor;
+use App\Services\MediaLibrary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -19,7 +21,10 @@ use Inertia\Response;
 
 class EventController extends Controller
 {
-    public function __construct(private readonly CoverProcessor $covers) {}
+    public function __construct(
+        private readonly CoverProcessor $covers,
+        private readonly MediaLibrary $library,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -31,7 +36,7 @@ class EventController extends Controller
             return Inertia::render('owner/events/index', [
                 'place' => null,
                 'events' => [],
-                'counts' => ['all' => 0, 'published' => 0, 'draft' => 0, 'pending_review' => 0],
+                'counts' => ['all' => 0, 'published' => 0, 'draft' => 0, 'pending_review' => 0, 'archived' => 0],
                 'filter' => 'all',
             ]);
         }
@@ -44,10 +49,11 @@ class EventController extends Controller
             'published' => $place->events()->where('status', EventStatus::Published)->count(),
             'draft' => $place->events()->where('status', EventStatus::Draft)->count(),
             'pending_review' => $place->events()->where('status', EventStatus::PendingReview)->count(),
+            'archived' => $place->events()->where('status', EventStatus::Archived)->count(),
         ];
 
         $filter = $request->query('status');
-        $filter = in_array($filter, ['published', 'draft', 'pending_review'], true) ? $filter : 'all';
+        $filter = in_array($filter, ['published', 'draft', 'pending_review', 'archived'], true) ? $filter : 'all';
 
         $events = $place->events()
             ->when($filter !== 'all', fn ($query) => $query->where('status', $filter))
@@ -60,6 +66,7 @@ class EventController extends Controller
                 'title_ar' => $event->title_ar,
                 'title_en' => $event->title_en,
                 'status' => $event->status->value,
+                'is_unlisted' => $event->is_unlisted,
                 'starts_at' => $event->starts_at->toIso8601String(),
                 'total_quantity' => $event->total_quantity,
                 'seats_taken' => $event->seatsTaken(),
@@ -86,14 +93,15 @@ class EventController extends Controller
         ]);
     }
 
-    public function store(EventRequest $request, PublishEvent $publisher): RedirectResponse
+    public function store(EventRequest $request, PublishEvent $publisher, RepeatEvent $repeat): RedirectResponse
     {
         $place = $this->place($request);
 
         abort_if($place === null, 403, 'No venue is linked to this account.');
 
-        $event = new Event($request->safe()->except(['cover', 'rules', 'perks']));
+        $event = new Event($request->eventAttributes());
         $event->place_id = $place->id;
+        $this->applyOptions($event, $request);
         // An owner on the approval tier asking to publish gets pending review
         // instead, which the public scope does not match.
         $event->status = $publisher->resolve($request->user(), $event->status);
@@ -104,7 +112,7 @@ class EventController extends Controller
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
-        return $this->afterSave($event, __('events.created'));
+        return $this->afterSave($event, $this->repeatFromForm($event, $request, $repeat));
     }
 
     public function edit(Request $request, Event $event): Response
@@ -120,6 +128,8 @@ class EventController extends Controller
                 ]),
                 'price' => (float) $event->price,
                 'status' => $event->status->value,
+                'is_unlisted' => $event->is_unlisted,
+                'auto_confirm' => $event->auto_confirm,
                 'starts_at' => $event->starts_at->format('Y-m-d\TH:i'),
                 'ends_at' => $event->ends_at?->format('Y-m-d\TH:i'),
                 'appointments_close_at' => $event->appointments_close_at->format('Y-m-d\TH:i'),
@@ -134,14 +144,19 @@ class EventController extends Controller
                     'is_promo' => $event->promo_video_id === $m->id,
                 ])->all(),
             ],
+            // What deleting would take with it. The form words its
+            // confirmation from this: an event people hold tickets for is
+            // archived, not erased.
+            'holders' => $this->holders($event),
         ]);
     }
 
-    public function update(EventRequest $request, Event $event, PublishEvent $publisher): RedirectResponse
+    public function update(EventRequest $request, Event $event, PublishEvent $publisher, RepeatEvent $repeat): RedirectResponse
     {
         $this->authorize('update', $event);
 
-        $event->fill($request->safe()->except(['cover', 'rules', 'perks']));
+        $event->fill($request->eventAttributes());
+        $this->applyOptions($event, $request);
 
         // Edits to an event that is already live stay live: the gate is on
         // becoming public, not on every subsequent correction. An owner
@@ -159,25 +174,75 @@ class EventController extends Controller
         $this->syncPerks($event, $request->input('perks', []));
         $this->storeCover($event, $request);
 
-        return $this->afterSave($event, __('events.updated'));
+        return $this->afterSave($event, $this->repeatFromForm($event, $request, $repeat));
     }
 
     /**
-     * Back to the list, with a message that matches what happened.
+     * Back to the list, with a dialog that says what happened.
      *
-     * "Event created" is the wrong thing to tell an owner whose event was
-     * parked for review instead of published: they read it as done, tell
-     * people to book, and nothing is public. The parked case gets its own
-     * message, in the warning tone, so the difference is impossible to miss.
+     * "Event created" was the wrong thing to tell an owner whose event was
+     * parked for review instead of published: they read it as done, told
+     * people to book, and nothing was public. A toast, in any tone, was too
+     * easy to miss for a distinction that matters this much, so the list
+     * opens a dialog naming the state the event landed in -- and, when it is
+     * live, a link to the page people will see.
      */
-    private function afterSave(Event $event, string $saved): RedirectResponse
+    private function afterSave(Event $event, int $copies): RedirectResponse
     {
-        if ($event->status === EventStatus::PendingReview) {
-            return to_route('owner.events.index')
-                ->with('warning', __('events.sent_for_review'));
+        return to_route('owner.events.index')->with('saved_event', [
+            'status' => $event->status->value,
+            'title_ar' => $event->title_ar,
+            'title_en' => $event->title_en,
+            'url' => $event->status === EventStatus::Published
+                ? route('events.show', [$event->place, $event])
+                : null,
+            // By link only: the link above is the whole point, and the
+            // dialog must not say it is on the home page.
+            'unlisted' => $event->is_unlisted,
+            'copies' => $copies,
+        ]);
+    }
+
+    /**
+     * The checkbox options, read explicitly: an unticked box is absent from
+     * the request, and filling from the safe set would leave the old value.
+     * Confirming on booking only means anything for a free event; the flag
+     * is kept regardless so a price set back to zero restores the choice.
+     */
+    private function applyOptions(Event $event, EventRequest $request): void
+    {
+        $event->is_unlisted = $request->boolean('is_unlisted');
+        $event->auto_confirm = $request->boolean('auto_confirm');
+
+        if ($request->boolean('unlimited')) {
+            $event->total_quantity = null;
+        }
+    }
+
+    /**
+     * The repeat options that ride along with the form.
+     *
+     * @return int How many copies were made.
+     */
+    private function repeatFromForm(Event $event, EventRequest $request, RepeatEvent $repeat): int
+    {
+        $cadence = $request->input('repeat_cadence');
+
+        if (! is_string($cadence) || $cadence === '') {
+            return 0;
         }
 
-        return to_route('owner.events.index')->with('success', $saved);
+        return $repeat->handle($event, $cadence, (int) $request->input('repeat_count', 1))->count();
+    }
+
+    /**
+     * Bookings that would be lost with the event: paid, or still held.
+     */
+    private function holders(Event $event): int
+    {
+        return $event->tickets()
+            ->whereIn('status', [TicketStatus::Paid, TicketStatus::Pending])
+            ->count();
     }
 
     /**
@@ -201,10 +266,31 @@ class EventController extends Controller
             ->with('success', __('events.repeated', ['count' => $copies->count()]));
     }
 
+    /**
+     * Delete an event -- or, when people hold tickets for it, archive it.
+     *
+     * A ticket is a record on somebody's phone and a line in a report.
+     * Deleting the event would take both with it, so an event with paid or
+     * still-held bookings is archived instead: off every listing, out of the
+     * owner's way, and the tickets stay what they were. Everything else is
+     * removed for real, files included.
+     */
     public function destroy(Request $request, Event $event): RedirectResponse
     {
         $this->authorize('delete', $event);
 
+        if ($this->holders($event) > 0) {
+            $event->update(['status' => EventStatus::Archived]);
+
+            return to_route('owner.events.index')
+                ->with('warning', __('events.archived_instead'));
+        }
+
+        foreach ($event->media as $medium) {
+            $this->library->delete($medium);
+        }
+
+        $this->covers->remove($event);
         $event->delete();
 
         return to_route('owner.events.index')
@@ -233,7 +319,13 @@ class EventController extends Controller
     {
         $cover = $request->file('cover');
 
+        // A new file wins over the remove box: uploading is the clearer
+        // intent of the two, and the old files go either way.
         if ($cover === null) {
+            if ($request->boolean('remove_cover') && $event->cover_path !== null) {
+                $this->covers->remove($event);
+            }
+
             return;
         }
 

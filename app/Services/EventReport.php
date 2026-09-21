@@ -60,12 +60,16 @@ final class EventReport
                 'price' => $price,
                 'collected' => $collected,
                 'outstanding' => $outstanding,
-                'potential' => $price * $event->total_quantity,
+                // Null when there is no capacity: there is no "if every seat
+                // sold" figure for an event with no seats to count.
+                'potential' => $event->total_quantity === null ? null : $price * $event->total_quantity,
             ],
             'rates' => [
                 // Of the seats that were paid for, how many walked in.
                 'attendance' => $seatsPaid > 0 ? round($seatsArrived / $seatsPaid * 100) : 0,
-                'fill' => $event->total_quantity > 0 ? round($seatsBooked / $event->total_quantity * 100) : 0,
+                'fill' => $event->total_quantity === null
+                    ? null
+                    : ($event->total_quantity > 0 ? round($seatsBooked / $event->total_quantity * 100) : 0),
                 'no_show_bookings' => $unattended->count(),
             ],
         ];

@@ -22,7 +22,7 @@ type Props = {
         title_ar: string;
         title_en: string;
         starts_at: string;
-        total_quantity: number;
+        total_quantity: number | null;
         price: number;
         currency: string;
         is_free: boolean;

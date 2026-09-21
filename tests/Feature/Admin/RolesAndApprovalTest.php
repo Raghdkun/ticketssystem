@@ -270,6 +270,7 @@ class RolesAndApprovalTest extends TestCase
     /**
      * An owner whose publish was parked must be told so, in so many words.
      * "Event created" reads as done; nothing is public until an admin acts.
+     * The list opens a dialog from this payload, naming the state.
      */
     public function test_an_approval_tier_owner_is_told_their_event_went_to_review(): void
     {
@@ -278,8 +279,7 @@ class RolesAndApprovalTest extends TestCase
         $this->actingAs($owner)
             ->post(route('owner.events.store'), $this->eventPayload(['status' => 'published']))
             ->assertRedirect(route('owner.events.index'))
-            ->assertSessionHas('warning', __('events.sent_for_review'))
-            ->assertSessionMissing('success');
+            ->assertSessionHas('saved_event', fn (array $saved) => $saved['status'] === 'pending_review' && $saved['url'] === null);
 
         $this->actingAs($owner)
             ->get(route('owner.events.index'))
@@ -289,13 +289,19 @@ class RolesAndApprovalTest extends TestCase
                 ->where('events.0.status', 'pending_review'));
     }
 
-    public function test_an_owner_who_can_publish_directly_is_told_it_was_created(): void
+    public function test_an_owner_who_can_publish_directly_is_told_it_is_live(): void
     {
         $owner = $this->owner();
 
         $this->actingAs($owner)
             ->post(route('owner.events.store'), $this->eventPayload(['status' => 'published']))
-            ->assertSessionHas('success', __('events.created'))
-            ->assertSessionMissing('warning');
+            ->assertSessionHas('saved_event.status', 'published');
+
+        $event = Event::query()->latest('id')->firstOrFail();
+
+        $this->assertSame(
+            route('events.show', [$event->place, $event]),
+            session('saved_event.url'),
+        );
     }
 }

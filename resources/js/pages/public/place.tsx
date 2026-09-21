@@ -20,7 +20,7 @@ type EventCard = {
     cover: string | null;
     price: number;
     currency: string;
-    seats_remaining: number;
+    seats_remaining: number | null;
     is_open: boolean;
     location: string | null;
 };
@@ -84,11 +84,13 @@ export default function PlacePage({ place, locations, upcoming, past }: Props) {
                         {event.price > 0
                             ? `${event.price.toLocaleString('en-US')} ${event.currency}`
                             : t('event.free')}
-                        {!dim && event.seats_remaining <= 0 && (
-                            <span className="ms-2 text-xs text-muted-foreground">
-                                {t('home.sold_out')}
-                            </span>
-                        )}
+                        {!dim &&
+                            event.seats_remaining !== null &&
+                            event.seats_remaining <= 0 && (
+                                <span className="ms-2 text-xs text-muted-foreground">
+                                    {t('home.sold_out')}
+                                </span>
+                            )}
                     </p>
                 </div>
             </Link>

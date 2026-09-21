@@ -49,10 +49,10 @@ final class AppointTicket
 
             $this->assertRulesAccepted($locked, $acceptedRuleIds);
 
-            $remaining = $locked->seatsRemaining();
-
-            if ($quantity > $remaining) {
-                throw AppointmentException::soldOut($remaining);
+            // An event with no capacity never sells out; every other one is
+            // checked against what is left under the lock.
+            if (! $locked->hasSeatsFor($quantity)) {
+                throw AppointmentException::soldOut((int) $locked->seatsRemaining());
             }
 
             $ticket = new Ticket([
@@ -61,10 +61,15 @@ final class AppointTicket
                 'quantity' => $quantity,
             ]);
 
+            // A free event that confirms on the spot skips the hold: there
+            // is nothing to pay, so the ticket is good the moment it exists.
+            // It is still unverified -- the door stamps that when they arrive.
+            $confirmed = $locked->autoConfirms();
+
             $ticket->event_id = $locked->id;
             $ticket->public_token = Ticket::generateToken();
-            $ticket->status = TicketStatus::Pending;
-            $ticket->hold_expires_at = now()->addHours($locked->hold_hours);
+            $ticket->status = $confirmed ? TicketStatus::Paid : TicketStatus::Pending;
+            $ticket->hold_expires_at = $confirmed ? null : now()->addHours($locked->hold_hours);
             $ticket->accepted_rules_at = now();
             $ticket->accepted_rule_ids = $acceptedRuleIds;
             $ticket->locale = $locale;
@@ -72,8 +77,8 @@ final class AppointTicket
 
             $ticket->statusLogs()->create([
                 'from_status' => null,
-                'to_status' => TicketStatus::Pending->value,
-                'note' => 'appointed',
+                'to_status' => $ticket->status->value,
+                'note' => $confirmed ? 'confirmed on booking (free event)' : 'appointed',
             ]);
 
             TicketStatusChanged::dispatch($ticket);

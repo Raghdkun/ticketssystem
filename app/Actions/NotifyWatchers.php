@@ -23,19 +23,22 @@ final class NotifyWatchers
      */
     public function __invoke(Event $event): int
     {
+        $remaining = $event->seatsRemaining();
+
         // Nothing to offer, or nothing anyone could do with it.
-        if (! $event->isOpenForAppointments() || $event->seatsRemaining() < 1) {
+        if (! $event->isOpenForAppointments() || ($remaining !== null && $remaining < 1)) {
             return 0;
         }
 
         $told = 0;
 
         // Only as many people as there are seats: telling forty people about
-        // one returned seat is a race the other thirty-nine lose.
+        // one returned seat is a race the other thirty-nine lose. An event
+        // whose capacity was lifted has room for the whole queue.
         $event->watchers()
             ->waiting()
             ->orderBy('id')
-            ->limit($event->seatsRemaining())
+            ->when($remaining !== null, fn ($query) => $query->limit($remaining))
             ->get()
             ->each(function (EventWatcher $watcher) use ($event, &$told) {
                 // The event is already in hand; without this the sender

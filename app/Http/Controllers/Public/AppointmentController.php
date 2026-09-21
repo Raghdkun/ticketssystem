@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Actions\AppointTicket;
 use App\Enums\EventStatus;
+use App\Enums\TicketStatus;
 use App\Exceptions\AppointmentException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\AppointTicketRequest;
@@ -35,6 +36,10 @@ class AppointmentController extends Controller
             return back()->withInput()->withErrors(['quantity' => __($e->getMessage())]);
         }
 
-        return to_route('tickets.show', $ticket)->with('success', __('tickets.appointed'));
+        // A free event that confirms on booking has nothing left to pay, so
+        // "show it at the venue to complete payment" would be wrong twice.
+        return to_route('tickets.show', $ticket)->with('success', $ticket->status === TicketStatus::Paid
+            ? __('tickets.confirmed')
+            : __('tickets.appointed'));
     }
 }

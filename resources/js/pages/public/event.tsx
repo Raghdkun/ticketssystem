@@ -46,7 +46,8 @@ export default function EventPage({ event, place, siblings }: Props) {
         event.description_en,
     );
     const placeName = localised(locale, place.name_ar, place.name_en);
-    const soldOut = event.seats_remaining <= 0;
+    const soldOut =
+        event.seats_remaining !== null && event.seats_remaining <= 0;
 
     const shareUrl =
         typeof window === 'undefined' ? '' : window.location.href.split('?')[0];
@@ -67,6 +68,9 @@ export default function EventPage({ event, place, siblings }: Props) {
                         description ? description.slice(0, 140) : ''
                     }`.trim()}
                 />
+                {/* Unlisted means by link only, and a crawler is not a
+                    link. The listings never had it; the page says so. */}
+                {event.is_unlisted && <meta name="robots" content="noindex" />}
             </Head>
 
             <FlashToaster />
@@ -115,13 +119,14 @@ export default function EventPage({ event, place, siblings }: Props) {
                         <div className="mx-auto w-full max-w-6xl p-5 pe-16 sm:p-8 sm:pe-20">
                             <div className="min-w-0">
                                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                                    {!soldOut && (
-                                        <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-xs font-extrabold text-primary-foreground">
-                                            {t('event.seats_only', {
-                                                n: event.seats_remaining,
-                                            })}
-                                        </span>
-                                    )}
+                                    {!soldOut &&
+                                        event.seats_remaining !== null && (
+                                            <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-xs font-extrabold text-primary-foreground">
+                                                {t('event.seats_only', {
+                                                    n: event.seats_remaining,
+                                                })}
+                                            </span>
+                                        )}
                                     <span className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
                                         {t('event.pay_at_venue')}
                                     </span>
@@ -196,7 +201,9 @@ export default function EventPage({ event, place, siblings }: Props) {
                             <p className="font-medium">
                                 {soldOut
                                     ? t('event.sold_out')
-                                    : event.seats_remaining}
+                                    : event.seats_remaining === null
+                                      ? t('event.unlimited')
+                                      : event.seats_remaining}
                             </p>
                         </div>
                     </section>
@@ -287,9 +294,11 @@ export default function EventPage({ event, place, siblings }: Props) {
                         <p className="truncate text-xs text-muted-foreground">
                             {soldOut
                                 ? t('event.sold_out')
-                                : t('home.seats_left', {
-                                      n: event.seats_remaining,
-                                  })}
+                                : event.seats_remaining === null
+                                  ? t('home.booking_open')
+                                  : t('home.seats_left', {
+                                        n: event.seats_remaining,
+                                    })}
                         </p>
                     </div>
 

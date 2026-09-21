@@ -2,6 +2,7 @@
 
 return [
     'appointed' => 'Your ticket is reserved. Show it at the venue to pay.',
+    'confirmed' => 'Your seat is confirmed. Show this ticket at the door.',
     'released' => 'Your seats have been released. Thank you for letting the venue know.',
     'release_too_late' => 'This booking can no longer be released.',
     'watching' => 'You are on the list. We will let you know if a seat opens up.',
